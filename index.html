@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>リフトログ</title>
+<meta name="description" content="筋トレの種目・重量・回数を記録するアプリ">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#eceff4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0e1116" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="リフトログ">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<style>
+/* Layout: one narrow column like a training notebook; segmented tabs stick to the top, numbers set in condensed plate-stamp type. */
+:root {
+  --bg: #eceff4;
+  --surface: #ffffff;
+  --ink: #161b24;
+  --muted: #5b6474;
+  --line: #d3d9e2;
+  --accent: #1d4db8;      /* 20kg plate blue */
+  --accent-soft: #e2e9f8;
+  --accent-ink: #ffffff;
+  --pr: #c42f28;          /* 25kg plate red */
+  --pr-soft: #fbe6e4;
+  --font-display: "Barlow Condensed", "Arial Narrow", "Zen Kaku Gothic New", sans-serif;
+  --font-body: "Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", system-ui, sans-serif;
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1116; --surface: #171b23; --ink: #e6e9ef; --muted: #98a1b2; --line: #2a303c;
+    --accent: #7298ff; --accent-soft: #1c2742; --accent-ink: #0a0f1d; --pr: #ff6a5e; --pr-soft: #3a1b1a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1116; --surface: #171b23; --ink: #e6e9ef; --muted: #98a1b2; --line: #2a303c;
+  --accent: #7298ff; --accent-soft: #1c2742; --accent-ink: #0a0f1d; --pr: #ff6a5e; --pr-soft: #3a1b1a;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+:root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; }
+[hidden] { display: none !important; }
+body {
+  margin: 0;
+  background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 48px;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.wrap { max-width: 680px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+.num { font-family: var(--font-display); font-variant-numeric: tabular-nums; letter-spacing: .01em; }
+
+.top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding-top: 20px; }
+.brand { font-family: var(--font-display); font-weight: 700; font-size: 34px; letter-spacing: .04em; line-height: 1; margin: 0; }
+.brand span { color: var(--accent); }
+.status { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+.status::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--muted); }
+.status.sync::before { background: var(--accent); }
+
+.tabs { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); padding-block: 8px; }
+.seg { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 4px; gap: 4px; }
+.seg button { border: 0; background: transparent; color: var(--muted); font: 700 14px var(--font-body); padding: 9px 4px; border-radius: 999px; cursor: pointer; }
+.seg button[aria-selected="true"] { background: var(--ink); color: var(--bg); }
+
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+.stat { background: var(--surface); padding: 12px 14px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.stat .k { font-size: 11px; color: var(--muted); letter-spacing: .06em; }
+.stat .v { font-family: var(--font-display); font-weight: 600; font-size: 28px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.stat .v small { font-size: 14px; color: var(--muted); font-weight: 500; margin-left: 2px; }
+
+h2 { font-size: 13px; letter-spacing: .1em; color: var(--muted); margin: 0; font-weight: 700; }
+.view { display: flex; flex-direction: column; gap: 16px; }
+
+label.field { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); font-weight: 500; }
+input, textarea, select {
+  font: 500 16px var(--font-body); color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 8px; padding: 9px 10px; width: 100%; min-width: 0;
+}
+input:focus-visible, textarea:focus-visible, select:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+textarea { min-height: 72px; resize: vertical; }
+.daterow { display: flex; gap: 12px; align-items: end; flex-wrap: wrap; }
+.daterow .field { flex: 0 1 200px; }
+.editing { font-size: 12px; font-weight: 700; color: var(--accent); background: var(--accent-soft); padding: 4px 10px; border-radius: 999px; }
+
+.ex { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.ex-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.ex-head h3 { margin: 0; font-size: 17px; }
+.prev { margin: 0; font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
+.prev .num { font-size: 15px; color: var(--ink); }
+.setgrid { display: grid; grid-template-columns: 34px 1fr 1fr 36px; gap: 6px 8px; align-items: center; }
+.setgrid .h { font-size: 11px; color: var(--muted); letter-spacing: .06em; }
+.setno { font-family: var(--font-display); font-weight: 600; font-size: 18px; color: var(--muted); text-align: center; }
+.setgrid input { font-family: var(--font-display); font-size: 20px; font-weight: 600; text-align: center; padding: 6px; font-variant-numeric: tabular-nums; }
+
+button { font-family: var(--font-body); }
+.btn { border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-weight: 700; font-size: 14px; padding: 9px 14px; border-radius: 8px; cursor: pointer; }
+.btn:hover { border-color: var(--muted); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.small { font-size: 12px; padding: 5px 10px; }
+.btn.danger { color: var(--pr); }
+.btn.armed { background: var(--pr); border-color: var(--pr); color: var(--surface); }
+.icon-btn { border: 0; background: transparent; color: var(--muted); font-size: 20px; line-height: 1; padding: 6px; cursor: pointer; border-radius: 6px; }
+.icon-btn:hover { color: var(--pr); }
+.link { border: 0; background: none; color: var(--accent); font-weight: 700; font-size: 13px; padding: 0; cursor: pointer; }
+
+.picker { border: 1px dashed var(--line); border-radius: var(--radius); padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 6px 12px; font-size: 13px; font-weight: 500; cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.chip.add::before { content: "＋ "; color: var(--accent); }
+.custom { display: flex; gap: 8px; }
+.actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.actions .primary { flex: 1 1 200px; padding: 13px; font-size: 16px; }
+.empty { color: var(--muted); font-size: 14px; margin: 0; }
+
+.month { font-family: var(--font-display); font-weight: 600; font-size: 20px; letter-spacing: .04em; margin: 8px 0 -6px; }
+.day { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+.day-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.day-date { font-weight: 700; font-size: 16px; display: flex; gap: 8px; align-items: center; }
+.day-meta { font-size: 12px; color: var(--muted); }
+.day ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.day li { display: grid; grid-template-columns: minmax(0, 9em) 1fr; gap: 10px; align-items: baseline; }
+.day li b { font-weight: 500; font-size: 14px; }
+.day li .num { font-size: 16px; overflow-wrap: anywhere; }
+.memo { margin: 0; font-size: 13px; color: var(--muted); white-space: pre-wrap; border-left: 2px solid var(--line); padding-left: 10px; }
+.day-foot { display: flex; gap: 8px; justify-content: flex-end; }
+.badge { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+.badge.pr { background: var(--pr-soft); color: var(--pr); }
+.badge.sample { background: var(--accent-soft); color: var(--accent); }
+.notice { background: var(--accent-soft); border-radius: var(--radius); padding: 10px 14px; font-size: 13px; display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+
+.prog-ctrl { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; }
+.prog-ctrl .field { flex: 1 1 220px; }
+.seg.small { grid-template-columns: repeat(3, auto); display: inline-grid; }
+.seg.small button { padding: 7px 12px; font-size: 13px; }
+.chart { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 6px 4px; }
+.chart svg { display: block; width: 100%; height: auto; }
+.chart .grid { stroke: var(--line); stroke-width: 1; }
+.chart .lbl { fill: var(--muted); font: 500 12px var(--font-display); }
+.chart .line { fill: none; stroke: var(--accent); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+.chart .area { fill: var(--accent); opacity: .1; }
+.chart .pt { fill: var(--surface); stroke: var(--accent); stroke-width: 2; }
+.chart .pt.best { fill: var(--pr); stroke: var(--pr); }
+.chart .end { fill: var(--ink); font: 700 15px var(--font-display); }
+.pbs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.pb { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 12px; min-width: 0; }
+.pb .k { font-size: 11px; color: var(--muted); }
+.pb .v { font-family: var(--font-display); font-size: 24px; font-weight: 600; line-height: 1.2; }
+.pb .d { font-size: 11px; color: var(--muted); }
+.note { font-size: 12px; color: var(--muted); margin: 0; }
+
+.toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 10px 18px; border-radius: 999px; font-size: 14px; font-weight: 700; z-index: 20; transition: opacity .2s; }
+.toast.hide { opacity: 0; pointer-events: none; }
+
+.backup { display: flex; flex-direction: column; gap: 10px; border-top: 1px solid var(--line); padding-top: 16px; margin-top: 8px; }
+.backup .actions { gap: 8px; }
+
+@media (max-width: 460px) {
+  .stat .v { font-size: 24px; }
+  .pbs { grid-template-columns: 1fr 1fr; }
+  .day li { grid-template-columns: 1fr; gap: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .toast { transition: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1 class="brand">LIFT<span>LOG</span></h1>
+    <div class="status">この端末に保存</div>
+  </header>
+
+  <section class="stats" aria-label="今週のまとめ">
+    <div class="stat"><span class="k">今週のトレーニング</span><span class="v" id="s-week">0<small>回</small></span></div>
+    <div class="stat"><span class="k">今週のボリューム</span><span class="v" id="s-vol">0<small>kg</small></span></div>
+    <div class="stat"><span class="k">累計</span><span class="v" id="s-total">0<small>日</small></span></div>
+  </section>
+
+  <nav class="tabs">
+    <div class="seg" role="tablist">
+      <button role="tab" id="tab-log" data-tab="log">記録する</button>
+      <button role="tab" id="tab-history" data-tab="history">履歴</button>
+      <button role="tab" id="tab-progress" data-tab="progress">推移</button>
+    </div>
+  </nav>
+
+  <!-- 記録 -->
+  <section class="view" id="view-log">
+    <div class="daterow">
+      <label class="field">日付<input type="date" id="f-date"></label>
+      <span id="edit-flag" class="editing" hidden>過去の記録を編集中</span>
+    </div>
+    <div id="ex-list" class="view"></div>
+    <div class="picker">
+      <h2>種目を追加</h2>
+      <div class="chips" id="parts"></div>
+      <div class="chips" id="presets"></div>
+      <form class="custom" id="custom-form">
+        <input id="f-custom" placeholder="その他の種目名" aria-label="その他の種目名">
+        <button class="btn" type="submit">追加</button>
+      </form>
+    </div>
+    <label class="field">メモ<textarea id="f-memo" placeholder="調子、睡眠、フォームの気づきなど"></textarea></label>
+    <div class="actions">
+      <button class="btn primary" id="btn-save">記録を保存</button>
+      <button class="btn" id="btn-clear">入力をクリア</button>
+    </div>
+  </section>
+
+  <!-- 履歴 -->
+  <section class="view" id="view-history-wrap" hidden>
+    <div id="view-history" class="view"></div>
+    <div class="backup">
+      <h2>バックアップ</h2>
+      <p class="note">記録はこの端末の中だけに保存されます。機種変更の前や、ときどきの控えとしてファイルに書き出しておいてください。読み込むと、同じ記録は上書きされ、それ以外は追加されます。</p>
+      <div class="actions">
+        <button class="btn small" id="btn-export">ファイルに書き出す</button>
+        <button class="btn small" id="btn-import">ファイルから読み込む</button>
+        <input type="file" id="f-import" accept="application/json,.json" hidden>
+      </div>
+    </div>
+  </section>
+
+  <!-- 推移 -->
+  <section class="view" id="view-progress" hidden>
+    <div class="prog-ctrl">
+      <label class="field">種目<select id="f-ex"></select></label>
+      <div class="seg small" id="metric">
+        <button data-m="e1rm">推定1RM</button>
+        <button data-m="max">最大重量</button>
+        <button data-m="vol">ボリューム</button>
+      </div>
+    </div>
+    <div id="prog-body" class="view"></div>
+  </section>
+</div>
+<div id="toast" class="toast hide" role="status"></div>
+
+<script>
+const PRESETS = {
+  "胸": ["ベンチプレス", "インクラインベンチプレス", "ダンベルプレス", "ダンベルフライ", "ディップス", "腕立て伏せ"],
+  "背中": ["デッドリフト", "懸垂", "ラットプルダウン", "ベントオーバーロウ", "シーテッドロウ"],
+  "脚": ["スクワット", "レッグプレス", "ルーマニアンデッドリフト", "レッグカール", "レッグエクステンション", "カーフレイズ"],
+  "肩": ["ショルダープレス", "サイドレイズ", "リアレイズ", "フェイスプル"],
+  "腕": ["バーベルカール", "ハンマーカール", "プレスダウン", "フレンチプレス"],
+  "腹": ["クランチ", "アブローラー", "ハンギングレッグレイズ"]
+};
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const ls = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+};
+const ymd = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+const today = () => ymd(new Date());
+const parseD = s => new Date(s + "T00:00:00");
+const fmtDate = s => { const d = parseD(s); return `${d.getMonth() + 1}/${d.getDate()}（${"日月火水木金土"[d.getDay()]}）`; };
+const fmtShort = s => { const d = parseD(s); return `${d.getMonth() + 1}/${d.getDate()}`; };
+const fmtN = n => Math.round(n).toLocaleString("ja-JP");
+const fmtW = n => String(Math.round(n * 10) / 10);
+const e1rm = (w, r) => r <= 0 || w <= 0 ? 0 : (r === 1 ? w : w * (1 + r / 30));
+const exVol = e => e.sets.reduce((a, s) => a + (+s.w || 0) * (+s.r || 0), 0);
+const wVol = w => w.exercises.reduce((a, e) => a + exVol(e), 0);
+const setsText = sets => sets.map(s => (+s.w ? fmtW(+s.w) + "×" : "自重×") + (+s.r || 0)).join(" · ");
+const newId = () => "w-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+
+let workouts = [];
+const ui = { tab: ls.get("liftlog.tab", "log"), part: "胸", ex: null, metric: ls.get("liftlog.metric", "e1rm") };
+const blankDraft = () => ({ id: null, date: today(), exercises: [], memo: "" });
+let draft = ls.get("liftlog.draft", null) || blankDraft();
+const saveDraft = () => ls.set("liftlog.draft", draft);
+
+/* ---------- 保存先：この端末（localStorage） ---------- */
+const localAll = () => ls.get("liftlog.workouts", {});
+function setWorkouts(list) {
+  workouts = list.sort((a, b) => b.date.localeCompare(a.date) || (b.createdAt || 0) - (a.createdAt || 0));
+  renderData();
+}
+function loadLocal() { setWorkouts(Object.entries(localAll()).map(([id, v]) => ({ ...v, id }))); }
+function writeAll(all) {
+  try { localStorage.setItem("liftlog.workouts", JSON.stringify(all)); }
+  catch { throw { code: "storage" }; }
+}
+async function putWorkout(id, data) { const all = localAll(); all[id] = data; writeAll(all); loadLocal(); }
+async function removeWorkout(id) { const all = localAll(); delete all[id]; writeAll(all); loadLocal(); }
+
+// 初回起動時だけ見本の記録を入れる（履歴の「サンプルを削除」で消せる）
+function seedSamples() {
+  if (ls.get("liftlog.seeded", false)) return;
+  ls.set("liftlog.seeded", true);
+  if (Object.keys(localAll()).length) return;
+  const day = n => { const d = new Date(); d.setDate(d.getDate() - n); return ymd(d); };
+  const S = (name, ...sets) => ({ name, sets: sets.map(([w, r]) => ({ w, r })) });
+  const list = [
+    [12, [S("ベンチプレス", [60, 10], [60, 8], [55, 10]), S("ダンベルフライ", [12, 12], [12, 10]), S("ディップス", [0, 12], [0, 10])], ""],
+    [10, [S("スクワット", [80, 8], [80, 8], [80, 6]), S("レッグカール", [35, 12], [35, 12])], "腰に違和感なし"],
+    [8, [S("懸垂", [0, 8], [0, 7], [0, 6]), S("ベントオーバーロウ", [50, 10], [50, 10])], ""],
+    [5, [S("ベンチプレス", [62.5, 8], [62.5, 8], [60, 8]), S("ダンベルフライ", [12, 12], [12, 12])], ""],
+    [3, [S("スクワット", [85, 6], [85, 6], [80, 8]), S("カーフレイズ", [40, 15], [40, 15])], ""],
+    [1, [S("ベンチプレス", [65, 6], [62.5, 8], [60, 9]), S("サイドレイズ", [8, 15], [8, 12])], "3セット目はギリギリ"]
+  ];
+  const all = {};
+  list.forEach(([n, exercises, memo], i) => { all["sample-" + i] = { example: true, date: day(n), exercises, memo, createdAt: i }; });
+  ls.set("liftlog.workouts", all);
+}
+
+/* ---------- 共通 ---------- */
+let toastTimer;
+function toast(msg) {
+  const t = $("#toast"); t.textContent = msg; t.classList.remove("hide");
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.add("hide"), 2200);
+}
+// 確認ダイアログの代わりに「2回押し」で実行する
+function twoTap(btn, label, fn) {
+  if (btn.dataset.armed) { delete btn.dataset.armed; btn.classList.remove("armed"); fn(); return; }
+  const orig = btn.textContent;
+  btn.dataset.armed = "1"; btn.classList.add("armed"); btn.textContent = label;
+  setTimeout(() => { if (btn.dataset.armed) { delete btn.dataset.armed; btn.classList.remove("armed"); btn.textContent = orig; } }, 3000);
+}
+function setTab(t) {
+  ui.tab = t; ls.set("liftlog.tab", t);
+  document.querySelectorAll("[data-tab]").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === t)));
+  $("#view-log").hidden = t !== "log";
+  $("#view-history-wrap").hidden = t !== "history";
+  $("#view-progress").hidden = t !== "progress";
+  window.scrollTo({ top: 0 });
+}
+// その種目を最後にやった日（編集中の記録は除く）
+function lastSession(name) {
+  for (const w of workouts) {
+    if (w.id === draft.id || w.date > draft.date) continue;
+    const e = w.exercises.find(x => x.name === name);
+    if (e) return { date: w.date, sets: e.sets };
+  }
+  return null;
+}
+
+/* ---------- まとめ ---------- */
+function renderStats() {
+  const now = new Date(); const mon = new Date(now.getFullYear(), now.getMonth(), now.getDate() - ((now.getDay() + 6) % 7));
+  const wk = workouts.filter(w => w.date >= ymd(mon));
+  $("#s-week").innerHTML = `${wk.length}<small>回</small>`;
+  $("#s-vol").innerHTML = `${fmtN(wk.reduce((a, w) => a + wVol(w), 0))}<small>kg</small>`;
+  $("#s-total").innerHTML = `${new Set(workouts.map(w => w.date)).size}<small>日</small>`;
+}
+
+/* ---------- 記録する ---------- */
+function renderPicker() {
+  $("#parts").innerHTML = Object.keys(PRESETS).map(p => `<button class="chip" data-part="${p}" aria-pressed="${p === ui.part}">${p}</button>`).join("");
+  $("#presets").innerHTML = PRESETS[ui.part].map(n => `<button class="chip add" data-add="${esc(n)}">${esc(n)}</button>`).join("");
+}
+function renderLog() {
+  $("#f-date").value = draft.date;
+  $("#f-memo").value = draft.memo;
+  $("#edit-flag").hidden = !draft.id;
+  $("#btn-save").textContent = draft.id ? "変更を保存" : "記録を保存";
+  const list = $("#ex-list");
+  if (!draft.exercises.length) {
+    list.innerHTML = `<p class="empty">下の「種目を追加」から今日やった種目を選んでください。前回の重量と回数が出るので、そのまま書き換えられます。</p>`;
+    return;
+  }
+  list.innerHTML = draft.exercises.map((e, i) => {
+    const prev = lastSession(e.name);
+    const prevHtml = prev
+      ? `<p class="prev">前回 ${fmtShort(prev.date)}<span class="num">${esc(setsText(prev.sets))}</span><button class="link" data-act="copy-prev">前回をコピー</button></p>`
+      : `<p class="prev">この種目は初めての記録です</p>`;
+    const rows = e.sets.map((s, j) => `
+      <span class="setno">${j + 1}</span>
+      <input inputmode="decimal" type="number" step="0.5" min="0" id="w-${i}-${j}" data-s="${j}" data-k="w" value="${esc(s.w)}" placeholder="0" aria-label="${j + 1}セット目の重量">
+      <input inputmode="numeric" type="number" step="1" min="0" id="r-${i}-${j}" data-s="${j}" data-k="r" value="${esc(s.r)}" placeholder="0" aria-label="${j + 1}セット目の回数">
+      <button class="icon-btn" data-act="set-del" data-s="${j}" aria-label="${j + 1}セット目を削除">×</button>`).join("");
+    return `<article class="ex" data-i="${i}">
+      <div class="ex-head"><h3>${esc(e.name)}</h3><button class="btn small danger" data-act="ex-del">種目を外す</button></div>
+      ${prevHtml}
+      <div class="setgrid"><span class="h">SET</span><span class="h">重量 kg</span><span class="h">回数</span><span></span>${rows}</div>
+      <div><button class="btn small" data-act="set-add">＋ セット追加</button></div>
+    </article>`;
+  }).join("");
+}
+function addExercise(name) {
+  name = name.trim(); if (!name) return;
+  const prev = lastSession(name);
+  const sets = prev ? prev.sets.map(s => ({ w: s.w, r: s.r })) : [{ w: "", r: "" }];
+  draft.exercises.push({ name, sets }); saveDraft(); renderLog();
+  toast(prev ? `${name}を追加（前回の内容を入力済み）` : `${name}を追加`);
+}
+$("#parts").addEventListener("click", e => { const b = e.target.closest("[data-part]"); if (b) { ui.part = b.dataset.part; renderPicker(); } });
+$("#presets").addEventListener("click", e => { const b = e.target.closest("[data-add]"); if (b) addExercise(b.dataset.add); });
+$("#custom-form").addEventListener("submit", e => { e.preventDefault(); addExercise($("#f-custom").value); $("#f-custom").value = ""; });
+$("#f-date").addEventListener("change", e => { draft.date = e.target.value || today(); saveDraft(); renderLog(); });
+$("#f-memo").addEventListener("input", e => { draft.memo = e.target.value; saveDraft(); });
+$("#ex-list").addEventListener("input", e => {
+  const inp = e.target.closest("input[data-k]"); if (!inp) return;
+  const i = +inp.closest(".ex").dataset.i;
+  draft.exercises[i].sets[+inp.dataset.s][inp.dataset.k] = inp.value; saveDraft();
+});
+$("#ex-list").addEventListener("click", e => {
+  const b = e.target.closest("[data-act]"); if (!b) return;
+  const i = +b.closest(".ex").dataset.i, ex = draft.exercises[i];
+  if (b.dataset.act === "set-add") { const last = ex.sets[ex.sets.length - 1] || { w: "", r: "" }; ex.sets.push({ w: last.w, r: last.r }); }
+  if (b.dataset.act === "set-del") ex.sets.splice(+b.dataset.s, 1);
+  if (b.dataset.act === "ex-del") draft.exercises.splice(i, 1);
+  if (b.dataset.act === "copy-prev") { const p = lastSession(ex.name); if (p) ex.sets = p.sets.map(s => ({ w: s.w, r: s.r })); }
+  saveDraft(); renderLog();
+  if (b.dataset.act === "set-add") document.getElementById(`r-${i}-${ex.sets.length - 1}`)?.focus();
+});
+$("#btn-save").addEventListener("click", async () => {
+  const exercises = draft.exercises
+    .map(e => ({ name: e.name, sets: e.sets.map(s => ({ w: +s.w || 0, r: Math.round(+s.r || 0) })).filter(s => s.r > 0) }))
+    .filter(e => e.sets.length);
+  if (!exercises.length) { toast("回数が入ったセットがありません。回数を入れてから保存してください"); return; }
+  const old = workouts.find(w => w.id === draft.id);
+  const data = { date: draft.date, exercises, memo: draft.memo.trim(), createdAt: old?.createdAt || Date.now(), updatedAt: Date.now() };
+  const btn = $("#btn-save"); btn.disabled = true;
+  try {
+    await putWorkout(draft.id || newId(), data);
+    toast(draft.id ? "変更を保存しました" : `${fmtDate(data.date)}の記録を保存しました`);
+    draft = blankDraft(); saveDraft(); renderLog(); setTab("history");
+  } catch (err) {
+    toast("保存できませんでした。端末の空き容量やプライベートブラウズでないかを確かめてください");
+  } finally { btn.disabled = false; }
+});
+$("#btn-clear").addEventListener("click", e => twoTap(e.currentTarget, "もう一度押すとクリア", () => {
+  draft = blankDraft(); saveDraft(); renderLog(); e.currentTarget.textContent = "入力をクリア"; toast("入力をクリアしました");
+}));
+
+/* ---------- 履歴 ---------- */
+// 各記録で、その日までの自己ベスト（推定1RM）を更新した種目
+function prMap() {
+  const best = {}, out = {};
+  [...workouts].reverse().forEach(w => {
+    out[w.id] = new Set();
+    for (const e of w.exercises) {
+      const m = Math.max(0, ...e.sets.map(s => e1rm(s.w, s.r)));
+      if (m > 0 && best[e.name] !== undefined && m > best[e.name]) out[w.id].add(e.name);
+      if (m > (best[e.name] ?? 0) || best[e.name] === undefined) best[e.name] = Math.max(m, best[e.name] ?? 0);
+    }
+  });
+  return out;
+}
+function renderHistory() {
+  const v = $("#view-history");
+  if (!workouts.length) {
+    v.innerHTML = `<p class="empty">まだ記録がありません。「記録する」タブで種目とセットを入れて保存すると、ここに日付ごとに並びます。</p>`;
+    return;
+  }
+  const prs = prMap();
+  let html = workouts.some(w => w.example)
+    ? `<div class="notice"><span>「サンプル」の付いた記録は見本です。自分の記録をつけ始めたら消してください。</span><button class="btn small" id="btn-del-samples">サンプルを削除</button></div>` : "";
+  let month = "";
+  for (const w of workouts) {
+    const m = w.date.slice(0, 7);
+    if (m !== month) { month = m; html += `<h3 class="month num">${m.replace("-", ".")}</h3>`; }
+    const nSets = w.exercises.reduce((a, e) => a + e.sets.length, 0);
+    html += `<article class="day">
+      <div class="day-head">
+        <span class="day-date">${fmtDate(w.date)}${w.example ? `<span class="badge sample">サンプル</span>` : ""}</span>
+        <span class="day-meta">${w.exercises.length}種目 · ${nSets}セット · <span class="num">${fmtN(wVol(w))}</span> kg</span>
+      </div>
+      <ul>${w.exercises.map(e => `<li><b>${esc(e.name)} ${prs[w.id]?.has(e.name) ? `<span class="badge pr">自己ベスト</span>` : ""}</b><span class="num">${esc(setsText(e.sets))}</span></li>`).join("")}</ul>
+      ${w.memo ? `<p class="memo">${esc(w.memo)}</p>` : ""}
+      <div class="day-foot"><button class="btn small" data-edit="${esc(w.id)}">編集</button><button class="btn small danger" data-del="${esc(w.id)}">削除</button></div>
+    </article>`;
+  }
+  v.innerHTML = html;
+}
+$("#view-history").addEventListener("click", e => {
+  const ed = e.target.closest("[data-edit]"), del = e.target.closest("[data-del]");
+  if (e.target.id === "btn-del-samples") {
+    twoTap(e.target, "もう一度押すと削除", async () => {
+      for (const w of workouts.filter(w => w.example)) await removeWorkout(w.id).catch(() => {});
+      toast("サンプルを削除しました");
+    });
+  } else if (ed) {
+    const w = workouts.find(x => x.id === ed.dataset.edit); if (!w) return;
+    draft = { id: w.id, date: w.date, memo: w.memo || "", exercises: w.exercises.map(e => ({ name: e.name, sets: e.sets.map(s => ({ w: String(s.w), r: String(s.r) })) })) };
+    saveDraft(); renderLog(); setTab("log");
+  } else if (del) {
+    twoTap(del, "もう一度押すと削除", async () => {
+      try { await removeWorkout(del.dataset.del); toast("記録を削除しました"); } catch { toast("削除できませんでした。もう一度試してください"); }
+    });
+  }
+});
+
+/* ---------- バックアップ ---------- */
+$("#btn-export").addEventListener("click", () => {
+  const body = JSON.stringify({ app: "liftlog", version: 1, exportedAt: new Date().toISOString(), workouts: localAll() }, null, 2);
+  const file = new File([body], `liftlog-${today()}.json`, { type: "application/json" });
+  // iPhone は共有シートから「ファイルに保存」できる。使えなければ通常のダウンロード
+  if (navigator.canShare?.({ files: [file] })) {
+    navigator.share({ files: [file] }).catch(() => {});
+    return;
+  }
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(file); a.download = file.name;
+  document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  toast("バックアップを書き出しました");
+});
+$("#btn-import").addEventListener("click", () => $("#f-import").click());
+$("#f-import").addEventListener("change", async e => {
+  const f = e.target.files[0]; e.target.value = "";
+  if (!f) return;
+  try {
+    const data = JSON.parse(await f.text());
+    const incoming = data?.app === "liftlog" ? data.workouts : null;
+    if (!incoming || typeof incoming !== "object") throw 0;
+    const valid = Object.entries(incoming).filter(([, w]) => typeof w?.date === "string" && Array.isArray(w.exercises));
+    writeAll({ ...localAll(), ...Object.fromEntries(valid) });
+    loadLocal(); toast(`${valid.length}件の記録を読み込みました`);
+  } catch {
+    toast("読み込めませんでした。このアプリで書き出したファイルを選んでください");
+  }
+});
+
+/* ---------- 推移 ---------- */
+function niceStep(raw) { const p = 10 ** Math.floor(Math.log10(raw)); const n = raw / p; return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10) * p; }
+function chartSvg(pts, unit) {
+  const W = 640, H = 250, L = 46, R = 56, T = 18, B = 30;
+  const vs = pts.map(p => p.v); let lo = Math.min(...vs), hi = Math.max(...vs);
+  if (lo === hi) { lo = lo * 0.9; hi = hi * 1.1 || 1; }
+  const pad = (hi - lo) * 0.12; lo = Math.max(0, lo - pad); hi = hi + pad;
+  const step = niceStep((hi - lo) / 4);
+  const ts = pts.map(p => parseD(p.date).getTime()), t0 = Math.min(...ts), t1 = Math.max(...ts);
+  const x = t => t1 === t0 ? L + (W - L - R) / 2 : L + (t - t0) / (t1 - t0) * (W - L - R);
+  const y = v => T + (1 - (v - lo) / (hi - lo)) * (H - T - B);
+  let g = "";
+  for (let v = Math.ceil(lo / step) * step; v <= hi; v += step) {
+    g += `<line class="grid" x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}"/><text class="lbl" x="${L - 8}" y="${y(v) + 4}" text-anchor="end">${fmtN(v)}</text>`;
+  }
+  const xy = pts.map((p, i) => [x(ts[i]), y(p.v)]);
+  const line = xy.map((c, i) => (i ? "L" : "M") + c[0].toFixed(1) + " " + c[1].toFixed(1)).join(" ");
+  const area = pts.length > 1 ? `<path class="area" d="${line} L${xy[xy.length - 1][0]} ${H - B} L${xy[0][0]} ${H - B} Z"/>` : "";
+  const bestI = vs.indexOf(Math.max(...vs));
+  const idx = [...new Set([0, Math.floor((pts.length - 1) / 2), pts.length - 1])];
+  const xl = idx.map(i => `<text class="lbl" x="${xy[i][0]}" y="${H - 8}" text-anchor="middle">${fmtShort(pts[i].date)}</text>`).join("");
+  const dots = xy.map((c, i) => `<circle class="pt${i === bestI ? " best" : ""}" cx="${c[0]}" cy="${c[1]}" r="${i === xy.length - 1 || i === bestI ? 5 : 3.5}"><title>${fmtDate(pts[i].date)} ${fmtW(pts[i].v)}${unit}</title></circle>`).join("");
+  const last = xy[xy.length - 1];
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="推移グラフ">${g}${area}${pts.length > 1 ? `<path class="line" d="${line}"/>` : ""}${dots}<text class="end" x="${last[0] + 9}" y="${last[1] + 5}">${fmtN(pts[pts.length - 1].v)}</text>${xl}</svg>`;
+}
+function renderProgress() {
+  const counts = {};
+  workouts.forEach(w => w.exercises.forEach(e => counts[e.name] = (counts[e.name] || 0) + 1));
+  const names = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+  const sel = $("#f-ex"), body = $("#prog-body");
+  document.querySelectorAll("#metric button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.m === ui.metric)));
+  if (!names.length) {
+    sel.innerHTML = `<option>記録なし</option>`; sel.disabled = true;
+    body.innerHTML = `<p class="empty">記録が2回以上たまると、種目ごとに重量の伸びがグラフで見られます。</p>`;
+    return;
+  }
+  sel.disabled = false;
+  if (!names.includes(ui.ex)) ui.ex = names[0];
+  sel.innerHTML = names.map(n => `<option value="${esc(n)}"${n === ui.ex ? " selected" : ""}>${esc(n)}（${counts[n]}回）</option>`).join("");
+
+  const sessions = [...workouts].reverse().map(w => ({ date: w.date, e: w.exercises.find(x => x.name === ui.ex) })).filter(s => s.e);
+  const metricOf = { e1rm: e => Math.max(...e.sets.map(s => e1rm(s.w, s.r))), max: e => Math.max(...e.sets.map(s => s.w)), vol: exVol };
+  const unit = "kg";
+  const pts = sessions.map(s => ({ date: s.date, v: metricOf[ui.metric](s.e) }));
+  const bestE = sessions.reduce((b, s) => { const v = metricOf.e1rm(s.e); return v > b.v ? { v, date: s.date } : b; }, { v: 0, date: "" });
+  const bestW = sessions.reduce((b, s) => { const v = metricOf.max(s.e); return v > b.v ? { v, date: s.date } : b; }, { v: 0, date: "" });
+  const bodyweight = bestW.v === 0;
+  const bestR = sessions.reduce((b, s) => Math.max(b, ...s.e.sets.map(x => x.r)), 0);
+
+  body.innerHTML = `
+    <div class="pbs">
+      ${bodyweight
+        ? `<div class="pb"><div class="k">最高回数</div><div class="v">${bestR}<small> 回</small></div></div>`
+        : `<div class="pb"><div class="k">推定1RM ベスト</div><div class="v">${fmtW(bestE.v)}<small> kg</small></div><div class="d">${fmtDate(bestE.date)}</div></div>
+           <div class="pb"><div class="k">最大重量</div><div class="v">${fmtW(bestW.v)}<small> kg</small></div><div class="d">${fmtDate(bestW.date)}</div></div>`}
+      <div class="pb"><div class="k">記録した回数</div><div class="v">${sessions.length}<small> 回</small></div><div class="d">初回 ${fmtDate(sessions[0].date)}</div></div>
+    </div>
+    ${bodyweight && ui.metric !== "vol"
+      ? `<p class="note">自重種目のため重量のグラフはありません。</p>`
+      : `<div class="chart">${chartSvg(pts, unit)}</div>`}
+    <p class="note">推定1RM はエプリー式（重量 ×（1 + 回数 ÷ 30））で、その日いちばん高いセットの値です。赤い点がベスト。</p>
+    <h2>最近のセッション</h2>
+    ${sessions.slice(-6).reverse().map(s => `<div class="day"><div class="day-head"><span class="day-date">${fmtDate(s.date)}</span><span class="day-meta"><span class="num">${fmtN(exVol(s.e))}</span> kg</span></div><span class="num">${esc(setsText(s.e.sets))}</span></div>`).join("")}`;
+}
+$("#f-ex").addEventListener("change", e => { ui.ex = e.target.value; renderProgress(); });
+$("#metric").addEventListener("click", e => { const b = e.target.closest("[data-m]"); if (!b) return; ui.metric = b.dataset.m; ls.set("liftlog.metric", ui.metric); renderProgress(); });
+
+/* ---------- 起動 ---------- */
+function renderData() {
+  renderStats(); renderHistory(); renderProgress();
+  if (!$("#view-log").contains(document.activeElement)) renderLog();
+}
+document.querySelectorAll("[data-tab]").forEach(b => b.addEventListener("click", () => setTab(b.dataset.tab)));
+renderPicker();
+setTab(ui.tab);
+renderLog();
+seedSamples();
+loadLocal();
+navigator.storage?.persist?.().catch(() => {});
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+</script>
+</body>
+</html>
