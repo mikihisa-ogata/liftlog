@@ -1,0 +1,52 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Dela+Gothic+One&family=M+PLUS+1p:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+/* A: IRON — 黒い鉄とセーフティイエロー。ジムの床のハザードラインを使う */
+:root{--bg:#0d0d0d;--panel:#1a1a1a;--line:#2c2c2c;--ink:#f2f2f2;--mute:#8a8a8a;--y:#ffd400;}
+*{box-sizing:border-box;margin:0}
+body{width:390px;height:844px;background:var(--bg);color:var(--ink);font-family:"M PLUS 1p",sans-serif;overflow:hidden;position:relative}
+.hz{height:10px;background:repeating-linear-gradient(-45deg,var(--y) 0 12px,#0d0d0d 12px 24px)}
+.top{padding:52px 20px 14px;display:flex;justify-content:space-between;align-items:flex-end}
+.logo{font-family:Anton;font-size:40px;letter-spacing:.02em;line-height:.9}
+.logo b{color:var(--y);font-weight:400}
+.date{font-family:Anton;font-size:15px;color:var(--mute);letter-spacing:.08em}
+.stats{display:grid;grid-template-columns:1.2fr 1fr;gap:10px;padding:0 20px 16px}
+.st{background:var(--panel);padding:12px 14px;border-left:4px solid var(--y)}
+.st .k{font-size:11px;color:var(--mute);font-weight:700;letter-spacing:.1em}
+.st .v{font-family:Anton;font-size:34px;line-height:1.1}
+.st .v small{font-size:14px;color:var(--mute);margin-left:3px}
+.tabs{display:flex;gap:0;margin:0 20px 18px;border:2px solid var(--ink)}
+.tabs div{flex:1;text-align:center;padding:9px 0;font-weight:800;font-size:14px}
+.tabs .on{background:var(--ink);color:var(--bg)}
+.card{margin:0 20px 14px;background:var(--panel);padding:16px}
+.ch{display:flex;justify-content:space-between;align-items:center}
+.ch h3{font-family:"Dela Gothic One";font-size:22px;font-weight:400}
+.pr{background:var(--y);color:#000;font-family:Anton;font-size:13px;padding:3px 8px;letter-spacing:.08em}
+.prev{font-size:12px;color:var(--mute);margin:6px 0 12px}
+.prev b{color:var(--ink);font-family:Anton;font-weight:400;font-size:14px;letter-spacing:.04em}
+.row{display:grid;grid-template-columns:36px 1fr 20px 1fr;align-items:center;gap:8px;margin-bottom:8px}
+.n{font-family:Anton;font-size:22px;color:var(--y)}
+.box{background:#0d0d0d;border:1px solid var(--line);font-family:Anton;font-size:30px;text-align:center;padding:4px 0;line-height:1.2}
+.box small{font-size:12px;color:var(--mute);margin-left:4px}
+.x{font-family:Anton;color:var(--mute);text-align:center}
+.add{border:1px dashed #555;text-align:center;padding:9px;font-weight:700;font-size:13px;color:var(--mute);margin-top:4px}
+.mini{margin:0 20px;display:flex;justify-content:space-between;align-items:center;background:var(--panel);padding:14px 16px}
+.mini h3{font-family:"Dela Gothic One";font-size:17px;font-weight:400}
+.mini span{font-family:Anton;font-size:18px;color:var(--mute)}
+.save{position:absolute;left:20px;right:20px;bottom:34px;background:var(--y);color:#000;text-align:center;font-family:"Dela Gothic One";font-size:19px;padding:16px 0}
+</style></head><body>
+<div class="hz"></div>
+<div class="top"><div class="logo">LIFT<b>LOG</b></div><div class="date">2026.10.18 SAT</div></div>
+<div class="stats"><div class="st"><div class="k">今週のボリューム</div><div class="v">12,480<small>kg</small></div></div><div class="st"><div class="k">今週</div><div class="v">3<small>回</small></div></div></div>
+<div class="tabs"><div class="on">記録</div><div>履歴</div><div>推移</div></div>
+<div class="card">
+ <div class="ch"><h3>ベンチプレス</h3><span class="pr">NEW PR</span></div>
+ <div class="prev">前回 10/13　<b>62.5×8 · 62.5×8 · 60×8</b></div>
+ <div class="row"><span class="n">01</span><div class="box">67.5<small>kg</small></div><span class="x">×</span><div class="box">5<small>回</small></div></div>
+ <div class="row"><span class="n">02</span><div class="box">62.5<small>kg</small></div><span class="x">×</span><div class="box">8<small>回</small></div></div>
+ <div class="row"><span class="n">03</span><div class="box">60<small>kg</small></div><span class="x">×</span><div class="box">9<small>回</small></div></div>
+ <div class="add">＋ セット追加</div>
+</div>
+<div class="mini"><h3>サイドレイズ</h3><span>8×15 · 8×12</span></div>
+<div class="save">記録を保存</div>
+</body></html>

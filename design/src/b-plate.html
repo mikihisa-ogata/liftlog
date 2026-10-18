@@ -1,0 +1,58 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@1,700;1,800;1,900&family=Noto+Sans+JP:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+/* B: PLATE — 白地にオリンピックプレートの4色。斜体の太いコンデンスで勢いを出すスポーツブランド調 */
+:root{--bg:#f4f4f2;--ink:#111;--mute:#777;--red:#e2231a;--blue:#0057b8;--yel:#ffc20e;--grn:#00965e;}
+*{box-sizing:border-box;margin:0}
+body{width:390px;height:844px;background:var(--bg);color:var(--ink);font-family:"Noto Sans JP",sans-serif;overflow:hidden;position:relative}
+.hero{background:var(--ink);color:#fff;padding:54px 22px 22px;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-60px;top:20px;width:210px;height:210px;border-radius:50%;border:26px solid var(--red);opacity:.95}
+.hero::before{content:"";position:absolute;right:-10px;top:70px;width:110px;height:110px;border-radius:50%;border:18px solid var(--blue);z-index:1}
+.logo{font-family:"Barlow Condensed";font-style:italic;font-weight:900;font-size:22px;letter-spacing:.04em;position:relative;z-index:2}
+.big{font-family:"Barlow Condensed";font-style:italic;font-weight:900;font-size:76px;line-height:.9;margin-top:14px;position:relative;z-index:2}
+.big small{font-size:24px;font-weight:800}
+.cap{font-size:12px;font-weight:700;color:#bbb;margin-top:4px;position:relative;z-index:2}
+.parts{display:flex;gap:6px;padding:16px 22px 6px}
+.parts span{font-size:12px;font-weight:900;padding:6px 12px;border-radius:999px;background:#fff;border:2px solid var(--ink)}
+.parts .on{background:var(--ink);color:#fff}
+.card{margin:12px 16px;background:#fff;border-radius:18px;padding:16px 16px 12px;box-shadow:0 2px 0 rgba(0,0,0,.06)}
+.ch{display:flex;align-items:center;gap:10px}
+.dot{width:14px;height:14px;border-radius:50%;background:var(--red)}
+.ch h3{font-size:20px;font-weight:900}
+.prev{font-size:12px;color:var(--mute);margin:4px 0 10px 24px;font-weight:500}
+.sets{display:flex;flex-direction:column;gap:6px}
+.s{display:flex;align-items:baseline;gap:10px;padding:8px 12px;border-radius:12px;background:var(--bg)}
+.s .n{font-family:"Barlow Condensed";font-style:italic;font-weight:800;font-size:16px;color:var(--mute);width:22px}
+.s .w{font-family:"Barlow Condensed";font-style:italic;font-weight:900;font-size:34px;line-height:1}
+.s .u{font-size:12px;font-weight:700;color:var(--mute)}
+.s .r{margin-left:auto;font-family:"Barlow Condensed";font-style:italic;font-weight:900;font-size:34px;line-height:1}
+.s.best{background:var(--yel)}
+.s.best .n,.s.best .u{color:#5a4500}
+.tag{font-size:10px;font-weight:900;background:var(--ink);color:var(--yel);padding:2px 6px;border-radius:4px;align-self:center}
+.card2 .dot{background:var(--grn)}
+.card2 .ch h3{font-size:17px}
+.nav{position:absolute;bottom:0;left:0;right:0;height:84px;background:#fff;display:flex;justify-content:space-around;align-items:flex-start;padding-top:12px;border-top:1px solid #e3e3e3}
+.nav div{font-size:11px;font-weight:700;color:var(--mute);text-align:center}
+.nav div i{display:block;width:26px;height:26px;margin:0 auto 3px;border-radius:50%;border:3px solid currentColor}
+.nav .on{color:var(--ink)}
+.fab{position:absolute;right:20px;bottom:100px;width:64px;height:64px;border-radius:50%;background:var(--red);color:#fff;font-size:34px;font-weight:700;display:grid;place-items:center;box-shadow:0 6px 16px rgba(226,35,26,.4)}
+</style></head><body>
+<div class="hero">
+ <div class="logo">LIFTLOG</div>
+ <div class="big">3<small> 回 / 今週</small></div>
+ <div class="cap">ボリューム 12,480 kg ・ 先週より +8%</div>
+</div>
+<div class="parts"><span class="on">胸</span><span>背中</span><span>脚</span><span>肩</span><span>腕</span></div>
+<div class="card">
+ <div class="ch"><span class="dot"></span><h3>ベンチプレス</h3></div>
+ <div class="prev">前回 10/13　62.5kg × 8回</div>
+ <div class="sets">
+  <div class="s best"><span class="n">1</span><span class="w">67.5</span><span class="u">kg</span><span class="tag">自己ベスト</span><span class="r">5</span><span class="u">回</span></div>
+  <div class="s"><span class="n">2</span><span class="w">62.5</span><span class="u">kg</span><span class="r">8</span><span class="u">回</span></div>
+  <div class="s"><span class="n">3</span><span class="w">60</span><span class="u">kg</span><span class="r">9</span><span class="u">回</span></div>
+ </div>
+</div>
+<div class="card card2"><div class="ch"><span class="dot"></span><h3>サイドレイズ</h3></div><div class="prev">8kg × 15回 ・ 8kg × 12回</div></div>
+<div class="fab">＋</div>
+<div class="nav"><div class="on"><i></i>記録</div><div><i></i>履歴</div><div><i></i>推移</div></div>
+</body></html>

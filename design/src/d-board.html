@@ -1,0 +1,54 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Share+Tech+Mono&family=M+PLUS+1p:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+/* D: GYM CLOCK — ジムの壁のインターバルタイマー。赤いLEDのドット数字とダークなパネル */
+:root{--bg:#0a0a0c;--panel:#141418;--line:#25252c;--led:#ff2e2e;--ledoff:#3a1214;--grn:#39ff88;--ink:#e8e8ec;--mute:#7c7c88;}
+*{box-sizing:border-box;margin:0}
+body{width:390px;height:844px;background:var(--bg);color:var(--ink);font-family:"M PLUS 1p",sans-serif;overflow:hidden;position:relative;padding-top:52px}
+.clock{margin:0 16px;background:#000;border:3px solid #26262c;border-radius:14px;padding:16px 18px 14px;box-shadow:inset 0 0 0 2px #000,0 10px 30px rgba(0,0,0,.6)}
+.clock .lab{display:flex;justify-content:space-between;font-family:"Share Tech Mono";font-size:12px;color:var(--mute);letter-spacing:.2em}
+.digits{font-family:"Share Tech Mono";font-size:78px;line-height:1;color:var(--led);text-shadow:0 0 12px rgba(255,46,46,.7),0 0 2px #fff3;letter-spacing:.04em;text-align:center;margin:6px 0 2px;position:relative;isolation:isolate}
+.clock .row{display:flex;justify-content:center;gap:16px;font-family:DotGothic16;font-size:13px;color:var(--mute)}
+.clock .row b{color:var(--grn);font-weight:400;text-shadow:0 0 8px rgba(57,255,136,.6)}
+.h{display:flex;justify-content:space-between;align-items:center;padding:20px 20px 8px}
+.h h3{font-size:21px;font-weight:800}
+.pr{font-family:DotGothic16;font-size:12px;color:var(--grn);border:1px solid var(--grn);padding:2px 8px;border-radius:3px;text-shadow:0 0 6px rgba(57,255,136,.5)}
+.prev{padding:0 20px 10px;font-family:DotGothic16;font-size:13px;color:var(--mute)}
+.table{margin:0 16px;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.tr{display:grid;grid-template-columns:44px 1fr 1fr 44px;align-items:center;border-bottom:1px solid var(--line);height:56px}
+.tr:last-child{border-bottom:0}
+.tr.head{height:30px;font-family:"Share Tech Mono";font-size:11px;color:var(--mute);letter-spacing:.15em}
+.tr span{text-align:center}
+.tr .v{font-family:"Share Tech Mono";font-size:30px}
+.tr .v small{font-size:12px;color:var(--mute);margin-left:3px}
+.tr .n{font-family:"Share Tech Mono";color:var(--mute);font-size:16px}
+.ck{width:24px;height:24px;border-radius:6px;border:2px solid var(--line);margin:auto}
+.ck.on{background:var(--grn);border-color:var(--grn);box-shadow:0 0 10px rgba(57,255,136,.5)}
+.tr.cur{background:#1d1013}
+.tr.cur .v{color:var(--led);text-shadow:0 0 8px rgba(255,46,46,.5)}
+.btns{display:grid;grid-template-columns:1fr 1.4fr;gap:10px;margin:14px 16px}
+.btns div{text-align:center;padding:15px 0;border-radius:10px;font-weight:800;font-size:15px}
+.b1{background:var(--panel);border:1px solid var(--line)}
+.b2{background:var(--led);color:#fff;box-shadow:0 0 18px rgba(255,46,46,.35)}
+.next{margin:6px 16px;padding:14px 16px;background:var(--panel);border:1px solid var(--line);border-radius:10px;display:flex;justify-content:space-between;font-weight:700}
+.next span{font-family:"Share Tech Mono";color:var(--mute);font-weight:400}
+.nav{position:absolute;bottom:0;left:0;right:0;height:80px;border-top:1px solid var(--line);display:flex;justify-content:space-around;padding-top:14px;font-family:DotGothic16;font-size:13px;color:var(--mute)}
+.nav .on{color:var(--led);text-shadow:0 0 8px rgba(255,46,46,.6)}
+</style></head><body>
+<div class="clock">
+ <div class="lab"><span>REST</span><span>SET 3 / 3</span></div>
+ <div class="digits">01:24</div>
+ <div class="row"><span>今週 <b>3</b> 回</span><span>ボリューム <b>12,480</b> kg</span></div>
+</div>
+<div class="h"><h3>ベンチプレス</h3><span class="pr">★ 自己ベスト</span></div>
+<div class="prev">前回 10/13　62.5×8 / 62.5×8 / 60×8</div>
+<div class="table">
+ <div class="tr head"><span>SET</span><span>KG</span><span>REPS</span><span>✓</span></div>
+ <div class="tr"><span class="n">1</span><span class="v">67.5<small>kg</small></span><span class="v">5</span><span><i class="ck on" style="display:block"></i></span></div>
+ <div class="tr"><span class="n">2</span><span class="v">62.5<small>kg</small></span><span class="v">8</span><span><i class="ck on" style="display:block"></i></span></div>
+ <div class="tr cur"><span class="n">3</span><span class="v">60<small>kg</small></span><span class="v">9</span><span><i class="ck" style="display:block"></i></span></div>
+</div>
+<div class="btns"><div class="b1">＋ セット</div><div class="b2">セット完了 ▶ 休憩</div></div>
+<div class="next">次の種目：サイドレイズ<span>8×15</span></div>
+<div class="nav"><span class="on">● 記録</span><span>履歴</span><span>推移</span></div>
+</body></html>

@@ -1,0 +1,53 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Yomogi&family=Zen+Kaku+Gothic+New:wght@500;700&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/* C: CHALKBOARD — ボックスジムの黒板（WODボード）。チョークの手書き数字と粉っぽい質感 */
+:root{--board:#1f2a24;--board2:#26332c;--chalk:#ecebe4;--mute:#9aa69f;--pink:#ff8fa3;--blue:#8fd3ff;--wood:#6b4a2b;}
+*{box-sizing:border-box;margin:0}
+body{width:390px;height:844px;color:var(--chalk);font-family:"Zen Kaku Gothic New",sans-serif;overflow:hidden;position:relative;
+ background:radial-gradient(ellipse at 30% 20%,#2c3a32 0,transparent 60%),radial-gradient(ellipse at 80% 80%,#29362f 0,transparent 55%),var(--board)}
+body::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(8deg,rgba(255,255,255,.018) 0 2px,transparent 2px 9px);pointer-events:none}
+.frame{position:absolute;inset:0;border:12px solid var(--wood);border-top-width:44px;pointer-events:none;box-shadow:inset 0 0 30px rgba(0,0,0,.5)}
+.wrap{position:relative;padding:62px 28px 0}
+.top{display:flex;justify-content:space-between;align-items:baseline}
+.logo{font-family:"Permanent Marker";font-size:34px;transform:rotate(-3deg);transform-origin:left}
+.date{font-family:"Permanent Marker";font-size:18px;color:var(--mute)}
+.wod{font-family:Oswald;font-weight:700;letter-spacing:.3em;font-size:12px;color:var(--mute);margin:16px 0 4px;border-bottom:2px dashed rgba(236,235,228,.3);padding-bottom:6px}
+.ex{margin-top:14px}
+.ex h3{font-family:"Yomogi";font-size:26px;font-weight:400;display:flex;align-items:center;gap:10px}
+.star{font-family:"Permanent Marker";color:var(--pink);font-size:15px;border:2px solid var(--pink);border-radius:50%;padding:4px 7px;transform:rotate(-10deg)}
+.prev{font-family:Yomogi;font-size:14px;color:var(--mute);margin:2px 0 8px}
+.line{display:grid;grid-template-columns:30px 1fr 1fr;align-items:baseline;font-family:"Permanent Marker";font-size:36px;line-height:1.25}
+.line .n{font-size:18px;color:var(--mute)}
+.line .r{color:var(--blue)}
+.line small{font-family:Yomogi;font-size:15px;color:var(--mute);margin-left:4px}
+.line.best .w{color:var(--pink);text-decoration:underline wavy rgba(255,143,163,.6);text-underline-offset:6px;text-decoration-thickness:2px}
+.addline{font-family:Yomogi;color:var(--mute);font-size:16px;margin-top:4px}
+.sum{display:flex;gap:18px;margin-top:22px;font-family:Yomogi;font-size:14px;color:var(--mute)}
+.sum b{font-family:"Permanent Marker";font-weight:400;font-size:28px;color:var(--chalk);display:block;line-height:1.1}
+.tabs{position:absolute;left:12px;right:12px;bottom:12px;height:78px;background:var(--wood);display:flex;justify-content:space-around;align-items:center;padding-bottom:10px}
+.tabs div{font-family:Oswald;font-weight:700;letter-spacing:.15em;font-size:14px;color:#d9c3a5}
+.tabs .on{color:#fff;background:rgba(0,0,0,.25);padding:6px 14px;border-radius:4px}
+.eraser{position:absolute;right:30px;bottom:110px;width:110px;height:34px;background:#3a3f6b;border-radius:4px;border-top:10px solid #c9b48a;transform:rotate(-6deg);box-shadow:0 4px 8px rgba(0,0,0,.4)}
+</style></head><body>
+<div class="frame"></div>
+<div class="wrap">
+ <div class="top"><div class="logo">LiftLog</div><div class="date">10/18 Sat</div></div>
+ <div class="wod">TODAY'S WORKOUT</div>
+ <div class="ex">
+  <h3>ベンチプレス <span class="star">PR!</span></h3>
+  <div class="prev">前回 10/13 … 62.5 × 8</div>
+  <div class="line best"><span class="n">1</span><span class="w">67.5<small>kg</small></span><span class="r">× 5</span></div>
+  <div class="line"><span class="n">2</span><span class="w">62.5<small>kg</small></span><span class="r">× 8</span></div>
+  <div class="line"><span class="n">3</span><span class="w">60<small>kg</small></span><span class="r">× 9</span></div>
+  <div class="addline">＋ もう1セット書く</div>
+ </div>
+ <div class="ex">
+  <h3>サイドレイズ</h3>
+  <div class="line"><span class="n">1</span><span class="w">8<small>kg</small></span><span class="r">× 15</span></div>
+ </div>
+ <div class="sum"><div><b>3</b>今週の回数</div><div><b>12,480</b>今週のkg</div></div>
+</div>
+<div class="eraser"></div>
+<div class="tabs"><div class="on">記録</div><div>履歴</div><div>推移</div></div>
+</body></html>
