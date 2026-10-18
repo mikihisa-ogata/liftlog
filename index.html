@@ -316,7 +316,7 @@ button { font-family: var(--font-body); }
     </div>
     <label class="field">メモ<textarea id="f-memo" placeholder="調子、睡眠、フォームの気づきなど"></textarea></label>
     <div class="actions">
-      <button class="btn primary" id="btn-save">記録を保存</button>
+      <button class="btn primary" id="btn-save">保存</button>
       <button class="btn" id="btn-clear">入力をクリア</button>
     </div>
   </section>
@@ -467,7 +467,7 @@ function renderLog() {
   $("#f-date").value = draft.date;
   $("#f-memo").value = draft.memo;
   $("#edit-flag").hidden = !draft.id;
-  $("#btn-save").textContent = draft.id ? "変更を保存" : "記録を保存";
+  $("#btn-save").textContent = draft.id ? "変更を保存" : "保存";
   const list = $("#ex-list");
   if (!draft.exercises.length) {
     list.innerHTML = `<p class="empty">下の「種目を追加」から今日やった種目を選んでください。前回の重量と回数が出るので、そのまま書き換えられます。</p>`;
