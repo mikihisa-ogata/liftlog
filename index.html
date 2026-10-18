@@ -91,8 +91,11 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .stat .v small { font-family: var(--font-body); font-style: normal; font-size: 12px; color: var(--muted); font-weight: 700; margin-left: 3px; }
 
 /* テーマ選択 */
+.skin-dlg { border: 0; padding: 0; background: transparent; color: var(--ink); width: min(440px, calc(100% - 32px)); max-width: none; }
+.skin-dlg::backdrop { background: rgba(0, 0, 0, .6); }
 .skins { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; background: var(--surface); padding: 12px; border-radius: var(--radius); }
-.skins h2 { grid-column: 1 / -1; }
+.skins-head { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; }
+.skins-head .icon-btn:hover { color: var(--ink); }
 .skin { border: 2px solid var(--line); border-radius: 10px; padding: 0; overflow: hidden; cursor: pointer; background: none; text-align: left; color: var(--ink); font: inherit; }
 .skin[aria-pressed="true"] { border-color: var(--accent); }
 .skin .sw { height: 54px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
@@ -268,21 +271,24 @@ button { font-family: var(--font-body); }
       <h1 class="brand">LIFT<span>LOG</span></h1>
       <div class="top-right">
         <span class="today" id="today"></span>
-        <button class="skin-btn" id="btn-skin" aria-expanded="false" aria-controls="skins">テーマ</button>
+        <button class="skin-btn" id="btn-skin" aria-haspopup="dialog" aria-controls="skins">テーマ</button>
       </div>
     </header>
-    <section class="skins" id="skins" hidden aria-label="テーマを選ぶ">
-      <h2>テーマ</h2>
-      <button class="skin" data-skin="iron"><span class="sw sw-iron">IRON</span><span class="nm">アイアン</span></button>
-      <button class="skin" data-skin="plate"><span class="sw sw-plate">PLATE</span><span class="nm">プレート</span></button>
-      <button class="skin" data-skin="clock"><span class="sw sw-clock">01:24</span><span class="nm">ジムクロック</span></button>
-    </section>
     <section class="stats" aria-label="今週のまとめ">
       <div class="stat"><span class="k">今週のボリューム</span><span class="v" id="s-vol">0<small>kg</small></span></div>
       <div class="stat"><span class="k">今週</span><span class="v" id="s-week">0<small>回</small></span></div>
       <div class="stat"><span class="k">累計</span><span class="v" id="s-total">0<small>日</small></span></div>
     </section>
   </div>
+
+  <dialog class="skin-dlg" id="skins" aria-labelledby="skins-title">
+    <div class="skins">
+      <div class="skins-head"><h2 id="skins-title">テーマ</h2><button class="icon-btn" data-close aria-label="閉じる">×</button></div>
+      <button class="skin" data-skin="iron"><span class="sw sw-iron">IRON</span><span class="nm">アイアン</span></button>
+      <button class="skin" data-skin="plate"><span class="sw sw-plate">PLATE</span><span class="nm">プレート</span></button>
+      <button class="skin" data-skin="clock"><span class="sw sw-clock">01:24</span><span class="nm">ジムクロック</span></button>
+    </div>
+  </dialog>
 
   <nav class="tabs">
     <div class="seg" role="tablist">
@@ -696,10 +702,12 @@ function applySkin(s) {
   $("#meta-theme").setAttribute("content", SKIN_BAR[s]);
   document.querySelectorAll(".skin").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.skin === s)));
 }
-$("#btn-skin").addEventListener("click", e => {
-  const p = $("#skins"); p.hidden = !p.hidden; e.currentTarget.setAttribute("aria-expanded", String(!p.hidden));
+$("#btn-skin").addEventListener("click", () => $("#skins").showModal());
+// 選ぶとすぐ反映し、背景越しに見比べられるよう開いたままにする。外側か × で閉じる
+$("#skins").addEventListener("click", e => {
+  if (e.target === e.currentTarget || e.target.closest("[data-close]")) return e.currentTarget.close();
+  const b = e.target.closest(".skin"); if (b) applySkin(b.dataset.skin);
 });
-$("#skins").addEventListener("click", e => { const b = e.target.closest(".skin"); if (b) applySkin(b.dataset.skin); });
 { const d = new Date(); $("#today").textContent = `${ymd(d).replaceAll("-", ".")} ${"SUN MON TUE WED THU FRI SAT".split(" ")[d.getDay()]}`; }
 applySkin(document.documentElement.dataset.skin || "iron");
 
