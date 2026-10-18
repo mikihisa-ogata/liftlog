@@ -292,7 +292,7 @@ button { font-family: var(--font-body); }
 
   <nav class="tabs">
     <div class="seg" role="tablist">
-      <button role="tab" id="tab-log" data-tab="log">記録する</button>
+      <button role="tab" id="tab-log" data-tab="log">記録</button>
       <button role="tab" id="tab-history" data-tab="history">履歴</button>
       <button role="tab" id="tab-progress" data-tab="progress">推移</button>
     </div>
@@ -458,7 +458,7 @@ function renderStats() {
   $("#s-total").innerHTML = `${new Set(workouts.map(w => w.date)).size}<small>日</small>`;
 }
 
-/* ---------- 記録する ---------- */
+/* ---------- 記録 ---------- */
 function renderPicker() {
   $("#parts").innerHTML = Object.keys(PRESETS).map(p => `<button class="chip" data-part="${p}" aria-pressed="${p === ui.part}">${p}</button>`).join("");
   $("#presets").innerHTML = PRESETS[ui.part].map(n => `<button class="chip add" data-add="${esc(n)}">${esc(n)}</button>`).join("");
@@ -556,7 +556,7 @@ function prMap() {
 function renderHistory() {
   const v = $("#view-history");
   if (!workouts.length) {
-    v.innerHTML = `<p class="empty">まだ記録がありません。「記録する」タブで種目とセットを入れて保存すると、ここに日付ごとに並びます。</p>`;
+    v.innerHTML = `<p class="empty">まだ記録がありません。「記録」タブで種目とセットを入れて保存すると、ここに日付ごとに並びます。</p>`;
     return;
   }
   const prs = prMap();
