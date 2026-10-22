@@ -32,7 +32,7 @@
   --bg: #0d0d0d; --surface: #1a1a1a; --field: #0d0d0d; --ink: #f2f2f2; --muted: #b3b3b3; --line: #3a3a3a;
   --accent: #ffd400; --accent-ink: #000000; --accent-soft: #2b2600;
   --pr: #ffd400; --pr-ink: #000000; --danger: #ff5a4f;
-  --top-band: #0d0d0d;
+  --top-band: #0d0d0d; --map-skin: #262626; --map-off: #3d3d3d;
   --font-num: "Anton", "Arial Narrow", "M PLUS 1p", sans-serif; --num-style: normal; --num-weight: 400;
   --font-head: "M PLUS 1p", "Hiragino Sans", sans-serif; --head-weight: 800;
   --font-body: "M PLUS 1p", "Hiragino Sans", "Yu Gothic", system-ui, sans-serif;
@@ -43,7 +43,7 @@
   --bg: #f4f4f2; --surface: #ffffff; --field: #f4f4f2; --ink: #111111; --muted: #555555; --line: #d4d4cf;
   --accent: #cf1f16; --accent-ink: #ffffff; --accent-soft: #fde4e2;
   --pr: #ffc20e; --pr-ink: #111111; --danger: #cf1f16;
-  --top-band: #111111;
+  --top-band: #111111; --map-skin: #e4e4e0; --map-off: #c9c9c3;
   --font-num: "Barlow Condensed", "Arial Narrow", "Noto Sans JP", sans-serif; --num-style: italic; --num-weight: 900;
   --font-head: "Noto Sans JP", "Hiragino Sans", sans-serif; --head-weight: 900;
   --font-body: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", system-ui, sans-serif;
@@ -54,7 +54,7 @@
   --bg: #0a0a0c; --surface: #141418; --field: #0a0a0c; --ink: #ededf0; --muted: #a8a8b4; --line: #34343c;
   --accent: #ff2e2e; --accent-ink: #ffffff; --accent-soft: #2a0f11;
   --pr: #39ff88; --pr-ink: #04140a; --danger: #ff2e2e;
-  --top-band: #0a0a0c;
+  --top-band: #0a0a0c; --map-skin: #202026; --map-off: #383840;
   --font-num: "Share Tech Mono", ui-monospace, "SF Mono", monospace; --num-style: normal; --num-weight: 400;
   --font-head: "M PLUS 1p", "Hiragino Sans", sans-serif; --head-weight: 800;
   --font-body: "M PLUS 1p", "Hiragino Sans", "Yu Gothic", system-ui, sans-serif;
@@ -112,6 +112,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 
 h2 { font-size: 13px; letter-spacing: .12em; color: var(--muted); margin: 0; font-weight: 700; }
 .view { display: flex; flex-direction: column; gap: 14px; }
+#ex-list:empty { display: none; }
 
 label.field { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); font-weight: 700; }
 input, textarea, select {
@@ -177,6 +178,18 @@ button { font-family: var(--font-body); }
 .badge.sample { background: var(--accent-soft); color: var(--accent); }
 .notice { background: var(--accent-soft); border-radius: var(--radius); padding: 10px 14px; font-size: 13px; display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
 
+.mapcard { background: var(--surface); border-radius: var(--radius); padding: 14px 16px; display: flex; flex-direction: column; gap: 12px; }
+.mapcard-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.mapcard-body { display: flex; flex-direction: column; gap: 14px; align-items: center; }
+.mapcard-body .body-map { max-width: 280px; }
+.mrank { list-style: none; margin: 0; padding: 0; align-self: stretch; columns: 2 140px; column-gap: 24px; font-size: 13px; font-weight: 700; }
+.mrank li { display: flex; align-items: center; gap: 8px; padding-block: 2px; break-inside: avoid; }
+.mrank .num { margin-left: auto; font-size: 17px; }
+.sw-lv { width: 12px; height: 12px; flex: none; background: var(--c); border-radius: 3px; }
+.mlegend { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; font-size: 12px; color: var(--muted); }
+.mlegend span { display: inline-flex; align-items: center; gap: 4px; }
+.day-body { display: grid; grid-template-columns: minmax(0, 1fr) 76px; gap: 12px; align-items: start; }
+
 /* ---- 推移 ---- */
 .prog-ctrl { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; }
 .prog-ctrl .field { flex: 1 1 220px; }
@@ -220,14 +233,17 @@ button { font-family: var(--font-body); }
 .fig-arrow { stroke: var(--accent); stroke-width: 3; fill: var(--accent); stroke-linecap: round; }
 .fig-floor { stroke: var(--line); stroke-width: 2; }
 .muscles { display: flex; gap: 14px; align-items: center; }
-.mmap { width: 132px; flex: none; }
-.map-base { fill: var(--line); stroke: var(--line); stroke-width: 8; stroke-linecap: round; }
-.map-base path, .map-base circle, .map-base rect { stroke: none; }
-.map-base .leg { stroke-width: 10; fill: none; }
-.map-base polyline { fill: none; }
-.map-main { fill: var(--accent); }
-.map-sub { fill: var(--accent); opacity: .4; }
-.mmap text { fill: var(--muted); font-size: 12px; text-anchor: middle; }
+.body-map { display: block; width: 100%; height: auto; }
+.bm-sil { fill: var(--map-skin); }
+.body-map .m { fill: var(--c); stroke: var(--surface); stroke-width: .8; stroke-linejoin: round; }
+.body-map text { fill: var(--muted); font-size: 12px; font-weight: 700; text-anchor: middle; }
+.body-map.mini text { display: none; }
+.lv0 { --c: var(--map-off); }
+.lv1 { --c: color-mix(in srgb, var(--accent) 30%, var(--map-off)); }
+.lv2 { --c: color-mix(in srgb, var(--accent) 55%, var(--map-off)); }
+.lv3 { --c: color-mix(in srgb, var(--accent) 80%, var(--map-off)); }
+.lv4 { --c: var(--accent); }
+.muscles .body-map { width: 150px; flex: none; }
 .mlist { display: flex; flex-wrap: wrap; gap: 6px; align-content: center; min-width: 0; }
 .mchip { font-size: 12px; font-weight: 800; padding: 3px 10px; border-radius: var(--radius-ctl); }
 .mchip.main { background: var(--accent); color: var(--accent-ink); }
@@ -425,7 +441,7 @@ const setsText = sets => sets.map(s => (+s.w ? fmtW(+s.w) + "×" : "自重×") +
 const newId = () => "w-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 
 let workouts = [];
-const ui = { tab: ls.get("liftlog.tab", "log"), part: "胸", gpart: "胸", ex: null, metric: ls.get("liftlog.metric", "e1rm") };
+const ui = { tab: ls.get("liftlog.tab", "log"), part: "胸", gpart: "胸", ex: null, metric: ls.get("liftlog.metric", "e1rm"), hp: [7, 28, 91].includes(ls.get("liftlog.hp")) ? ls.get("liftlog.hp") : 7 };
 const blankDraft = () => ({ id: null, date: today(), exercises: [], memo: "" });
 let draft = ls.get("liftlog.draft", null) || blankDraft();
 const saveDraft = () => ls.set("liftlog.draft", draft);
@@ -517,7 +533,7 @@ function renderLog() {
   $("#btn-save").textContent = draft.id ? "変更を保存" : "保存";
   const list = $("#ex-list");
   if (!draft.exercises.length) {
-    list.innerHTML = `<p class="empty">下の「種目を追加」から今日やった種目を選んでください。前回の重量と回数が出るので、そのまま書き換えられます。</p>`;
+    list.innerHTML = "";
     return;
   }
   list.innerHTML = draft.exercises.map((e, i) => {
@@ -601,6 +617,37 @@ function prMap() {
   });
   return out;
 }
+// 部位ごとのセット数。主に効く部位は1セット、補助で使う部位は0.5セットと数える
+function muscleSets(ws) {
+  const sets = {}, unknown = new Set();
+  for (const w of ws) for (const e of w.exercises) {
+    const g = GUIDE[e.name];
+    if (!g) { unknown.add(e.name); continue; }
+    g.main.forEach(m => sets[m] = (sets[m] || 0) + e.sets.length);
+    g.sub.forEach(m => sets[m] = (sets[m] || 0) + e.sets.length / 2);
+  }
+  return { sets, unknown };
+}
+// 色の濃さ（0〜4）。steps は 2〜4 段目になるセット数
+const lvOf = (n, steps) => n > 0 ? 1 + steps.filter(t => n >= t).length : 0;
+const WEEK_STEPS = [4, 8, 12], DAY_STEPS = [3, 5, 8];
+const PERIODS = [[7, "1週間"], [28, "4週間"], [91, "3か月"]];
+function mapCard() {
+  const days = ui.hp, from = new Date(); from.setDate(from.getDate() - days + 1);
+  const { sets, unknown } = muscleSets(workouts.filter(w => w.date >= ymd(from)));
+  const perWeek = m => (sets[m] || 0) * 7 / days;
+  const lv = m => lvOf(perWeek(m), WEEK_STEPS);
+  const rank = Object.keys(sets).sort((a, b) => sets[b] - sets[a]);
+  return `<section class="mapcard">
+    <div class="mapcard-head"><h2>鍛えた部位</h2><div class="chips">${PERIODS.map(([d, l]) => `<button class="chip" data-hp="${d}" aria-pressed="${d === days}">${l}</button>`).join("")}</div></div>
+    <div class="mapcard-body">${bodyMap(lv)}
+      ${rank.length ? `<ol class="mrank">${rank.map(m => `<li class="lv${lv(m)}" title="${MUSCLE[m]}"><i class="sw-lv"></i>${MUSCLE_SHORT[m]}<span class="num">${Math.round(perWeek(m) * 10) / 10}</span></li>`).join("")}</ol>`
+        : `<p class="empty">この期間の記録はありません。</p>`}
+    </div>
+    <div class="mlegend">数字と色の濃さは1週間あたりのセット数：${["1〜", "4〜", "8〜", "12〜"].map((t, i) => `<span class="lv${i + 1}"><i class="sw-lv"></i>${t}</span>`).join("")}</div>
+    <p class="note">補助で使う部位は0.5セットとして数えています。${unknown.size ? `部位が登録されていない種目（${[...unknown].map(esc).join("・")}）は含みません。` : ""}</p>
+  </section>`;
+}
 function renderHistory() {
   const v = $("#view-history");
   if (!workouts.length) {
@@ -608,8 +655,8 @@ function renderHistory() {
     return;
   }
   const prs = prMap();
-  let html = workouts.some(w => w.example)
-    ? `<div class="notice"><span>「サンプル」の付いた記録は見本です。自分の記録をつけ始めたら消してください。</span><button class="btn small" id="btn-del-samples">サンプルを削除</button></div>` : "";
+  let html = mapCard() + (workouts.some(w => w.example)
+    ? `<div class="notice"><span>「サンプル」の付いた記録は見本です。自分の記録をつけ始めたら消してください。</span><button class="btn small" id="btn-del-samples">サンプルを削除</button></div>` : "");
   let month = "";
   for (const w of workouts) {
     const m = w.date.slice(0, 7);
@@ -620,7 +667,10 @@ function renderHistory() {
         <span class="day-date">${fmtDate(w.date)}${w.example ? `<span class="badge sample">サンプル</span>` : ""}</span>
         <span class="day-meta">${w.exercises.length}種目 · ${nSets}セット · <span class="num">${fmtN(wVol(w))}</span> kg</span>
       </div>
-      <ul>${w.exercises.map(e => `<li><b>${esc(e.name)} ${prs[w.id]?.has(e.name) ? `<span class="badge pr">自己ベスト</span>` : ""}</b><span class="num">${esc(setsText(e.sets))}</span></li>`).join("")}</ul>
+      <div class="day-body">
+        <ul>${w.exercises.map(e => `<li><b>${esc(e.name)} ${prs[w.id]?.has(e.name) ? `<span class="badge pr">自己ベスト</span>` : ""}</b><span class="num">${esc(setsText(e.sets))}</span></li>`).join("")}</ul>
+        ${(ms => bodyMap(m => lvOf(ms[m] || 0, DAY_STEPS), "mini"))(muscleSets([w]).sets)}
+      </div>
       ${w.memo ? `<p class="memo">${esc(w.memo)}</p>` : ""}
       <div class="day-foot"><button class="btn small" data-edit="${esc(w.id)}">編集</button><button class="btn small danger" data-del="${esc(w.id)}">削除</button></div>
     </article>`;
@@ -628,6 +678,8 @@ function renderHistory() {
   v.innerHTML = html;
 }
 $("#view-history").addEventListener("click", e => {
+  const hp = e.target.closest("[data-hp]");
+  if (hp) { ui.hp = +hp.dataset.hp; ls.set("liftlog.hp", ui.hp); return renderHistory(); }
   const ed = e.target.closest("[data-edit]"), del = e.target.closest("[data-del]");
   if (e.target.id === "btn-del-samples") {
     twoTap(e.target, "もう一度押すと削除", async () => {
@@ -752,6 +804,11 @@ const MUSCLE = {
   biceps: "上腕二頭筋", triceps: "上腕三頭筋", forearm: "前腕", abs: "腹直筋",
   lats: "広背筋", traps: "僧帽筋・菱形筋", lowback: "脊柱起立筋（腰）",
   glutes: "大臀筋（お尻）", quads: "大腿四頭筋（太もも前）", hams: "ハムストリングス（太もも裏）", calves: "下腿三頭筋（ふくらはぎ）"
+};
+// 履歴の一覧で使う短い呼び名
+const MUSCLE_SHORT = {
+  chest: "胸", delt_front: "肩（前）", delt_side: "肩（横）", delt_rear: "肩（後ろ）", biceps: "力こぶ", triceps: "二の腕", forearm: "前腕", abs: "腹",
+  lats: "背中（広背筋）", traps: "背中（上部）", lowback: "腰", glutes: "お尻", quads: "太もも前", hams: "太もも裏", calves: "ふくらはぎ"
 };
 const bench = (x1, x2, y) => [{ k: "line", a: [x1, y], b: [x2, y], w: 7 }, { k: "line", a: [x1 + 8, y], b: [x1 + 8, 146], w: 3 }, { k: "line", a: [x2 - 8, y], b: [x2 - 8, 146], w: 3 }];
 const GUIDE = {
@@ -1121,37 +1178,54 @@ function poseSvg(g, i) {
   const sc = g.scale || 1;
   return `<svg viewBox="0 0 160 150" role="img" aria-label="${i ? "フィニッシュ" : "スタート"}の姿勢"><line class="fig-floor" x1="0" y1="146" x2="160" y2="146"/><g transform="translate(80 146) scale(${sc}) translate(-80 -146)">${s}</g></svg>`;
 }
-// 効く部位の図（左が前、右が後ろ）。主に効く部位は濃く、補助で使う部位は薄く塗る
-const MAP_FRONT = {
-  delt_front: '<circle cx="14" cy="28" r="5.5"/><circle cx="46" cy="28" r="5.5"/>',
-  delt_side: '<circle cx="14" cy="28" r="5.5"/><circle cx="46" cy="28" r="5.5"/>',
-  chest: '<ellipse cx="24" cy="34" rx="7" ry="5.5"/><ellipse cx="36" cy="34" rx="7" ry="5.5"/>',
-  biceps: '<ellipse cx="10" cy="42" rx="3.5" ry="7.5"/><ellipse cx="50" cy="42" rx="3.5" ry="7.5"/>',
-  forearm: '<ellipse cx="7.5" cy="62" rx="3.2" ry="8.5"/><ellipse cx="52.5" cy="62" rx="3.2" ry="8.5"/>',
-  abs: '<rect x="25" y="42" width="10" height="28" rx="4"/>',
-  quads: '<ellipse cx="24" cy="94" rx="5.5" ry="14"/><ellipse cx="36" cy="94" rx="5.5" ry="14"/>'
+// 人体図（左半身だけ描き、x=50 で鏡写しにする）。viewBox は 1 体あたり 100×210
+const BODY_SIL = '<ellipse cx="50" cy="13" rx="8.5" ry="10.5"/>'
+  + '<path d="M50 22 L44 23 L44 30 Q33 31 26 33 Q17 35 16 45 Q15 60 16 73 Q13 90 15 106 L13 114 Q14 122 19 123 Q23 121 23 113 L21 106 Q25 91 26 76 Q27 64 28 53 Q31 72 31 96 Q28 112 30 128 Q29 141 33 152 Q30 172 33 191 L31 200 Q30 204 34 204 L43 204 Q45 200 42 192 Q46 175 45 159 Q48 140 48 122 L50 118 Z"/>';
+const BODY = {
+  front: {
+    parts: {
+      traps: ['M44 27 L44 31 Q36 31 30 33 Q37 29 44 27 Z'],
+      delt_side: ['M27 34 Q19 35 17 44 Q17 50 19 54 L22 52 Q21 43 27 34 Z'],
+      delt_front: ['M27 34 Q31 33 34 37 Q31 45 26 50 L22 52 Q21 43 27 34 Z'],
+      chest: ['M34 36 Q42 34 49 36 L49 57 Q40 61 32 57 Q28 53 27 50 Q31 43 34 36 Z'],
+      biceps: ['M19 56 Q23 52 27 54 Q28 64 26 74 Q21 76 18 72 Q16 63 19 56 Z'],
+      forearm: ['M17 77 Q22 76 26 78 Q25 92 21 105 L16 105 Q13 91 17 77 Z'],
+      abs: ['M41 61 L49 61 L49 70 L41 70 Z', 'M41 72 L49 72 L49 81 L41 81 Z', 'M41 83 L49 83 L49 97 Q44 97 42 93 Z'],
+      quads: ['M32 106 Q41 104 48 112 Q48 133 44 150 Q37 153 33 150 Q28 128 32 106 Z'],
+      calves: ['M33 160 Q36 157 38 159 Q38 175 36 189 L34 189 Q31 175 33 160 Z']
+    }
+  },
+  back: {
+    mid: ['M50 22 L57 30 L68 34 L58 40 L54 62 L50 66 L46 62 L42 40 L32 34 L43 30 Z'],
+    parts: {
+      traps: [],
+      delt_side: ['M27 34 Q19 35 17 44 Q17 50 19 54 L22 52 Q21 43 27 34 Z'],
+      delt_rear: ['M27 34 Q31 33 33 36 Q31 45 26 50 L22 52 Q21 43 27 34 Z'],
+      triceps: ['M19 56 Q23 52 27 54 Q28 64 26 74 Q21 76 18 72 Q16 63 19 56 Z'],
+      forearm: ['M17 77 Q22 76 26 78 Q25 92 21 105 L16 105 Q13 91 17 77 Z'],
+      lats: ['M34 40 L41 42 L45 63 L43 82 Q37 85 33 82 Q31 64 28 52 Q30 45 34 40 Z'],
+      lowback: ['M45 66 L49 69 L49 97 L42 97 Q44 82 45 66 Z'],
+      glutes: ['M33 99 Q42 96 49 100 L49 118 Q40 122 32 117 Q30 107 33 99 Z'],
+      hams: ['M32 120 Q40 124 48 121 Q47 138 44 150 Q37 153 33 150 Q29 135 32 120 Z'],
+      calves: ['M33 158 Q39 154 45 158 Q45 172 41 184 L36 184 Q32 172 33 158 Z']
+    }
+  }
 };
-const MAP_BACK = {
-  traps: '<path d="M30 19 L41 27 L30 41 L19 27 Z"/>',
-  delt_rear: '<circle cx="14" cy="28" r="5.5"/><circle cx="46" cy="28" r="5.5"/>',
-  delt_side: '<circle cx="14" cy="28" r="5.5"/><circle cx="46" cy="28" r="5.5"/>',
-  triceps: '<ellipse cx="10" cy="43" rx="3.5" ry="8"/><ellipse cx="50" cy="43" rx="3.5" ry="8"/>',
-  forearm: '<ellipse cx="7.5" cy="62" rx="3.2" ry="8.5"/><ellipse cx="52.5" cy="62" rx="3.2" ry="8.5"/>',
-  lats: '<ellipse cx="21" cy="47" rx="5" ry="11"/><ellipse cx="39" cy="47" rx="5" ry="11"/>',
-  lowback: '<ellipse cx="30" cy="63" rx="6" ry="7"/>',
-  glutes: '<ellipse cx="24.5" cy="81" rx="6.5" ry="6"/><ellipse cx="35.5" cy="81" rx="6.5" ry="6"/>',
-  hams: '<ellipse cx="24" cy="99" rx="5" ry="12"/><ellipse cx="36" cy="99" rx="5" ry="12"/>',
-  calves: '<ellipse cx="23.5" cy="120" rx="4" ry="8"/><ellipse cx="36.5" cy="120" rx="4" ry="8"/>'
-};
-const MAP_BASE = '<circle cx="30" cy="10" r="7.5"/><rect x="27" y="16" width="6" height="7"/><path d="M14 24 Q30 20 46 24 L44 54 Q42 70 40 76 L20 76 Q18 70 16 54 Z"/>'
-  + '<polyline points="14,27 9,48 6,72"/><polyline points="46,27 51,48 54,72"/><polyline class="leg" points="24,78 23,104 23,132"/><polyline class="leg" points="36,78 37,104 37,132"/>';
-function mapSvg(g) {
-  const side = (parts, x, label) => `<g transform="translate(${x} 0)"><g class="map-base">${MAP_BASE}</g>`
-    + g.sub.map(m => parts[m] ? `<g class="map-sub">${parts[m]}</g>` : "").join("")
-    + g.main.map(m => parts[m] ? `<g class="map-main">${parts[m]}</g>` : "").join("")
-    + `<text x="30" y="147">${label}</text></g>`;
-  return `<svg class="mmap" viewBox="0 0 132 150" role="img" aria-label="効く部位">${side(MAP_FRONT, 0, "前")}${side(MAP_BACK, 72, "後ろ")}</svg>`;
+// level(m) は 0〜4。0 は鍛えていない部位
+function bodyMap(level, cls = "") {
+  const fig = (v, x, label) => {
+    const b = BODY[v], mir = s => `${s}<g transform="translate(100 0) scale(-1 1)">${s}</g>`;
+    const parts = Object.entries(b.parts).map(([m, ds]) => {
+      const lv = level(m), d = ds.map(p => `<path d="${p}"/>`).join("");
+      const mid = m === "traps" && b.mid ? b.mid.map(p => `<path d="${p}"/>`).join("") : "";
+      return `<g class="m lv${lv}"><title>${MUSCLE[m]}</title>${mid}${d ? mir(d) : ""}</g>`;
+    }).join("");
+    return `<g transform="translate(${x} 0)"><g class="bm-sil">${mir(BODY_SIL)}</g>${parts}<text x="50" y="219">${label}</text></g>`;
+  };
+  return `<svg class="body-map ${cls}" viewBox="0 0 210 224" role="img" aria-label="鍛えた部位">${fig("front", 0, "前")}${fig("back", 110, "後ろ")}</svg>`;
 }
+// 効く部位の図：主に効く部位は濃く、補助で使う部位は薄く塗る
+const mapSvg = g => bodyMap(m => g.main.includes(m) ? 4 : g.sub.includes(m) ? 2 : 0);
 
 function renderGuide() {
   $("#g-parts").innerHTML = Object.keys(PRESETS).map(p => `<button class="chip" data-gpart="${p}" aria-pressed="${p === ui.gpart}">${p}</button>`).join("");
