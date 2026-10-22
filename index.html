@@ -19,7 +19,7 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Dela+Gothic+One&family=M+PLUS+1p:wght@500;700;800&family=Barlow+Condensed:ital,wght@1,700;1,800;1,900&family=Noto+Sans+JP:wght@500;700;900&family=Share+Tech+Mono&family=DotGothic16&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=M+PLUS+1p:wght@500;700;800&family=Barlow+Condensed:ital,wght@1,700;1,800;1,900&family=Noto+Sans+JP:wght@500;700;900&family=Share+Tech+Mono&family=DotGothic16&display=swap">
 <style>
 /*
   テーマ（data-skin）
@@ -29,20 +29,20 @@
   どのテーマも決まった見た目なので、OSのライト/ダーク設定には追従しない。
 */
 :root {
-  --bg: #0d0d0d; --surface: #1a1a1a; --field: #0d0d0d; --ink: #f2f2f2; --muted: #8f8f8f; --line: #2e2e2e;
+  --bg: #0d0d0d; --surface: #1a1a1a; --field: #0d0d0d; --ink: #f2f2f2; --muted: #b3b3b3; --line: #3a3a3a;
   --accent: #ffd400; --accent-ink: #000000; --accent-soft: #2b2600;
   --pr: #ffd400; --pr-ink: #000000; --danger: #ff5a4f;
   --top-band: #0d0d0d;
   --font-num: "Anton", "Arial Narrow", "M PLUS 1p", sans-serif; --num-style: normal; --num-weight: 400;
-  --font-head: "Dela Gothic One", "M PLUS 1p", "Hiragino Sans", sans-serif; --head-weight: 400;
+  --font-head: "M PLUS 1p", "Hiragino Sans", sans-serif; --head-weight: 800;
   --font-body: "M PLUS 1p", "Hiragino Sans", "Yu Gothic", system-ui, sans-serif;
   --radius: 0px; --radius-ctl: 0px; --glow: none;
   color-scheme: dark;
 }
 :root[data-skin="plate"] {
-  --bg: #f4f4f2; --surface: #ffffff; --field: #f4f4f2; --ink: #111111; --muted: #6c6c6c; --line: #e0e0dc;
-  --accent: #e2231a; --accent-ink: #ffffff; --accent-soft: #fde4e2;
-  --pr: #ffc20e; --pr-ink: #111111; --danger: #e2231a;
+  --bg: #f4f4f2; --surface: #ffffff; --field: #f4f4f2; --ink: #111111; --muted: #555555; --line: #d4d4cf;
+  --accent: #cf1f16; --accent-ink: #ffffff; --accent-soft: #fde4e2;
+  --pr: #ffc20e; --pr-ink: #111111; --danger: #cf1f16;
   --top-band: #111111;
   --font-num: "Barlow Condensed", "Arial Narrow", "Noto Sans JP", sans-serif; --num-style: italic; --num-weight: 900;
   --font-head: "Noto Sans JP", "Hiragino Sans", sans-serif; --head-weight: 900;
@@ -51,7 +51,7 @@
   color-scheme: light;
 }
 :root[data-skin="clock"] {
-  --bg: #0a0a0c; --surface: #141418; --field: #0a0a0c; --ink: #e8e8ec; --muted: #80808c; --line: #26262d;
+  --bg: #0a0a0c; --surface: #141418; --field: #0a0a0c; --ink: #ededf0; --muted: #a8a8b4; --line: #34343c;
   --accent: #ff2e2e; --accent-ink: #ffffff; --accent-soft: #2a0f11;
   --pr: #39ff88; --pr-ink: #04140a; --danger: #ff2e2e;
   --top-band: #0a0a0c;
@@ -84,10 +84,10 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .today { font-family: var(--font-num); font-style: var(--num-style); font-size: 15px; color: var(--muted); letter-spacing: .06em; }
 .skin-btn { border: 1px solid var(--line); background: transparent; color: var(--muted); font: 700 12px var(--font-body); padding: 4px 10px; border-radius: var(--radius-ctl); cursor: pointer; }
 
-.stats { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 10px; }
-.stat { background: var(--surface); padding: 12px 14px; display: flex; flex-direction: column; gap: 2px; min-width: 0; border-radius: var(--radius); }
-.stat .k { font-size: 11px; color: var(--muted); letter-spacing: .08em; font-weight: 700; }
-.stat .v { font-family: var(--font-num); font-style: var(--num-style); font-weight: var(--num-weight); font-size: 32px; line-height: 1.1; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.stat { background: var(--surface); padding: 12px 14px; display: flex; flex-direction: column; gap: 2px; min-width: 0; border-radius: var(--radius); container-type: inline-size; }
+.stat .k { font-size: 12px; color: var(--muted); letter-spacing: .08em; font-weight: 700; }
+.stat .v { font-family: var(--font-num); font-style: var(--num-style); font-weight: var(--num-weight); line-height: 1.1; font-variant-numeric: tabular-nums; white-space: nowrap; font-size: min(32px, 26cqi); }
 .stat .v small { font-family: var(--font-body); font-style: normal; font-size: 12px; color: var(--muted); font-weight: 700; margin-left: 3px; }
 
 /* テーマ選択 */
@@ -110,7 +110,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .seg button { border: 0; background: transparent; color: var(--ink); font: 800 14px var(--font-body); padding: 10px 4px; cursor: pointer; border-radius: 0; }
 .seg button[aria-selected="true"] { background: var(--ink); color: var(--bg); }
 
-h2 { font-size: 12px; letter-spacing: .12em; color: var(--muted); margin: 0; font-weight: 700; }
+h2 { font-size: 13px; letter-spacing: .12em; color: var(--muted); margin: 0; font-weight: 700; }
 .view { display: flex; flex-direction: column; gap: 14px; }
 
 label.field { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); font-weight: 700; }
@@ -132,7 +132,7 @@ textarea { min-height: 72px; resize: vertical; }
 .prev { margin: 0; font-size: 12px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; }
 .prev .num { font-size: 15px; color: var(--ink); }
 .setgrid { display: grid; grid-template-columns: 34px 1fr 16px 1fr 32px; gap: 8px; align-items: center; }
-.setgrid .h { font-size: 11px; color: var(--muted); letter-spacing: .08em; font-weight: 700; }
+.setgrid .h { font-size: 12px; color: var(--muted); letter-spacing: .08em; font-weight: 700; }
 .setno { font-family: var(--font-num); font-style: var(--num-style); font-weight: var(--num-weight); font-size: 22px; color: var(--accent); text-shadow: var(--glow); }
 .times { font-family: var(--font-body); font-size: 18px; color: var(--muted); text-align: center; }
 .setgrid input { font-family: var(--font-num); font-style: var(--num-style); font-weight: var(--num-weight); font-size: 28px; line-height: 1.2; text-align: center; padding: 4px; font-variant-numeric: tabular-nums; border-radius: min(var(--radius-ctl), 12px); }
@@ -193,17 +193,17 @@ button { font-family: var(--font-body); }
 .chart .end { fill: var(--ink); font: 16px var(--font-num); }
 .pbs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 .pb { background: var(--surface); border-radius: var(--radius); padding: 10px 12px; min-width: 0; }
-.pb .k { font-size: 11px; color: var(--muted); font-weight: 700; }
+.pb .k { font-size: 12px; color: var(--muted); font-weight: 700; }
 .pb .v { font-family: var(--font-num); font-style: var(--num-style); font-weight: var(--num-weight); font-size: 28px; line-height: 1.2; }
 .pb .v small { font-family: var(--font-body); font-style: normal; font-size: 12px; color: var(--muted); }
-.pb .d { font-size: 11px; color: var(--muted); }
+.pb .d { font-size: 12px; color: var(--muted); }
 .note { font-size: 12px; color: var(--muted); margin: 0; }
 
 /* ---- 種目ガイド ---- */
 .g-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
 .gcard { border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: var(--radius); padding: 8px 8px 10px; display: flex; flex-direction: column; gap: 4px; text-align: left; cursor: pointer; font: inherit; }
 .gcard b { font-family: var(--font-head); font-weight: var(--head-weight); font-size: 15px; line-height: 1.3; }
-.gcard small { font-size: 11px; color: var(--muted); line-height: 1.4; }
+.gcard small { font-size: 12px; color: var(--muted); line-height: 1.4; }
 .gfig svg, .poses svg { display: block; width: 100%; height: auto; background: var(--field); border-radius: min(var(--radius), 8px); }
 .guide-dlg { width: min(560px, calc(100% - 32px)); }
 .guide-body { background: var(--surface); border-radius: var(--radius); padding: 16px; display: flex; flex-direction: column; gap: 10px; }
@@ -227,7 +227,7 @@ button { font-family: var(--font-body); }
 .map-base polyline { fill: none; }
 .map-main { fill: var(--accent); }
 .map-sub { fill: var(--accent); opacity: .4; }
-.mmap text { fill: var(--muted); font-size: 11px; text-anchor: middle; }
+.mmap text { fill: var(--muted); font-size: 12px; text-anchor: middle; }
 .mlist { display: flex; flex-wrap: wrap; gap: 6px; align-content: center; min-width: 0; }
 .mchip { font-size: 12px; font-weight: 800; padding: 3px 10px; border-radius: var(--radius-ctl); }
 .mchip.main { background: var(--accent); color: var(--accent-ink); }
@@ -261,7 +261,7 @@ button { font-family: var(--font-body); }
 [data-skin="plate"] .skin-btn { border-color: #555; color: #ddd; }
 [data-skin="plate"] .stats { padding-right: 64px; }
 [data-skin="plate"] .stat { background: transparent; padding: 0; }
-[data-skin="plate"] .stat .v { font-size: 44px; color: #ffffff; }
+[data-skin="plate"] .stat .v { font-size: min(44px, 24cqi); color: #ffffff; }
 [data-skin="plate"] .stat:first-child .v { color: #ffc20e; }
 [data-skin="plate"] .skins { color: var(--ink); }
 [data-skin="plate"] .seg { border: 0; background: var(--surface); padding: 4px; gap: 4px; box-shadow: 0 1px 0 var(--line); }
@@ -280,7 +280,7 @@ button { font-family: var(--font-body); }
 [data-skin="clock"] .stat { background: transparent; align-items: center; padding: 0 4px; border-radius: 0; }
 [data-skin="clock"] .stat + .stat { border-left: 1px solid #1d1d22; }
 [data-skin="clock"] .stat .k { font-family: "DotGothic16", monospace; font-weight: 400; letter-spacing: .04em; }
-[data-skin="clock"] .stat .v { color: var(--accent); text-shadow: var(--glow); font-size: 34px; }
+[data-skin="clock"] .stat .v { color: var(--accent); text-shadow: var(--glow); font-size: min(34px, 22cqi); }
 [data-skin="clock"] .stat:last-child .v { color: var(--pr); text-shadow: 0 0 10px rgba(57, 255, 136, .5); }
 [data-skin="clock"] .seg { border: 1px solid var(--line); background: var(--surface); }
 [data-skin="clock"] .seg button[aria-selected="true"] { background: transparent; color: var(--accent); text-shadow: var(--glow); box-shadow: inset 0 -3px 0 var(--accent); }
@@ -290,8 +290,8 @@ button { font-family: var(--font-body); }
 [data-skin="clock"] .chart .line { filter: drop-shadow(0 0 4px rgba(255, 46, 46, .6)); }
 
 @media (max-width: 460px) {
-  .stat .v { font-size: 26px; }
-  [data-skin="plate"] .stat .v { font-size: 36px; }
+  .stat .v { font-size: min(26px, 26cqi); }
+  [data-skin="plate"] .stat .v { font-size: min(36px, 24cqi); }
   .stat { padding: 10px; }
   .pbs { grid-template-columns: 1fr 1fr; }
   .day li { grid-template-columns: 1fr; gap: 0; }
