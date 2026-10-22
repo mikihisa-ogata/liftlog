@@ -91,8 +91,8 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .stat .v small { font-family: var(--font-body); font-style: normal; font-size: 12px; color: var(--muted); font-weight: 700; margin-left: 3px; }
 
 /* テーマ選択 */
-.skin-dlg { border: 0; padding: 0; background: transparent; color: var(--ink); width: min(440px, calc(100% - 32px)); max-width: none; }
-.skin-dlg::backdrop { background: rgba(0, 0, 0, .6); }
+.skin-dlg, .guide-dlg { border: 0; padding: 0; background: transparent; color: var(--ink); width: min(440px, calc(100% - 32px)); max-width: none; }
+.skin-dlg::backdrop, .guide-dlg::backdrop { background: rgba(0, 0, 0, .6); }
 .skins { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; background: var(--surface); padding: 12px; border-radius: var(--radius); }
 .skins-head { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; }
 .skins-head .icon-btn:hover { color: var(--ink); }
@@ -106,7 +106,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 
 /* ---- タブ ---- */
 .tabs { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); padding-block: 8px; }
-.seg { display: grid; grid-template-columns: repeat(3, 1fr); border: 2px solid var(--ink); border-radius: var(--radius-ctl); overflow: hidden; }
+.seg { display: grid; grid-template-columns: repeat(4, 1fr); border: 2px solid var(--ink); border-radius: var(--radius-ctl); overflow: hidden; }
 .seg button { border: 0; background: transparent; color: var(--ink); font: 800 14px var(--font-body); padding: 10px 4px; cursor: pointer; border-radius: 0; }
 .seg button[aria-selected="true"] { background: var(--ink); color: var(--bg); }
 
@@ -198,6 +198,43 @@ button { font-family: var(--font-body); }
 .pb .v small { font-family: var(--font-body); font-style: normal; font-size: 12px; color: var(--muted); }
 .pb .d { font-size: 11px; color: var(--muted); }
 .note { font-size: 12px; color: var(--muted); margin: 0; }
+
+/* ---- 種目ガイド ---- */
+.g-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.gcard { border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: var(--radius); padding: 8px 8px 10px; display: flex; flex-direction: column; gap: 4px; text-align: left; cursor: pointer; font: inherit; }
+.gcard b { font-family: var(--font-head); font-weight: var(--head-weight); font-size: 15px; line-height: 1.3; }
+.gcard small { font-size: 11px; color: var(--muted); line-height: 1.4; }
+.gfig svg, .poses svg { display: block; width: 100%; height: auto; background: var(--field); border-radius: min(var(--radius), 8px); }
+.guide-dlg { width: min(560px, calc(100% - 32px)); }
+.guide-body { background: var(--surface); border-radius: var(--radius); padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.guide-body h3 { margin: 0; font-family: var(--font-head); font-weight: var(--head-weight); font-size: 21px; line-height: 1.3; }
+.guide-body h2 { margin-top: 6px; }
+.poses { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.poses figure { margin: 0; display: flex; flex-direction: column; gap: 4px; }
+.poses figcaption { font-size: 12px; font-weight: 800; }
+.fig-body, .fig-ghost { fill: none; stroke: var(--ink); stroke-width: 5.5; stroke-linecap: round; stroke-linejoin: round; }
+.fig-body circle, .fig-ghost circle { fill: var(--ink); stroke: none; }
+.fig-ghost { opacity: .2; }
+.fig-gear { fill: none; stroke: var(--muted); stroke-linecap: round; }
+.fig-gear .solid { fill: var(--muted); stroke: none; }
+.fig-arrow { stroke: var(--accent); stroke-width: 3; fill: var(--accent); stroke-linecap: round; }
+.fig-floor { stroke: var(--line); stroke-width: 2; }
+.muscles { display: flex; gap: 14px; align-items: center; }
+.mmap { width: 132px; flex: none; }
+.map-base { fill: var(--line); stroke: var(--line); stroke-width: 8; stroke-linecap: round; }
+.map-base path, .map-base circle, .map-base rect { stroke: none; }
+.map-base .leg { stroke-width: 10; fill: none; }
+.map-base polyline { fill: none; }
+.map-main { fill: var(--accent); }
+.map-sub { fill: var(--accent); opacity: .4; }
+.mmap text { fill: var(--muted); font-size: 11px; text-anchor: middle; }
+.mlist { display: flex; flex-wrap: wrap; gap: 6px; align-content: center; min-width: 0; }
+.mchip { font-size: 12px; font-weight: 800; padding: 3px 10px; border-radius: var(--radius-ctl); }
+.mchip.main { background: var(--accent); color: var(--accent-ink); }
+.mchip.sub { background: var(--accent-soft); color: var(--ink); }
+.steps, .tips { margin: 0; padding-left: 1.4em; display: flex; flex-direction: column; gap: 4px; font-size: 14px; }
+.guide-body .btn.primary { padding: 13px; font-size: 16px; margin-top: 6px; }
+.ex-title { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; min-width: 0; }
 .backup { display: flex; flex-direction: column; gap: 10px; border-top: 1px solid var(--line); padding-top: 16px; margin-top: 8px; }
 .backup .actions { gap: 8px; }
 
@@ -295,6 +332,7 @@ button { font-family: var(--font-body); }
       <button role="tab" id="tab-log" data-tab="log">記録</button>
       <button role="tab" id="tab-history" data-tab="history">履歴</button>
       <button role="tab" id="tab-progress" data-tab="progress">推移</button>
+      <button role="tab" id="tab-guide" data-tab="guide">ガイド</button>
     </div>
   </nav>
 
@@ -347,7 +385,15 @@ button { font-family: var(--font-body); }
     </div>
     <div id="prog-body" class="view"></div>
   </section>
+
+  <!-- 種目ガイド -->
+  <section class="view" id="view-guide" hidden>
+    <p class="note">種目をタップすると、フォームの図・効く部位・やり方が見られます。</p>
+    <div class="chips" id="g-parts"></div>
+    <div class="g-list" id="g-list"></div>
+  </section>
 </div>
+<dialog class="guide-dlg" id="guide" aria-labelledby="guide-title"><div class="guide-body"></div></dialog>
 <div id="toast" class="toast hide" role="status"></div>
 
 <script>
@@ -379,7 +425,7 @@ const setsText = sets => sets.map(s => (+s.w ? fmtW(+s.w) + "×" : "自重×") +
 const newId = () => "w-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 
 let workouts = [];
-const ui = { tab: ls.get("liftlog.tab", "log"), part: "胸", ex: null, metric: ls.get("liftlog.metric", "e1rm") };
+const ui = { tab: ls.get("liftlog.tab", "log"), part: "胸", gpart: "胸", ex: null, metric: ls.get("liftlog.metric", "e1rm") };
 const blankDraft = () => ({ id: null, date: today(), exercises: [], memo: "" });
 let draft = ls.get("liftlog.draft", null) || blankDraft();
 const saveDraft = () => ls.set("liftlog.draft", draft);
@@ -437,6 +483,7 @@ function setTab(t) {
   $("#view-log").hidden = t !== "log";
   $("#view-history-wrap").hidden = t !== "history";
   $("#view-progress").hidden = t !== "progress";
+  $("#view-guide").hidden = t !== "guide";
   window.scrollTo({ top: 0 });
 }
 // その種目を最後にやった日（編集中の記録は除く）
@@ -485,7 +532,7 @@ function renderLog() {
       <input inputmode="numeric" type="number" step="1" min="0" id="r-${i}-${j}" data-s="${j}" data-k="r" value="${esc(s.r)}" placeholder="0" aria-label="${j + 1}セット目の回数">
       <button class="icon-btn" data-act="set-del" data-s="${j}" aria-label="${j + 1}セット目を削除">×</button>`).join("");
     return `<article class="ex" data-i="${i}">
-      <div class="ex-head"><h3>${esc(e.name)}</h3><button class="btn small danger" data-act="ex-del">種目を外す</button></div>
+      <div class="ex-head"><div class="ex-title"><h3>${esc(e.name)}</h3>${GUIDE[e.name] ? `<button class="link" data-act="guide">やり方</button>` : ""}</div><button class="btn small danger" data-act="ex-del">種目を外す</button></div>
       ${prevHtml}
       <div class="setgrid"><span class="h">SET</span><span class="h">重量 kg</span><span></span><span class="h">回数</span><span></span>${rows}</div>
       <button class="btn small add-set" data-act="set-add">＋ セット追加</button>
@@ -512,6 +559,7 @@ $("#ex-list").addEventListener("input", e => {
 $("#ex-list").addEventListener("click", e => {
   const b = e.target.closest("[data-act]"); if (!b) return;
   const i = +b.closest(".ex").dataset.i, ex = draft.exercises[i];
+  if (b.dataset.act === "guide") return openGuide(ex.name, true);
   if (b.dataset.act === "set-add") { const last = ex.sets[ex.sets.length - 1] || { w: "", r: "" }; ex.sets.push({ w: last.w, r: last.r }); }
   if (b.dataset.act === "set-del") ex.sets.splice(+b.dataset.s, 1);
   if (b.dataset.act === "ex-del") draft.exercises.splice(i, 1);
@@ -695,6 +743,451 @@ function renderProgress() {
 $("#f-ex").addEventListener("change", e => { ui.ex = e.target.value; renderProgress(); });
 $("#metric").addEventListener("click", e => { const b = e.target.closest("[data-m]"); if (!b) return; ui.metric = b.dataset.m; ls.set("liftlog.metric", ui.metric); renderProgress(); });
 
+/* ---------- 種目ガイド ---------- */
+// 図は棒人間を関節の位置から描く。横から見た図は右向きで、地面は y=146。
+// 手先（hand）と足首（foot）の位置を決めると、肘と膝は骨の長さから自動で曲がる（eb・kb は曲げる向き）
+const BONE = { torso: 46, neck: 15, ua: 25, fa: 23, th: 34, sh: 33, ft: 11 };
+const MUSCLE = {
+  chest: "大胸筋", delt_front: "三角筋（前）", delt_side: "三角筋（横）", delt_rear: "三角筋（後ろ）",
+  biceps: "上腕二頭筋", triceps: "上腕三頭筋", forearm: "前腕", abs: "腹直筋",
+  lats: "広背筋", traps: "僧帽筋・菱形筋", lowback: "脊柱起立筋（腰）",
+  glutes: "大臀筋（お尻）", quads: "大腿四頭筋（太もも前）", hams: "ハムストリングス（太もも裏）", calves: "下腿三頭筋（ふくらはぎ）"
+};
+const bench = (x1, x2, y) => [{ k: "line", a: [x1, y], b: [x2, y], w: 7 }, { k: "line", a: [x1 + 8, y], b: [x1 + 8, 146], w: 3 }, { k: "line", a: [x2 - 8, y], b: [x2 - 8, 146], w: 3 }];
+const GUIDE = {
+  "ベンチプレス": {
+    gear: "バーベル・ベンチ", main: ["chest"], sub: ["delt_front", "triceps"],
+    g: [...bench(18, 118, 105), { k: "plate", at: "hand" }],
+    poses: [
+      { hip: [96, 98], t: 180, hand: [66, 46], foot: [126, 142], eb: 1, kb: -1 },
+      { hip: [96, 98], t: 180, hand: [73, 84], foot: [126, 142], eb: 1, kb: -1 }
+    ],
+    steps: ["ベンチに仰向けになり、目の真上にバーが来る位置に寝る。足の裏は床にしっかりつける", "肩幅より少し広く握り、ラックから外して肩の真上で腕を伸ばす", "息を吸いながらみぞおちのあたりまでゆっくり下ろし、吐きながら押し上げる"],
+    tips: ["肩甲骨を寄せて下げ、胸を張ったまま行う（肩をすくめない）", "重い重量のときは補助者をつけるか、セーフティバーを設定する"]
+  },
+  "インクラインベンチプレス": {
+    gear: "バーベル・角度を変えられるベンチ", main: ["chest"], sub: ["delt_front", "triceps"],
+    g: [{ k: "line", a: [84, 108], b: [120, 108], w: 7 }, { k: "line", a: [90, 106], b: [46, 62], w: 7 }, { k: "line", a: [104, 108], b: [104, 146], w: 3 }, { k: "plate", at: "hand" }],
+    poses: [
+      { hip: [96, 101], t: -135, hand: [70, 20], foot: [128, 142], eb: 1, kb: -1 },
+      { hip: [96, 101], t: -135, hand: [80, 56], foot: [128, 142], eb: 1, kb: -1 }
+    ],
+    steps: ["ベンチの背もたれを30〜45度に起こして座り、背中を預ける", "肩幅より少し広く握り、鎖骨の上でバーを支える", "鎖骨の少し下まで下ろし、真上に押し上げる"],
+    tips: ["角度を上げすぎると肩の種目になる。30度前後が胸の上部に効きやすい", "お尻をベンチから浮かせない"]
+  },
+  "ダンベルプレス": {
+    gear: "ダンベル・ベンチ", main: ["chest"], sub: ["delt_front", "triceps"],
+    g: [...bench(18, 118, 105), { k: "db", at: "hand" }],
+    poses: [
+      { hip: [96, 98], t: 180, hand: [64, 48], foot: [126, 142], eb: 1, kb: -1 },
+      { hip: [96, 98], t: 180, hand: [72, 88], foot: [126, 142], eb: 1, kb: -1 }
+    ],
+    steps: ["ダンベルを太ももに乗せて座り、膝で押し上げる勢いを使って仰向けになる", "胸の横でダンベルを構え、手のひらは足の方へ向ける", "胸を張ったまま真上に押し上げ、胸の高さまでゆっくり下ろす"],
+    tips: ["バーベルより深く下ろせるぶん、胸がよく伸びる", "終わったら膝の上に戻してから起き上がる（横に落とさない）"]
+  },
+  "ダンベルフライ": {
+    gear: "ダンベル・ベンチ", main: ["chest"], sub: ["delt_front"], view: "front", note: "足の側から見た図",
+    g: [{ k: "rect", x: 66, y: 106, w: 28, h: 8 }, { k: "line", a: [80, 114], b: [80, 146], w: 3 }, { k: "dbf", at: "hand" }],
+    poses: [
+      { sc: [80, 100], hands: [[70, 54], [90, 54]], eb: 1, head: [0, -11] },
+      { sc: [80, 100], hands: [[28, 104], [132, 104]], eb: -1, head: [0, -11] }
+    ],
+    steps: ["ベンチに仰向けになり、手のひらを向かい合わせにしてダンベルを胸の上に上げる", "肘を軽く曲げたまま、弧を描くように左右へ開いて下ろす", "胸が伸びたところで止め、抱きかかえるように元の位置へ戻す"],
+    tips: ["肘の角度は最後まで変えない（曲げ伸ばしするとプレスになる）", "重さより胸が伸びる感覚を優先して、軽めで行う"]
+  },
+  "ディップス": {
+    gear: "ディップスバー（平行棒）", main: ["chest", "triceps"], sub: ["delt_front"],
+    g: [{ k: "line", a: [82, 74], b: [106, 74], w: 5 }, { k: "line", a: [100, 74], b: [100, 146], w: 3 }],
+    poses: [
+      { hip: [76, 72], t: -82, hand: [86, 72], foot: [58, 118], eb: 1, kb: 1 },
+      { hip: [72, 98], t: -70, hand: [86, 72], foot: [52, 140], eb: 1, kb: 1 }
+    ],
+    track: "shoulder",
+    steps: ["平行なバーを握って体を持ち上げ、腕を伸ばして体を支える", "上体を少し前に傾け、肘を後ろへ曲げながら体を沈める", "肩が肘と同じ高さまで下がったら、押し返して元に戻る"],
+    tips: ["上体を前に傾けるほど胸、まっすぐ立てるほど二の腕（上腕三頭筋）に効く", "肩に痛みが出るなら深く下げすぎない"]
+  },
+  "腕立て伏せ": {
+    gear: "なし（自重）", main: ["chest"], sub: ["delt_front", "triceps", "abs"],
+    poses: [
+      { hip: [78.9, 114.1], t: -24.6, hand: [121, 142], foot: [18, 142], ft: 100, eb: 1 },
+      { hip: [84.3, 132.7], t: -8, hand: [121, 142], foot: [18, 142], ft: 100, eb: 1 }
+    ],
+    track: "shoulder",
+    steps: ["手を肩幅より少し広く床につき、頭からかかとまで一直線にする", "体をまっすぐ保ったまま、胸が床すれすれになるまで下ろす", "床を押して元の位置に戻る"],
+    tips: ["お尻が上がったり腰が落ちたりしないよう、お腹に力を入れる", "きついときは膝をついて行ってもよい"]
+  },
+  "デッドリフト": {
+    gear: "バーベル", main: ["hams", "glutes", "lowback"], sub: ["traps", "quads", "forearm"],
+    g: [{ k: "plate", at: "hand" }],
+    poses: [
+      { hip: [50, 103], t: -23, hand: [92, 132], foot: [82, 142], eb: 1, kb: -1 },
+      { hip: [80, 76], t: -90, hand: [84, 78], foot: [82, 142], eb: 1, kb: -1 }
+    ],
+    steps: ["足を腰幅に開き、バーが足の中央の真上（すねの近く）に来るように立つ", "お尻を引いてしゃがみ、肩幅で握る。背中はまっすぐ、胸を張る", "バーを体に沿わせたまま、脚で床を押して立ち上がる。下ろすときは逆の順で"],
+    tips: ["背中を丸めない。腰を痛めるいちばんの原因になる", "腕は引っかけるだけ。腕で引き上げようとしない"]
+  },
+  "懸垂": {
+    gear: "懸垂バー", main: ["lats"], sub: ["biceps", "traps", "delt_rear"],
+    g: [{ k: "line", a: [60, 10], b: [120, 10], w: 3 }, { k: "bar", at: [88, 10] }],
+    poses: [
+      { hip: [80, 104], t: -85, hand: [88, 12], foot: [62, 138], eb: 1, kb: 1 },
+      { hip: [76, 76], t: -82, hand: [88, 12], foot: [58, 110], eb: 1, kb: 1 }
+    ],
+    track: "shoulder",
+    steps: ["肩幅より少し広くバーを握り、腕を伸ばしてぶら下がる", "胸をバーに近づけるように、肘を下へ引いて体を引き上げる", "あごがバーを越えたら、ゆっくり腕を伸ばして下りる"],
+    tips: ["反動を使わない。足を組むと体が揺れにくい", "まだ1回もできないうちは、ラットプルダウンで練習する"]
+  },
+  "ラットプルダウン": {
+    gear: "ラットプルダウンマシン", main: ["lats"], sub: ["biceps", "traps", "delt_rear"],
+    g: [{ k: "line", a: [56, 104], b: [96, 104], w: 7 }, { k: "line", a: [76, 104], b: [76, 146], w: 3 }, { k: "pad", at: [108, 88] }, { k: "cable", from: [78, 2], at: "hand" }, { k: "bar", at: "hand" }],
+    poses: [
+      { hip: [76, 98], t: -100, hand: [76, 8], foot: [114, 142], eb: -1, kb: -1 },
+      { hip: [76, 98], t: -105, hand: [82, 58], foot: [114, 142], eb: 1, kb: -1 }
+    ],
+    steps: ["膝をパッドの下に固定して座り、肩幅より広くバーを握る", "胸を張り、少しだけ後ろに倒れる", "肘を下へ引いてバーを鎖骨のあたりまで下ろし、ゆっくり戻す"],
+    tips: ["バーを首の後ろへ下ろさない（肩を痛めやすい）", "腕で引くのではなく、肘を腰の方へ下ろす意識で引く"]
+  },
+  "ベントオーバーロウ": {
+    gear: "バーベル", main: ["lats", "traps"], sub: ["delt_rear", "biceps", "lowback"],
+    g: [{ k: "plate", at: "hand" }],
+    poses: [
+      { hip: [56, 82], t: -32, hand: [96, 116], foot: [84, 142], eb: 1, kb: -1 },
+      { hip: [56, 82], t: -32, hand: [84, 84], foot: [84, 142], eb: 1, kb: -1 }
+    ],
+    steps: ["肩幅で握ってバーを持ち、膝を軽く曲げてお尻を後ろへ引く", "上体を45度くらいまで倒し、背中をまっすぐ保つ", "肘を後ろへ引いてバーをおへそのあたりまで引き寄せ、ゆっくり下ろす"],
+    tips: ["上体を起こして反動を使うと、背中に効かない", "腰が丸まりそうなら重量を下げる"]
+  },
+  "シーテッドロウ": {
+    gear: "ケーブルマシン", main: ["lats", "traps"], sub: ["delt_rear", "biceps"],
+    g: [{ k: "line", a: [34, 110], b: [80, 110], w: 7 }, { k: "line", a: [56, 110], b: [56, 146], w: 3 }, { k: "line", a: [136, 108], b: [136, 142], w: 5 }, { k: "cable", from: [150, 116], at: "hand" }, { k: "bar", at: "hand" }],
+    poses: [
+      { hip: [60, 104], t: -72, hand: [112, 92], foot: [132, 128], eb: 1, kb: 1, ft: -90 },
+      { hip: [60, 104], t: -94, hand: [74, 86], foot: [132, 128], eb: 1, kb: 1, ft: -90 }
+    ],
+    steps: ["足をフットプレートに乗せて座り、膝を軽く曲げてハンドルを握る", "背すじを伸ばし、胸を張る", "肘を後ろへ引いてハンドルをお腹に引き寄せ、肩甲骨を寄せる。ゆっくり戻す"],
+    tips: ["上体を大きく前後に振らない", "戻すときは、背中が丸まらない範囲で腕を伸ばす"]
+  },
+  "スクワット": {
+    gear: "バーベル・スクワットラック", main: ["quads", "glutes"], sub: ["hams", "lowback"],
+    g: [{ k: "plate", at: "shoulder", dx: -3, dy: -2 }],
+    poses: [
+      { hip: [78, 76], t: -88, hand: [66, 30], foot: [82, 142], eb: 1, kb: -1 },
+      { hip: [50, 108], t: -50, hand: [74, 72], foot: [82, 142], eb: 1, kb: -1 }
+    ],
+    track: "hip",
+    steps: ["バーを肩の後ろ（首のつけ根より下）に担ぎ、足を肩幅に開いて立つ", "胸を張ったまま、お尻を後ろへ引きながらしゃがむ", "太ももが床と平行になるまで下げたら、床を押して立ち上がる"],
+    tips: ["膝はつま先と同じ向きに。内側に入らないようにする", "かかとを浮かせない。セーフティバーの高さを合わせてから行う"]
+  },
+  "レッグプレス": {
+    gear: "レッグプレスマシン", main: ["quads", "glutes"], sub: ["hams"],
+    g: [{ k: "line", a: [64, 118], b: [10, 88], w: 7 }, { k: "line", a: [56, 116], b: [56, 146], w: 3 }, { k: "line", a: [80, 140], b: [152, 68], w: 2 }, { k: "sled", at: "foot" }],
+    poses: [
+      { hip: [62, 110], t: -152, hand: [72, 116], foot: [88, 76], eb: 1, kb: 1, ft: -135 },
+      { hip: [62, 110], t: -152, hand: [72, 116], foot: [108, 60], eb: 1, kb: 1, ft: -135 }
+    ],
+    track: "foot",
+    steps: ["シートに座って背中をつけ、足を肩幅でフットプレートに乗せる", "ロックを外し、膝を曲げてプレートを胸の方へ下ろす", "かかとで押すようにして脚を伸ばす。膝は伸ばしきらない"],
+    tips: ["お尻がシートから浮くほど深く下ろさない", "膝を完全に伸ばしてロックすると、関節に負担がかかる"]
+  },
+  "ルーマニアンデッドリフト": {
+    gear: "バーベル", main: ["hams", "glutes"], sub: ["lowback"],
+    g: [{ k: "plate", at: "hand" }],
+    poses: [
+      { hip: [78, 77], t: -90, hand: [82, 79], foot: [84, 142], eb: 1, kb: -1 },
+      { hip: [52, 80], t: -22, hand: [92, 110], foot: [84, 142], eb: 1, kb: -1 }
+    ],
+    steps: ["バーを持って立ち、膝を軽く曲げる", "膝の角度を変えずにお尻を後ろへ引き、バーを太ももに沿わせて下ろす", "太もも裏が伸びたところ（すねの中ほど）で止め、お尻を前に出して起き上がる"],
+    tips: ["しゃがむのではなく、お尻を後ろへ引く動き", "背中は最後までまっすぐ保つ"]
+  },
+  "レッグカール": {
+    gear: "レッグカールマシン", main: ["hams"], sub: ["calves"],
+    g: [{ k: "line", a: [36, 104], b: [134, 104], w: 7 }, { k: "line", a: [56, 104], b: [56, 146], w: 3 }, { k: "line", a: [118, 104], b: [118, 146], w: 3 }, { k: "pad", at: "foot", dy: -7 }],
+    poses: [
+      { hip: [72, 97], t: -4, hand: [134, 110], foot: [6, 98], eb: -1, kb: -1, ft: 90 },
+      { hip: [72, 97], t: -4, hand: [134, 110], foot: [44, 62], eb: -1, kb: -1, ft: 180 }
+    ],
+    track: "foot",
+    steps: ["マシンにうつ伏せになり、パッドがかかとのすぐ上に来るように合わせる", "グリップを握り、膝を曲げてパッドをお尻の方へ引き上げる", "ゆっくり脚を伸ばして戻す"],
+    tips: ["腰が反ってお尻が浮くなら重すぎる", "下ろすときもゆっくり。反動で振り上げない"]
+  },
+  "レッグエクステンション": {
+    gear: "レッグエクステンションマシン", main: ["quads"], sub: [],
+    poses: [
+      { hip: [72, 100], t: -96, hand: [80, 108], foot: [104, 136], eb: -1, kb: -1, ft: 0, g: [{ k: "pad", at: "foot", dx: 7, dy: -3 }] },
+      { hip: [72, 100], t: -96, hand: [80, 108], foot: [138, 94], eb: -1, kb: -1, ft: -80, g: [{ k: "pad", at: "foot", dx: 0, dy: -8 }] }
+    ],
+    g: [{ k: "line", a: [50, 106], b: [104, 106], w: 7 }, { k: "line", a: [52, 106], b: [52, 56], w: 7 }, { k: "line", a: [80, 106], b: [80, 146], w: 3 }],
+    track: "foot",
+    steps: ["シートに深く座り、パッドを足首の前に合わせる", "グリップを握って体を固定し、膝を伸ばしてパッドを持ち上げる", "伸ばしきったら一瞬止め、ゆっくり戻す"],
+    tips: ["お尻がシートから浮かないようにする", "膝に痛みが出たら、動かす範囲を狭めるか中止する"]
+  },
+  "カーフレイズ": {
+    gear: "段差（ステップ）", main: ["calves"], sub: [], scale: .8,
+    g: [{ k: "rect", x: 86, y: 118, w: 50, h: 28 }],
+    poses: [
+      { hip: [78, 56], t: -90, hand: [80, 58], foot: [79, 123], eb: 1, kb: -1, ft: -27 },
+      { hip: [82, 40], t: -90, hand: [84, 42], foot: [84, 107], eb: 1, kb: -1, ft: 66 }
+    ],
+    track: "foot",
+    steps: ["段差につま先の付け根だけを乗せて立ち、壁などに手をついて体を支える", "かかとを段差より下まで下ろして、ふくらはぎを伸ばす", "つま先立ちになるまでかかとを高く上げ、ゆっくり下ろす"],
+    tips: ["膝は伸ばしたまま。曲げると効く場所が変わる", "いちばん上と下で一瞬止めると、反動が使えずよく効く"]
+  },
+  "ショルダープレス": {
+    gear: "ダンベル・背もたれ付きベンチ", main: ["delt_front", "delt_side"], sub: ["triceps", "traps"], view: "front", note: "前から見た図",
+    g: [{ k: "rect", x: 62, y: 110, w: 36, h: 6 }, { k: "line", a: [80, 116], b: [80, 146], w: 3 }, { k: "dbf", at: "hand" }],
+    poses: [
+      { sc: [80, 62], hip: [80, 106], hands: [[50, 52], [110, 52]], feet: [[60, 142], [100, 142]], eb: -1, kb: 1 },
+      { sc: [80, 62], hip: [80, 106], hands: [[64, 16], [96, 16]], feet: [[60, 142], [100, 142]], eb: -1, kb: 1 }
+    ],
+    steps: ["背もたれのあるベンチに座り、ダンベルを肩の高さで構える", "手のひらは前に向け、肘は手の真下に置く", "頭の上へ真上に押し上げ、肩の高さまでゆっくり下ろす"],
+    tips: ["腰を反らせすぎない。お腹に力を入れておく", "上げきったところで肩をすくめない"]
+  },
+  "サイドレイズ": {
+    gear: "ダンベル", main: ["delt_side"], sub: ["traps"], view: "front", note: "前から見た図",
+    g: [{ k: "dbf", at: "hand" }],
+    poses: [
+      { sc: [80, 32], hip: [80, 76], hands: [[62, 80], [98, 80]], feet: [[72, 142], [88, 142]], eb: -1, kb: 1 },
+      { sc: [80, 32], hip: [80, 76], hands: [[26, 38], [134, 38]], feet: [[72, 142], [88, 142]], eb: -1, kb: 1 }
+    ],
+    steps: ["ダンベルを体の横で持ち、背すじを伸ばして立つ", "肘を軽く曲げたまま、腕を横に広げるように持ち上げる", "肩の高さまで上げたら、ゆっくり下ろす"],
+    tips: ["肩より上に上げない。首の筋肉（僧帽筋）に効いてしまう", "軽い重量で丁寧に。反動を使うと肩に効かない"]
+  },
+  "リアレイズ": {
+    gear: "ダンベル", main: ["delt_rear"], sub: ["traps"], view: "front", note: "前から見た図（上体を前に倒した状態）",
+    g: [{ k: "dbf", at: "hand" }],
+    poses: [
+      { sc: [80, 70], hip: [80, 78], hands: [[66, 118], [94, 118]], feet: [[70, 142], [90, 142]], eb: -1, kb: 1, head: [0, 9] },
+      { sc: [80, 70], hip: [80, 78], hands: [[28, 76], [132, 76]], feet: [[70, 142], [90, 142]], eb: -1, kb: 1, head: [0, 9] }
+    ],
+    steps: ["ダンベルを持ち、お尻を引いて上体を床と平行近くまで倒す", "肘を軽く曲げ、腕を横へ広げるように持ち上げる", "肩の高さまで上げたら、ゆっくり下ろす"],
+    tips: ["肩甲骨は寄せすぎない。寄せると背中の種目になる", "軽めの重量で、肩の後ろを意識する"]
+  },
+  "フェイスプル": {
+    gear: "ケーブルマシン・ロープ", main: ["delt_rear", "traps"], sub: [],
+    g: [{ k: "cable", from: [154, 34], at: "hand" }, { k: "bar", at: "hand" }],
+    poses: [
+      { hip: [78, 76], t: -92, hand: [124, 36], foot: [82, 142], eb: 1, kb: -1 },
+      { hip: [78, 76], t: -92, hand: [96, 18], foot: [82, 142], eb: -1, kb: -1 }
+    ],
+    steps: ["ケーブルの滑車を顔の高さにし、ロープを両手で握る", "腕を伸ばした状態から、ロープを顔に向かって引く", "ロープを左右に開きながら、肘を肩より高く保って引き寄せ、ゆっくり戻す"],
+    tips: ["体を後ろに倒して引かない", "姿勢の改善や肩の保護にも役立つので、軽めで回数を多めにするとよい"]
+  },
+  "バーベルカール": {
+    gear: "バーベル（EZバーでも可）", main: ["biceps"], sub: ["forearm"],
+    g: [{ k: "plate", at: "hand" }],
+    poses: [
+      { hip: [78, 76], t: -90, hand: [82, 78], foot: [82, 142], eb: 1, kb: -1 },
+      { hip: [78, 76], t: -90, hand: [94, 38], foot: [82, 142], eb: 1, kb: -1 }
+    ],
+    steps: ["肩幅で、手のひらを前に向けてバーを持って立つ", "肘を体の横に固定したまま、バーを胸の方へ巻き上げる", "上げきったら、ゆっくり下ろして腕を伸ばす"],
+    tips: ["体を後ろに反らす反動を使わない", "肘が前に出ると、二頭筋への負荷が抜ける"]
+  },
+  "ハンマーカール": {
+    gear: "ダンベル", main: ["biceps", "forearm"], sub: [],
+    g: [{ k: "db", at: "hand" }],
+    poses: [
+      { hip: [78, 76], t: -90, hand: [80, 78], foot: [82, 142], eb: 1, kb: -1 },
+      { hip: [78, 76], t: -90, hand: [94, 38], foot: [82, 142], eb: 1, kb: -1 }
+    ],
+    steps: ["ダンベルを、手のひらが向かい合う向き（縦持ち）で持って立つ", "肘を体の横に固定したまま、金づちを振るようにダンベルを持ち上げる", "上げきったら、ゆっくり下ろす"],
+    tips: ["手首を返さず、縦持ちのまま動かす", "前腕も鍛えられるので、握力の強化にもなる"]
+  },
+  "プレスダウン": {
+    gear: "ケーブルマシン", main: ["triceps"], sub: [],
+    g: [{ k: "cable", from: [112, 2], at: "hand" }, { k: "bar", at: "hand" }],
+    poses: [
+      { hip: [78, 76], t: -84, hand: [100, 50], foot: [82, 142], eb: 1, kb: -1 },
+      { hip: [78, 76], t: -84, hand: [90, 78], foot: [82, 142], eb: 1, kb: -1 }
+    ],
+    steps: ["高い位置のケーブルにバーかロープをつけ、握って立つ", "肘を体の横に固定し、手を胸の前に構える", "肘から先だけを動かして下へ押し伸ばし、ゆっくり戻す"],
+    tips: ["肘が前後に動くと、肩や背中の力を使ってしまう", "上体を倒しすぎない"]
+  },
+  "フレンチプレス": {
+    gear: "ダンベル・ベンチ", main: ["triceps"], sub: [],
+    g: [{ k: "line", a: [56, 104], b: [96, 104], w: 7 }, { k: "line", a: [76, 104], b: [76, 146], w: 3 }, { k: "db", at: "hand" }],
+    poses: [
+      { hip: [74, 100], t: -90, hand: [62, 50], foot: [110, 142], eb: 1, kb: -1 },
+      { hip: [74, 100], t: -90, hand: [80, 6], foot: [110, 142], eb: 1, kb: -1 }
+    ],
+    steps: ["ベンチに座り、1つのダンベルを両手で持って頭の上に上げる", "肘を天井に向けたまま、頭の後ろへダンベルを下ろす", "肘から先だけを動かして、頭の上へ押し上げる"],
+    tips: ["肘が外に開かないよう、耳の横で保つ", "頭の後ろに下ろすので、重量は無理をしない"]
+  },
+  "クランチ": {
+    gear: "なし（マットがあるとよい）", main: ["abs"], sub: [],
+    poses: [
+      { hip: [92, 137], t: 180, hand: [60, 128], foot: [124, 142], eb: 1, kb: -1 },
+      { hip: [92, 137], t: -148, hand: [66, 106], foot: [124, 142], eb: 1, kb: -1 }
+    ],
+    track: "shoulder",
+    steps: ["仰向けになって膝を立て、手は胸の前で組む", "おへそをのぞき込むように背中を丸め、肩甲骨が床から浮くまで起こす", "ゆっくり元に戻す"],
+    tips: ["上体を起こしきる必要はない。腹筋が縮む範囲で十分", "頭の後ろで手を組む場合も、首を手で引っ張らない"]
+  },
+  "アブローラー": {
+    gear: "アブローラー", main: ["abs"], sub: ["lats", "delt_front"],
+    g: [{ k: "roller", at: "hand", dy: -3 }],
+    poses: [
+      { hip: [44, 108], t: -23, hand: [88, 138], foot: [10, 141], eb: 1, kb: -1, ft: 180 },
+      { hip: [66, 120], t: -6, hand: [152, 138], foot: [8, 141], eb: 1, kb: -1, ft: 180 }
+    ],
+    track: "hand",
+    steps: ["膝をついて、ローラーを肩の真下で握る", "お腹に力を入れたまま、ローラーを前へ転がして体を伸ばす", "腰が反る手前で止め、お腹を丸めるようにして元に戻る"],
+    tips: ["腰が反ると痛めやすい。できる範囲から始める", "慣れないうちは壁に向かって転がし、止まる位置を決めておく"]
+  },
+  "ハンギングレッグレイズ": {
+    gear: "懸垂バー", main: ["abs"], sub: ["forearm"], scale: .86,
+    g: [{ k: "line", a: [56, -10], b: [112, -10], w: 3 }, { k: "bar", at: [80, -10] }],
+    poses: [
+      { hip: [80, 82], t: -90, hand: [80, -8], foot: [80, 149], eb: 1, kb: -1 },
+      { hip: [80, 82], t: -94, hand: [80, -8], foot: [146, 78], eb: 1, kb: -1 }
+    ],
+    track: "foot",
+    steps: ["バーを握ってぶら下がる", "体を揺らさずに、脚を前へ持ち上げる", "脚が床と平行になったら、ゆっくり下ろす"],
+    tips: ["きついときは膝を曲げて引き上げる（ハンギングニーレイズ）", "下ろすときに体が振れないよう、ゆっくり"]
+  }
+};
+
+function ik(a, t, l1, l2, bend) {
+  const dx = t[0] - a[0], dy = t[1] - a[1], d = Math.max(.01, Math.min(Math.hypot(dx, dy), l1 + l2 - .01));
+  const ang = Math.atan2(dy, dx) + bend * Math.acos(Math.max(-1, Math.min(1, (l1 * l1 + d * d - l2 * l2) / (2 * l1 * d))));
+  const m = [a[0] + l1 * Math.cos(ang), a[1] + l1 * Math.sin(ang)];
+  const ea = Math.atan2(t[1] - m[1], t[0] - m[0]);
+  return [m, [m[0] + l2 * Math.cos(ea), m[1] + l2 * Math.sin(ea)]];
+}
+const at = (o, len, deg) => [o[0] + len * Math.cos(deg * Math.PI / 180), o[1] + len * Math.sin(deg * Math.PI / 180)];
+function joints(p, front) {
+  if (!front) {
+    const shoulder = at(p.hip, BONE.torso, p.t);
+    const [elbow, hand] = ik(shoulder, p.hand, BONE.ua, BONE.fa, p.eb ?? 1);
+    const [knee, foot] = ik(p.hip, p.foot, BONE.th, BONE.sh, p.kb ?? -1);
+    return { hip: p.hip, shoulder, head: at(shoulder, BONE.neck, p.t), elbow, hand, knee, foot, toe: at(foot, BONE.ft, p.ft ?? 0) };
+  }
+  // 正面の図：左右の腕と脚を鏡写しに曲げる
+  const [cx, cy] = p.sc, sh = [[cx - 13, cy], [cx + 13, cy]], j = { front: true, sc: p.sc, shoulder: sh, head: [cx + (p.head?.[0] ?? 0), cy + (p.head?.[1] ?? -15)] };
+  const arms = sh.map((s, i) => ik(s, p.hands[i], BONE.ua, BONE.fa, (p.eb ?? 1) * (i ? -1 : 1)));
+  j.elbow = arms.map(a => a[0]); j.hand = arms.map(a => a[1]);
+  if (p.hip) {
+    j.hipC = p.hip; j.hip = [[p.hip[0] - 7, p.hip[1]], [p.hip[0] + 7, p.hip[1]]];
+    if (p.feet) { const legs = j.hip.map((h, i) => ik(h, p.feet[i], BONE.th, BONE.sh, (p.kb ?? 1) * (i ? -1 : 1))); j.knee = legs.map(l => l[0]); j.foot = legs.map(l => l[1]); }
+  }
+  return j;
+}
+const f1 = n => +n.toFixed(1);
+const poly = (...pts) => `<polyline points="${pts.map(p => p.map(f1).join(",")).join(" ")}"/>`;
+const many = v => Array.isArray(v[0]) ? v : [v];
+function bodySvg(j, cls) {
+  let s;
+  if (j.front) {
+    s = poly(j.sc, j.head) + poly(...j.shoulder) + j.shoulder.map((p, i) => poly(p, j.elbow[i], j.hand[i])).join("");
+    if (j.hip) s += poly(j.sc, j.hipC) + poly(...j.hip);
+    if (j.knee) s += j.hip.map((p, i) => poly(p, j.knee[i], j.foot[i])).join("");
+  } else {
+    s = poly(j.toe, j.foot, j.knee, j.hip, j.shoulder, j.head) + poly(j.shoulder, j.elbow, j.hand);
+  }
+  return `<g class="${cls}">${s}<circle cx="${f1(j.head[0])}" cy="${f1(j.head[1])}" r="8"/></g>`;
+}
+function gearSvg(items, j) {
+  return items.map(g => {
+    const pts = (typeof g.at === "string" ? many(j[g.at]) : [g.at || [0, 0]]).map(p => [p[0] + (g.dx || 0), p[1] + (g.dy || 0)]);
+    return pts.map(([x, y]) => {
+      if (g.k === "line") return `<line x1="${g.a[0]}" y1="${g.a[1]}" x2="${g.b[0]}" y2="${g.b[1]}" stroke-width="${g.w || 6}"/>`;
+      if (g.k === "rect") return `<rect class="solid" x="${g.x}" y="${g.y}" width="${g.w}" height="${g.h}" rx="2"/>`;
+      if (g.k === "plate") return `<circle cx="${f1(x)}" cy="${f1(y)}" r="13" stroke-width="4"/><circle class="solid" cx="${f1(x)}" cy="${f1(y)}" r="3"/>`;
+      if (g.k === "db") return `<circle cx="${f1(x)}" cy="${f1(y)}" r="6.5" stroke-width="3.5"/>`;
+      if (g.k === "dbf") return `<rect class="solid" x="${f1(x - 9)}" y="${f1(y - 2)}" width="18" height="4"/><rect class="solid" x="${f1(x - 11)}" y="${f1(y - 6)}" width="5" height="12" rx="1"/><rect class="solid" x="${f1(x + 6)}" y="${f1(y - 6)}" width="5" height="12" rx="1"/>`;
+      if (g.k === "bar" || g.k === "pad") return `<circle class="solid" cx="${f1(x)}" cy="${f1(y)}" r="${g.k === "bar" ? 3.5 : 6}"/>`;
+      if (g.k === "roller") return `<circle cx="${f1(x)}" cy="${f1(y + 3)}" r="8" stroke-width="4"/>`;
+      if (g.k === "cable") return `<line x1="${g.from[0]}" y1="${g.from[1]}" x2="${f1(x)}" y2="${f1(y)}" stroke-width="1.5"/><circle class="solid" cx="${g.from[0]}" cy="${g.from[1]}" r="5"/>`;
+      if (g.k === "sled") return `<line x1="${f1(x - 13)}" y1="${f1(y - 13)}" x2="${f1(x + 9)}" y2="${f1(y + 9)}" stroke-width="7"/>`;
+      return "";
+    }).join("");
+  }).join("");
+}
+function arrowSvg(a, b) {
+  const dx = b[0] - a[0], dy = b[1] - a[1], d = Math.hypot(dx, dy);
+  if (d < 12) return "";
+  const ux = dx / d, uy = dy / d, s = [a[0] + ux * 5, a[1] + uy * 5], e = [b[0] - ux * 7, b[1] - uy * 7];
+  const h = [[e[0] + ux * 6, e[1] + uy * 6], [e[0] - uy * 5, e[1] + ux * 5], [e[0] + uy * 5, e[1] - ux * 5]];
+  return `<line x1="${f1(s[0])}" y1="${f1(s[1])}" x2="${f1(e[0])}" y2="${f1(e[1])}"/><polygon points="${h.map(p => p.map(f1).join(",")).join(" ")}"/>`;
+}
+// i=0 はスタート、i=1 はフィニッシュ（スタートの姿勢を薄く重ね、動く向きを矢印で示す）
+function poseSvg(g, i) {
+  const front = g.view === "front", pose = g.poses[i], j = joints(pose, front);
+  let s = `<g class="fig-gear">${gearSvg([...(g.g || []), ...(pose.g || [])], j)}</g>`;
+  if (i) {
+    const j0 = joints(g.poses[0], front), key = g.track || "hand";
+    s = bodySvg(j0, "fig-ghost") + s + bodySvg(j, "fig-body");
+    s += `<g class="fig-arrow">${many(j0[key]).map((p, n) => arrowSvg(p, many(j[key])[n])).join("")}</g>`;
+  } else s += bodySvg(j, "fig-body");
+  const sc = g.scale || 1;
+  return `<svg viewBox="0 0 160 150" role="img" aria-label="${i ? "フィニッシュ" : "スタート"}の姿勢"><line class="fig-floor" x1="0" y1="146" x2="160" y2="146"/><g transform="translate(80 146) scale(${sc}) translate(-80 -146)">${s}</g></svg>`;
+}
+// 効く部位の図（左が前、右が後ろ）。主に効く部位は濃く、補助で使う部位は薄く塗る
+const MAP_FRONT = {
+  delt_front: '<circle cx="14" cy="28" r="5.5"/><circle cx="46" cy="28" r="5.5"/>',
+  delt_side: '<circle cx="14" cy="28" r="5.5"/><circle cx="46" cy="28" r="5.5"/>',
+  chest: '<ellipse cx="24" cy="34" rx="7" ry="5.5"/><ellipse cx="36" cy="34" rx="7" ry="5.5"/>',
+  biceps: '<ellipse cx="10" cy="42" rx="3.5" ry="7.5"/><ellipse cx="50" cy="42" rx="3.5" ry="7.5"/>',
+  forearm: '<ellipse cx="7.5" cy="62" rx="3.2" ry="8.5"/><ellipse cx="52.5" cy="62" rx="3.2" ry="8.5"/>',
+  abs: '<rect x="25" y="42" width="10" height="28" rx="4"/>',
+  quads: '<ellipse cx="24" cy="94" rx="5.5" ry="14"/><ellipse cx="36" cy="94" rx="5.5" ry="14"/>'
+};
+const MAP_BACK = {
+  traps: '<path d="M30 19 L41 27 L30 41 L19 27 Z"/>',
+  delt_rear: '<circle cx="14" cy="28" r="5.5"/><circle cx="46" cy="28" r="5.5"/>',
+  delt_side: '<circle cx="14" cy="28" r="5.5"/><circle cx="46" cy="28" r="5.5"/>',
+  triceps: '<ellipse cx="10" cy="43" rx="3.5" ry="8"/><ellipse cx="50" cy="43" rx="3.5" ry="8"/>',
+  forearm: '<ellipse cx="7.5" cy="62" rx="3.2" ry="8.5"/><ellipse cx="52.5" cy="62" rx="3.2" ry="8.5"/>',
+  lats: '<ellipse cx="21" cy="47" rx="5" ry="11"/><ellipse cx="39" cy="47" rx="5" ry="11"/>',
+  lowback: '<ellipse cx="30" cy="63" rx="6" ry="7"/>',
+  glutes: '<ellipse cx="24.5" cy="81" rx="6.5" ry="6"/><ellipse cx="35.5" cy="81" rx="6.5" ry="6"/>',
+  hams: '<ellipse cx="24" cy="99" rx="5" ry="12"/><ellipse cx="36" cy="99" rx="5" ry="12"/>',
+  calves: '<ellipse cx="23.5" cy="120" rx="4" ry="8"/><ellipse cx="36.5" cy="120" rx="4" ry="8"/>'
+};
+const MAP_BASE = '<circle cx="30" cy="10" r="7.5"/><rect x="27" y="16" width="6" height="7"/><path d="M14 24 Q30 20 46 24 L44 54 Q42 70 40 76 L20 76 Q18 70 16 54 Z"/>'
+  + '<polyline points="14,27 9,48 6,72"/><polyline points="46,27 51,48 54,72"/><polyline class="leg" points="24,78 23,104 23,132"/><polyline class="leg" points="36,78 37,104 37,132"/>';
+function mapSvg(g) {
+  const side = (parts, x, label) => `<g transform="translate(${x} 0)"><g class="map-base">${MAP_BASE}</g>`
+    + g.sub.map(m => parts[m] ? `<g class="map-sub">${parts[m]}</g>` : "").join("")
+    + g.main.map(m => parts[m] ? `<g class="map-main">${parts[m]}</g>` : "").join("")
+    + `<text x="30" y="147">${label}</text></g>`;
+  return `<svg class="mmap" viewBox="0 0 132 150" role="img" aria-label="効く部位">${side(MAP_FRONT, 0, "前")}${side(MAP_BACK, 72, "後ろ")}</svg>`;
+}
+
+function renderGuide() {
+  $("#g-parts").innerHTML = Object.keys(PRESETS).map(p => `<button class="chip" data-gpart="${p}" aria-pressed="${p === ui.gpart}">${p}</button>`).join("");
+  $("#g-list").innerHTML = PRESETS[ui.gpart].filter(n => GUIDE[n]).map(n => `<button class="gcard" data-guide="${esc(n)}">
+    <span class="gfig">${poseSvg(GUIDE[n], 1)}</span><b>${esc(n)}</b><small>${GUIDE[n].main.map(m => MUSCLE[m]).join("・")}</small></button>`).join("");
+}
+// fromLog: 記録中の種目カードから開いたとき（記録に追加するボタンは出さない）
+function openGuide(name, fromLog) {
+  const g = GUIDE[name], d = $("#guide");
+  const chips = (list, cls) => list.map(m => `<span class="mchip ${cls}">${MUSCLE[m]}</span>`).join("");
+  d.querySelector(".guide-body").innerHTML = `
+    <div class="skins-head"><h3 id="guide-title">${esc(name)}</h3><button class="icon-btn" data-close aria-label="閉じる">×</button></div>
+    <p class="note">器具：${esc(g.gear)}</p>
+    <div class="poses">
+      <figure><figcaption>① スタート</figcaption>${poseSvg(g, 0)}</figure>
+      <figure><figcaption>② フィニッシュ</figcaption>${poseSvg(g, 1)}</figure>
+    </div>
+    ${g.note ? `<p class="note">${esc(g.note)}。薄い線がスタートの姿勢、矢印が動く向き</p>` : `<p class="note">横から見た図。薄い線がスタートの姿勢、矢印が動く向き</p>`}
+    <h2>効く部位</h2>
+    <div class="muscles">${mapSvg(g)}<div class="mlist">${chips(g.main, "main")}${chips(g.sub, "sub")}<p class="note">濃い色：主に効く　薄い色：補助で使う</p></div></div>
+    <h2>やり方</h2>
+    <ol class="steps">${g.steps.map(s => `<li>${esc(s)}</li>`).join("")}</ol>
+    <h2>ポイント</h2>
+    <ul class="tips">${g.tips.map(s => `<li>${esc(s)}</li>`).join("")}</ul>
+    ${fromLog ? "" : `<button class="btn primary" data-add-guide="${esc(name)}">記録に追加</button>`}`;
+  d.showModal(); d.scrollTop = 0;
+}
+$("#g-parts").addEventListener("click", e => { const b = e.target.closest("[data-gpart]"); if (b) { ui.gpart = b.dataset.gpart; renderGuide(); } });
+$("#g-list").addEventListener("click", e => { const b = e.target.closest("[data-guide]"); if (b) openGuide(b.dataset.guide); });
+$("#guide").addEventListener("click", e => {
+  const d = e.currentTarget;
+  if (e.target === d || e.target.closest("[data-close]")) return d.close();
+  const b = e.target.closest("[data-add-guide]");
+  if (b) { d.close(); setTab("log"); addExercise(b.dataset.addGuide); }
+});
+
 /* ---------- テーマ ---------- */
 const SKIN_BAR = { iron: "#0d0d0d", plate: "#111111", clock: "#0a0a0c" };
 function applySkin(s) {
@@ -718,6 +1211,7 @@ function renderData() {
 }
 document.querySelectorAll("[data-tab]").forEach(b => b.addEventListener("click", () => setTab(b.dataset.tab)));
 renderPicker();
+renderGuide();
 setTab(ui.tab);
 renderLog();
 seedSamples();
