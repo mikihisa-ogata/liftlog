@@ -109,6 +109,8 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .seg { display: grid; grid-template-columns: repeat(4, 1fr); border: 2px solid var(--ink); border-radius: var(--radius-ctl); overflow: hidden; }
 .seg button { border: 0; background: transparent; color: var(--ink); font: 800 14px var(--font-body); padding: 10px 4px; cursor: pointer; border-radius: 0; }
 .seg button[aria-selected="true"] { background: var(--ink); color: var(--bg); }
+.tabs .seg button { display: flex; align-items: center; justify-content: center; gap: 5px; }
+.tab-ic { width: 17px; height: 17px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
 h2 { font-size: 13px; letter-spacing: .12em; color: var(--muted); margin: 0; font-weight: 700; }
 .view { display: flex; flex-direction: column; gap: 14px; }
@@ -345,10 +347,10 @@ button { font-family: var(--font-body); }
 
   <nav class="tabs">
     <div class="seg" role="tablist">
-      <button role="tab" id="tab-log" data-tab="log">記録</button>
-      <button role="tab" id="tab-history" data-tab="history">履歴</button>
-      <button role="tab" id="tab-progress" data-tab="progress">推移</button>
-      <button role="tab" id="tab-guide" data-tab="guide">ガイド</button>
+      <button role="tab" id="tab-log" data-tab="log"><svg class="tab-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13 7l4 4"/></svg>記録</button>
+      <button role="tab" id="tab-history" data-tab="history"><svg class="tab-ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>履歴</button>
+      <button role="tab" id="tab-progress" data-tab="progress"><svg class="tab-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>推移</button>
+      <button role="tab" id="tab-guide" data-tab="guide"><svg class="tab-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.5C10 5 7 4.5 3.5 5v13.5c3.5-.5 6.5 0 8.5 1.5 2-1.5 5-2 8.5-1.5V5C17 4.5 14 5 12 6.5z"/><path d="M12 6.5V20"/></svg>ガイド</button>
     </div>
   </nav>
 
