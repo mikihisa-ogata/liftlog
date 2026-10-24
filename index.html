@@ -231,6 +231,27 @@ button { font-family: var(--font-body); }
 .pb .d { font-size: 12px; color: var(--muted); }
 .note { font-size: 12px; color: var(--muted); margin: 0; }
 
+/* ---- 休憩タイマー ---- */
+/* 画面上部に固定する。出している間は body を下げ、広い画面では上に貼りつくタブもその下にずらす */
+:root { --rest-h: 60px; }
+body.rest-on { padding-top: var(--rest-h); }
+@media (min-width: 641px) { .rest-on .tabs { top: calc(env(safe-area-inset-top, 0px) + var(--rest-h)); } }
+.rest { position: fixed; top: env(safe-area-inset-top, 0px); left: 0; right: 0; z-index: 9; height: var(--rest-h); background: var(--surface); border-bottom: 1px solid var(--line); padding: 0 max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px)); }
+.rest-in { max-width: 680px; height: 100%; margin: 0 auto; display: flex; align-items: center; gap: 6px; position: relative; }
+.rest-k { font-size: 12px; font-weight: 800; color: var(--muted); margin-right: auto; white-space: nowrap; line-height: 1.3; }
+.rest-secs { display: flex; gap: 4px; }
+.rest-secs .chip { padding: 6px 10px; font-family: var(--font-num); font-style: var(--num-style); font-weight: var(--num-weight); font-size: 16px; line-height: 1.2; }
+.rest .btn { white-space: nowrap; }
+.rest-go { padding: 8px 16px; }
+.rest-left { font-size: 34px; line-height: 1; margin-right: auto; color: var(--ink); }
+.rest-run .btn.small { padding: 7px 9px; }
+.rest-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--line); }
+.rest-bar i { display: block; height: 100%; background: var(--accent); }
+[data-skin="clock"] .rest { background: #000000; }
+[data-skin="clock"] .rest-left { color: var(--accent); text-shadow: var(--glow); letter-spacing: .06em; }
+[data-skin="clock"] .rest-k { font-family: "DotGothic16", monospace; font-weight: 400; }
+[data-skin="clock"] .rest-bar i { box-shadow: var(--glow); }
+
 /* ---- 体の写真 ---- */
 .ph-add { display: flex; gap: 8px; }
 .ph-add .btn { flex: 1; padding: 13px 8px; font-size: 15px; }
@@ -385,6 +406,22 @@ button { font-family: var(--font-body); }
 </style>
 </head>
 <body>
+<!-- 休憩タイマー：記録タブでは常に出し、数えている間はほかのタブでも出す -->
+<div class="rest" id="rest" hidden>
+  <div class="rest-in" id="rest-idle">
+    <span class="rest-k">休憩<br>（秒）</span>
+    <div class="rest-secs" id="rest-secs"></div>
+    <button class="btn primary rest-go" data-rest="start">開始</button>
+  </div>
+  <div class="rest-in rest-run" id="rest-run" hidden>
+    <span class="rest-k">休憩</span>
+    <span class="rest-left num" id="rest-left" role="timer">0:00</span>
+    <button class="btn small" data-rest="-15">−15秒</button>
+    <button class="btn small" data-rest="15">＋15秒</button>
+    <button class="btn small" data-rest="stop">止める</button>
+    <div class="rest-bar"><i id="rest-fill"></i></div>
+  </div>
+</div>
 <div class="wrap">
   <div class="hero">
     <div class="hz"></div>
@@ -626,6 +663,7 @@ function setTab(t) {
   $("#view-progress").hidden = t !== "progress";
   $("#view-body").hidden = t !== "body";
   $("#view-guide").hidden = t !== "guide";
+  renderRest();
   window.scrollTo({ top: 0 });
 }
 // その種目を最後にやった日（編集中の記録は除く）
@@ -735,6 +773,68 @@ $("#btn-clear").addEventListener("click", async () => {
   if (!await askConfirm("入力をクリアしますか？", "入力中の種目・セット・メモが消えます。保存済みの記録はそのまま残ります。", "クリア")) return;
   draft = blankDraft(); saveDraft(); renderLog(); toast("入力をクリアしました");
 });
+
+/* ---------- 休憩タイマー ---------- */
+// 残り時間は終わる時刻から毎回計算する。setInterval で数えると、画面のスリープや裏に回ったときにずれるため（setInterval は表示の更新だけ）
+// 終わる時刻は liftlog.rest に保存して、開き直しても続きから出す。記録を保存すると下書きは消えるので、下書きとは別に持つ
+const REST_SECS = [60, 90, 120, 180];
+let rest = ls.get("liftlog.rest", null); // { end, total }。数えている間だけある
+let restSec = REST_SECS.includes(ls.get("liftlog.restSec")) ? ls.get("liftlog.restSec") : 90;
+let restTimer, audio;
+const fmtClock = s => Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
+function renderRest() {
+  const show = !!rest || ui.tab === "log";
+  $("#rest").hidden = !show; document.body.classList.toggle("rest-on", show);
+  $("#rest-idle").hidden = !!rest; $("#rest-run").hidden = !rest;
+  if (!rest) { $("#rest-secs").innerHTML = REST_SECS.map(s => `<button class="chip" data-sec="${s}" aria-pressed="${s === restSec}">${s}</button>`).join(""); return; }
+  const left = Math.max(0, Math.ceil((rest.end - Date.now()) / 1000));
+  $("#rest-left").textContent = fmtClock(left);
+  $("#rest-fill").style.width = Math.min(100, (rest.end - Date.now()) / rest.total * 100) + "%";
+  // 裏に回っている間に終わっていて、戻ったのが1分以上あとなら、鳴らさずに知らせるだけにする
+  if (left <= 0) finishRest(Date.now() - rest.end > 60000 ? "late" : "alarm");
+}
+function tickRest() { clearInterval(restTimer); if (rest) restTimer = setInterval(renderRest, 250); renderRest(); }
+function finishRest(how) {
+  rest = null; ls.set("liftlog.rest", null); clearInterval(restTimer); renderRest();
+  if (how === "late") toast("休憩は終わっています");
+  if (how !== "alarm") return;
+  navigator.vibrate?.([400, 150, 400, 150, 400]); // Android のみ。iOS の Safari には無いので音で知らせる
+  beep();
+  toast("休憩終了。次のセットへ");
+}
+// iOS はタップの中でしか音を鳴らせるようにならないので、タイマーのボタンを押したときに AudioContext を作って起こしておく
+function wakeAudio() {
+  try {
+    audio ||= new (window.AudioContext || window.webkitAudioContext)();
+    audio.resume();
+    const s = audio.createBufferSource(); s.buffer = audio.createBuffer(1, 1, 22050); s.connect(audio.destination); s.start();
+  } catch {}
+}
+function beep() {
+  if (!audio) return;
+  audio.resume().catch(() => {});
+  const t0 = audio.currentTime + 0.05;
+  for (let i = 0; i < 3; i++) {
+    const t = t0 + i * 0.35, o = audio.createOscillator(), g = audio.createGain();
+    o.type = "square"; o.frequency.value = 880;
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.3, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.25);
+    o.connect(g).connect(audio.destination); o.start(t); o.stop(t + 0.3);
+  }
+}
+$("#rest").addEventListener("click", e => {
+  const c = e.target.closest("[data-sec]"), b = e.target.closest("[data-rest]");
+  if (c) { restSec = +c.dataset.sec; ls.set("liftlog.restSec", restSec); renderRest(); return; }
+  if (!b) return;
+  wakeAudio();
+  const a = b.dataset.rest;
+  if (a === "stop") return finishRest("stop");
+  if (a === "start") rest = { end: Date.now() + restSec * 1000, total: restSec * 1000 };
+  else { rest.end += +a * 1000; rest.total = Math.max(rest.total, rest.end - Date.now()); }
+  ls.set("liftlog.rest", rest); tickRest();
+});
+// 開き直したあとは AudioContext が無いので、数えている間にどこかを触ったら起こしておく
+document.addEventListener("pointerdown", () => { if (rest) wakeAudio(); });
+document.addEventListener("visibilitychange", () => { if (!document.hidden) renderRest(); });
 
 /* ---------- 履歴 ---------- */
 // 各記録で、その日までの自己ベスト（推定1RM）を更新した種目
@@ -1590,6 +1690,7 @@ document.addEventListener("focusout", () => setTimeout(() => { if (!isTyping(doc
 renderPicker();
 renderGuide();
 setTab(ui.tab);
+tickRest();
 renderLog();
 seedSamples();
 loadLocal();
