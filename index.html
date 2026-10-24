@@ -494,22 +494,36 @@ async function putWorkout(id, data) { const all = localAll(); all[id] = data; wr
 async function removeWorkout(id) { const all = localAll(); delete all[id]; writeAll(all); loadLocal(); }
 
 // 初回起動時だけ見本の記録を入れる（履歴の「サンプルを削除」で消せる）
+// 中身を変えたら SEED を上げる。古いサンプルだけが残っている端末は入れ替え、自分の記録がある・サンプルを消した端末には入れない
+const SEED = 2;
 function seedSamples() {
-  if (ls.get("liftlog.seeded", false)) return;
-  ls.set("liftlog.seeded", true);
-  if (Object.keys(localAll()).length) return;
+  const v = ls.get("liftlog.seeded", false);
+  if (v === SEED) return;
+  ls.set("liftlog.seeded", SEED);
+  const cur = Object.values(localAll());
+  if (v ? !(cur.length && cur.every(w => w.example)) : cur.length) return;
   const day = n => { const d = new Date(); d.setDate(d.getDate() - n); return ymd(d); };
   const S = (name, ...sets) => ({ name, sets: sets.map(([w, r]) => ({ w, r })) });
-  const list = [
-    [12, [S("ベンチプレス", [60, 10], [60, 8], [55, 10]), S("ダンベルフライ", [12, 12], [12, 10]), S("ディップス", [0, 12], [0, 10])], ""],
-    [10, [S("スクワット", [80, 8], [80, 8], [80, 6]), S("レッグカール", [35, 12], [35, 12])], "腰に違和感なし"],
-    [8, [S("懸垂", [0, 8], [0, 7], [0, 6]), S("ベントオーバーロウ", [50, 10], [50, 10])], ""],
-    [5, [S("ベンチプレス", [62.5, 8], [62.5, 8], [60, 8]), S("ダンベルフライ", [12, 12], [12, 12])], ""],
-    [3, [S("スクワット", [85, 6], [85, 6], [80, 8]), S("カーフレイズ", [40, 15], [40, 15])], ""],
-    [1, [S("ベンチプレス", [65, 6], [62.5, 8], [60, 9]), S("サイドレイズ", [8, 15], [8, 12])], "3セット目はギリギリ"]
-  ];
+  // 3セット：トップ → 同重量で1回減 → 一段下げて回数を戻す
+  const S3 = (name, w, r, step) => S(name, [w, r], [w, Math.max(r - 1, 1)], [Math.max(w - step, 0), r]);
+  // 12週ぶん。週ごとのトップセット（7週目は軽めのデロード週）
+  const bench = [55, 57.5, 57.5, 60, 60, 62.5, 55, 62.5, 62.5, 65, 65, 67.5], benchR = [8, 8, 7, 8, 6, 8, 10, 8, 7, 8, 6, 6];
+  const squat = [70, 72.5, 75, 75, 77.5, 80, 70, 80, 82.5, 82.5, 85, 87.5], squatR = [8, 8, 8, 7, 8, 6, 10, 8, 7, 8, 6, 6];
+  const dead = [90, 95, 95, 100, 97.5, 105, 90, 105, 110, 107.5, 115, 117.5], deadR = [6, 5, 6, 5, 5, 5, 8, 6, 5, 5, 4, 5];
+  const memo = { "11-push": "3セット目はギリギリ", "6-push": "デロード週。軽めでフォームを確認", "9-legs": "腰に違和感なし", "8-pull": "握力が先に限界。ストラップを使う" };
+  const skip = new Set(["3-legs", "6-pull"]); // 休んだ日もあるように
+  const list = [];
+  for (let i = 0; i < 12; i++) {
+    const base = (11 - i) * 7, up = Math.floor(i / 3);
+    const sessions = {
+      push: [base + 5, [S3("ベンチプレス", bench[i], benchR[i], 5), i % 2 ? S3("サイドレイズ", 6 + up, 15, 1) : S3("ダンベルフライ", 10 + up * 2, 12, 2), S3("プレスダウン", 20 + up * 2.5, 12, 2.5)]],
+      legs: [base + 3, [S3("スクワット", squat[i], squatR[i], 5), S3("レッグカール", 30 + up * 2.5, 12, 5), S3("カーフレイズ", 30 + up * 5, 15, 5)]],
+      pull: [base + 1, [S3("デッドリフト", dead[i], deadR[i], 10), S3("懸垂", 0, 5 + Math.floor(i / 2), 0), S3("ベントオーバーロウ", 45 + up * 2.5, 10, 5)]]
+    };
+    for (const [k, [n, exercises]] of Object.entries(sessions)) if (!skip.has(i + "-" + k)) list.push([n, exercises, memo[i + "-" + k] || ""]);
+  }
   const all = {};
-  list.forEach(([n, exercises, memo], i) => { all["sample-" + i] = { example: true, date: day(n), exercises, memo, createdAt: i }; });
+  list.sort((a, b) => b[0] - a[0]).forEach(([n, exercises, memo], i) => { all["sample-" + i] = { example: true, date: day(n), exercises, memo, createdAt: i }; });
   ls.set("liftlog.workouts", all);
 }
 
