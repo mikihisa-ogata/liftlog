@@ -149,7 +149,7 @@ button { font-family: var(--font-body); }
 .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-family: var(--font-head); font-weight: var(--head-weight); }
 .btn.small { font-size: 12px; padding: 6px 12px; }
 .btn.danger { color: var(--danger); }
-.btn.armed { background: var(--danger); border-color: var(--danger); color: #ffffff; }
+.btn.armed, .btn.destroy { background: var(--danger); border-color: var(--danger); color: #ffffff; }
 .btn.add-set { width: 100%; border-style: dashed; background: transparent; color: var(--muted); }
 .icon-btn { border: 0; background: transparent; color: var(--muted); font-size: 20px; line-height: 1; padding: 6px; cursor: pointer; border-radius: 6px; }
 .icon-btn:hover { color: var(--danger); }
@@ -225,6 +225,14 @@ button { font-family: var(--font-body); }
 .gcard small { font-size: 12px; color: var(--muted); line-height: 1.4; }
 .gfig svg, .poses svg { display: block; width: 100%; height: auto; background: var(--field); border-radius: min(var(--radius), 8px); }
 .guide-dlg { width: min(560px, calc(100% - 32px)); }
+/* 確認ダイアログ */
+.confirm-dlg { border: 0; padding: 0; background: transparent; color: var(--ink); width: min(340px, calc(100% - 32px)); max-width: none; }
+.confirm-dlg::backdrop { background: rgba(0, 0, 0, .6); }
+.confirm-body { margin: 0; background: var(--surface); border-radius: var(--radius); padding: 20px; display: flex; flex-direction: column; gap: 8px; }
+.confirm-body h3 { margin: 0; font-size: 17px; }
+.confirm-body p { margin: 0; font-size: 13px; color: var(--muted); }
+.confirm-actions { display: flex; gap: 8px; margin-top: 12px; }
+.confirm-actions .btn { flex: 1; padding: 12px; }
 .guide-body { background: var(--surface); border-radius: var(--radius); padding: 16px; display: flex; flex-direction: column; gap: 10px; }
 .guide-body h3 { margin: 0; font-family: var(--font-head); font-weight: var(--head-weight); font-size: 21px; line-height: 1.3; }
 .guide-body h2 { margin-top: 6px; }
@@ -431,6 +439,13 @@ button { font-family: var(--font-body); }
   </section>
 </div>
 <dialog class="guide-dlg" id="guide" aria-labelledby="guide-title"><div class="guide-body"></div></dialog>
+<dialog class="confirm-dlg" id="confirm" aria-labelledby="confirm-title" aria-describedby="confirm-note">
+  <form method="dialog" class="confirm-body">
+    <h3 id="confirm-title"></h3>
+    <p id="confirm-note"></p>
+    <div class="confirm-actions"><button class="btn" value="cancel">キャンセル</button><button class="btn destroy" value="ok" id="confirm-ok"></button></div>
+  </form>
+</dialog>
 <div id="toast" class="toast hide" role="status"></div>
 
 <script>
@@ -507,6 +522,14 @@ function toast(msg) {
   const t = $("#toast"); t.textContent = msg; t.classList.remove("hide");
   clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.add("hide"), 2200);
 }
+// 確認ダイアログを出し、実行するボタンが押されたら true を返す。外側・Esc・キャンセルは false
+function askConfirm(title, note, ok) {
+  const d = $("#confirm");
+  $("#confirm-title").textContent = title; $("#confirm-note").textContent = note; $("#confirm-ok").textContent = ok;
+  d.returnValue = ""; d.showModal();
+  return new Promise(res => d.addEventListener("close", () => res(d.returnValue === "ok"), { once: true }));
+}
+$("#confirm").addEventListener("click", e => { if (e.target === e.currentTarget) e.currentTarget.close(); });
 // 確認ダイアログの代わりに「2回押し」で実行する
 function twoTap(btn, label, fn) {
   if (btn.dataset.armed) { delete btn.dataset.armed; btn.classList.remove("armed"); fn(); return; }
@@ -627,9 +650,10 @@ $("#btn-save").addEventListener("click", async () => {
     toast("保存できませんでした。端末の空き容量やプライベートブラウズでないかを確かめてください");
   } finally { btn.disabled = false; }
 });
-$("#btn-clear").addEventListener("click", e => twoTap(e.currentTarget, "もう一度押すとクリア", () => {
-  draft = blankDraft(); saveDraft(); renderLog(); e.currentTarget.textContent = "入力をクリア"; toast("入力をクリアしました");
-}));
+$("#btn-clear").addEventListener("click", async () => {
+  if (!await askConfirm("入力をクリアしますか？", "入力中の種目・セット・メモが消えます。保存済みの記録はそのまま残ります。", "クリア")) return;
+  draft = blankDraft(); saveDraft(); renderLog(); toast("入力をクリアしました");
+});
 
 /* ---------- 履歴 ---------- */
 // 各記録で、その日までの自己ベスト（推定1RM）を更新した種目
