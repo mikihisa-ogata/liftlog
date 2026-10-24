@@ -190,7 +190,7 @@ button { font-family: var(--font-body); }
 .sw-lv { width: 12px; height: 12px; flex: none; background: var(--c); border-radius: 3px; }
 .mlegend { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; font-size: 12px; color: var(--muted); }
 .mlegend span { display: inline-flex; align-items: center; gap: 4px; }
-.day-body { display: grid; grid-template-columns: minmax(0, 1fr) 76px; gap: 12px; align-items: start; }
+.day-body { display: grid; grid-template-columns: minmax(0, 1fr) 120px; gap: 12px; align-items: start; }
 
 /* ---- 推移 ---- */
 .prog-ctrl { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; }
@@ -330,7 +330,7 @@ button { font-family: var(--font-body); }
       </div>
     </header>
     <section class="stats" aria-label="今週のまとめ">
-      <div class="stat"><span class="k">今週のボリューム</span><span class="v" id="s-vol">0<small>kg</small></span></div>
+      <div class="stat"><span class="k">連続</span><span class="v" id="s-streak">0<small>週</small></span></div>
       <div class="stat"><span class="k">今週</span><span class="v" id="s-week">0<small>回</small></span></div>
       <div class="stat"><span class="k">累計</span><span class="v" id="s-total">0<small>日</small></span></div>
     </section>
@@ -406,7 +406,6 @@ button { font-family: var(--font-body); }
 
   <!-- 種目ガイド -->
   <section class="view" id="view-guide" hidden>
-    <p class="note">種目をタップすると、フォームの図・効く部位・やり方が見られます。</p>
     <div class="chips" id="g-parts"></div>
     <div class="g-list" id="g-list"></div>
   </section>
@@ -519,7 +518,13 @@ function renderStats() {
   const now = new Date(); const mon = new Date(now.getFullYear(), now.getMonth(), now.getDate() - ((now.getDay() + 6) % 7));
   const wk = workouts.filter(w => w.date >= ymd(mon));
   $("#s-week").innerHTML = `${wk.length}<small>回</small>`;
-  $("#s-vol").innerHTML = `${fmtN(wk.reduce((a, w) => a + wVol(w), 0))}<small>kg</small>`;
+  // 1回以上やった週（月曜始まり）が何週続いているか。今週がまだなら先週までで数える
+  const weeks = new Set(workouts.map(w => { const d = parseD(w.date); d.setDate(d.getDate() - (d.getDay() + 6) % 7); return ymd(d); }));
+  const wkStart = new Date(mon);
+  if (!weeks.has(ymd(wkStart))) wkStart.setDate(wkStart.getDate() - 7);
+  let streak = 0;
+  while (weeks.has(ymd(wkStart))) { streak++; wkStart.setDate(wkStart.getDate() - 7); }
+  $("#s-streak").innerHTML = `${streak}<small>週</small>`;
   $("#s-total").innerHTML = `${new Set(workouts.map(w => w.date)).size}<small>日</small>`;
 }
 
