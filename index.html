@@ -223,6 +223,20 @@ button { font-family: var(--font-body); }
 .chart .pt { fill: var(--surface); stroke: var(--accent); stroke-width: 2; }
 .chart .pt.best { fill: var(--pr); stroke: var(--pr); }
 .chart .end { fill: var(--ink); font: 16px var(--font-num); }
+.chart .avg { fill: none; stroke: var(--ink); stroke-width: 2; stroke-dasharray: 6 5; stroke-linecap: round; opacity: .75; }
+/* 体重 */
+#bw-range { grid-template-columns: repeat(3, auto); }
+.bw-form { display: flex; gap: 8px; flex-wrap: wrap; align-items: end; }
+.bw-form .field { flex: 1 1 100px; min-width: 0; }
+.bw-form .field:first-child { flex-basis: 150px; }
+.bw-form .btn { padding: 10px 18px; }
+.bw-list { background: var(--surface); border-radius: var(--radius); padding: 2px 14px; }
+.bw-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); }
+.bw-row:first-child { border-top: 0; }
+.bw-row .d { flex: 1; min-width: 0; font-weight: 800; font-size: 14px; white-space: nowrap; }
+.bw-row .num { font-size: 18px; white-space: nowrap; text-align: right; min-width: 3.6em; }
+.bw-row .num small { font-family: var(--font-body); font-style: normal; font-size: 11px; color: var(--muted); margin-left: 2px; }
+.bw-row .f { min-width: 3.4em; }
 .pbs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 .pb { background: var(--surface); border-radius: var(--radius); padding: 10px 12px; min-width: 0; }
 .pb .k { font-size: 12px; color: var(--muted); font-weight: 700; }
@@ -332,7 +346,7 @@ body.rest-on { padding-top: var(--rest-h); }
 /* ==== IRON 固有 ==== */
 [data-skin="iron"] .hz { display: block; height: 10px; margin-left: calc(-1 * max(16px, env(safe-area-inset-left, 0px))); margin-right: calc(-1 * max(16px, env(safe-area-inset-right, 0px))); background: repeating-linear-gradient(-45deg, var(--accent) 0 12px, var(--bg) 12px 24px); }
 [data-skin="iron"] .stat { border-left: 4px solid var(--accent); }
-[data-skin="iron"] .ex, [data-skin="iron"] .day, [data-skin="iron"] .pb, [data-skin="iron"] .chart, [data-skin="iron"] .ph, [data-skin="iron"] .cmp { border: 1px solid var(--line); }
+[data-skin="iron"] .ex, [data-skin="iron"] .day, [data-skin="iron"] .pb, [data-skin="iron"] .chart, [data-skin="iron"] .ph, [data-skin="iron"] .cmp, [data-skin="iron"] .bw-list { border: 1px solid var(--line); }
 
 /* ==== PLATE 固有 ==== */
 [data-skin="plate"] .hero {
@@ -356,7 +370,7 @@ body.rest-on { padding-top: var(--rest-h); }
 [data-skin="plate"] .skins { color: var(--ink); }
 [data-skin="plate"] .seg { border: 0; background: var(--surface); padding: 4px; gap: 4px; box-shadow: 0 1px 0 var(--line); }
 [data-skin="plate"] .seg button { border-radius: 999px; }
-[data-skin="plate"] .ex, [data-skin="plate"] .day, [data-skin="plate"] .pb, [data-skin="plate"] .chart, [data-skin="plate"] .ph, [data-skin="plate"] .cmp { box-shadow: 0 2px 0 rgba(0, 0, 0, .05); }
+[data-skin="plate"] .ex, [data-skin="plate"] .day, [data-skin="plate"] .pb, [data-skin="plate"] .chart, [data-skin="plate"] .ph, [data-skin="plate"] .cmp, [data-skin="plate"] .bw-list { box-shadow: 0 2px 0 rgba(0, 0, 0, .05); }
 [data-skin="plate"] .setgrid input { border: 0; }
 [data-skin="plate"] .ex-head h3::before { content: ""; display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); margin-right: 8px; vertical-align: .1em; }
 [data-skin="plate"] .setno { color: var(--muted); }
@@ -374,7 +388,7 @@ body.rest-on { padding-top: var(--rest-h); }
 [data-skin="clock"] .stat:last-child .v { color: var(--pr); text-shadow: 0 0 10px rgba(57, 255, 136, .5); }
 [data-skin="clock"] .seg { border: 1px solid var(--line); background: var(--surface); }
 [data-skin="clock"] .seg button[aria-selected="true"] { background: transparent; color: var(--accent); text-shadow: var(--glow); box-shadow: inset 0 -3px 0 var(--accent); }
-[data-skin="clock"] .ex, [data-skin="clock"] .day, [data-skin="clock"] .pb, [data-skin="clock"] .chart, [data-skin="clock"] .ph, [data-skin="clock"] .cmp, [data-skin="clock"] .skins { border: 1px solid var(--line); }
+[data-skin="clock"] .ex, [data-skin="clock"] .day, [data-skin="clock"] .pb, [data-skin="clock"] .chart, [data-skin="clock"] .ph, [data-skin="clock"] .cmp, [data-skin="clock"] .bw-list, [data-skin="clock"] .skins { border: 1px solid var(--line); }
 [data-skin="clock"] .badge.pr { background: transparent; color: var(--pr); border: 1px solid var(--pr); text-shadow: 0 0 6px rgba(57, 255, 136, .5); }
 [data-skin="clock"] .btn.primary { box-shadow: 0 0 18px rgba(255, 46, 46, .35); }
 [data-skin="clock"] .chart .line { filter: drop-shadow(0 0 4px rgba(255, 46, 46, .6)); }
@@ -485,7 +499,7 @@ body.rest-on { padding-top: var(--rest-h); }
     <div id="view-history" class="view"></div>
     <div class="backup">
       <h2>バックアップ</h2>
-      <p class="note">記録はこの端末の中だけに保存されます。機種変更の前や、ときどきの控えとしてファイルに書き出しておいてください。読み込むと、同じ記録は上書きされ、それ以外は追加されます。体の写真は含まれません。</p>
+      <p class="note">記録はこの端末の中だけに保存されます。機種変更の前や、ときどきの控えとしてファイルに書き出しておいてください。読み込むと、同じ記録は上書きされ、それ以外は追加されます。体重の記録も含まれますが、体の写真は含まれません。</p>
       <div class="actions">
         <button class="btn small" id="btn-export">ファイルに書き出す</button>
         <button class="btn small" id="btn-import">ファイルから読み込む</button>
@@ -501,6 +515,11 @@ body.rest-on { padding-top: var(--rest-h); }
       <div class="seg small" id="metric">
         <button data-m="e1rm">推定1RM</button>
         <button data-m="max">最大重量</button>
+      </div>
+      <div class="seg small" id="bw-range" hidden>
+        <button data-r="1m">1か月</button>
+        <button data-r="3m">3か月</button>
+        <button data-r="all">すべて</button>
       </div>
     </div>
     <div id="prog-body" class="view"></div>
@@ -577,7 +596,8 @@ const setsText = sets => sets.map(s => (+s.w ? fmtW(+s.w) + "×" : "自重×") +
 const newId = () => "w-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 
 let workouts = [];
-const ui = { tab: ls.get("liftlog.tab", "log"), part: "胸", gpart: "胸", ex: null, metric: ls.get("liftlog.metric") === "max" ? "max" : "e1rm", hp: [7, 28, 91].includes(ls.get("liftlog.hp")) ? ls.get("liftlog.hp") : 7 };
+const ui = { tab: ls.get("liftlog.tab", "log"), part: "胸", gpart: "胸", ex: null, metric: ls.get("liftlog.metric") === "max" ? "max" : "e1rm", hp: [7, 28, 91].includes(ls.get("liftlog.hp")) ? ls.get("liftlog.hp") : 7,
+  bw: false, bwDate: today(), bwRange: ["1m", "3m", "all"].includes(ls.get("liftlog.bwRange")) ? ls.get("liftlog.bwRange") : "1m" };
 const blankDraft = () => ({ id: null, date: today(), exercises: [], memo: "" });
 let draft = ls.get("liftlog.draft", null) || blankDraft();
 const saveDraft = () => ls.set("liftlog.draft", draft);
@@ -931,7 +951,7 @@ $("#view-history").addEventListener("click", async e => {
 
 /* ---------- バックアップ ---------- */
 $("#btn-export").addEventListener("click", () => {
-  const body = JSON.stringify({ app: "liftlog", version: 1, exportedAt: new Date().toISOString(), workouts: localAll() }, null, 2);
+  const body = JSON.stringify({ app: "liftlog", version: 1, exportedAt: new Date().toISOString(), workouts: localAll(), bodyweight: bwAll() }, null, 2);
   const file = new File([body], `liftlog-${today()}.json`, { type: "application/json" });
   // iPhone は共有シートから「ファイルに保存」できる。使えなければ通常のダウンロード
   if (navigator.canShare?.({ files: [file] })) {
@@ -953,8 +973,12 @@ $("#f-import").addEventListener("change", async e => {
     const incoming = data?.app === "liftlog" ? data.workouts : null;
     if (!incoming || typeof incoming !== "object") throw 0;
     const valid = Object.entries(incoming).filter(([, w]) => typeof w?.date === "string" && Array.isArray(w.exercises));
+    const bw = data.bodyweight && typeof data.bodyweight === "object"
+      ? Object.entries(data.bodyweight).filter(([d, v]) => /^\d{4}-\d{2}-\d{2}$/.test(d) && typeof v?.w === "number" && v.w > 0) : [];
     writeAll({ ...localAll(), ...Object.fromEntries(valid) });
-    loadLocal(); toast(`${valid.length}件の記録を読み込みました`);
+    if (bw.length) ls.set("liftlog.bodyweight", { ...bwAll(), ...Object.fromEntries(bw) });
+    loadLocal(); renderPhotos();
+    toast(`${valid.length}件の記録${bw.length ? `と${bw.length}日分の体重` : ""}を読み込みました`);
   } catch {
     toast("読み込めませんでした。このアプリで書き出したファイルを選んでください");
   }
@@ -962,9 +986,11 @@ $("#f-import").addEventListener("change", async e => {
 
 /* ---------- 推移 ---------- */
 function niceStep(raw) { const p = 10 ** Math.floor(Math.log10(raw)); const n = raw / p; return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10) * p; }
-function chartSvg(pts, unit) {
+// avg を渡すと同じ日付の点を点線で重ねる（体重の移動平均）。best: false で赤いベストの点を出さない
+function chartSvg(pts, unit, { avg = null, best = true, fmt = fmtN } = {}) {
   const W = 640, H = 250, L = 46, R = 56, T = 18, B = 30;
-  const vs = pts.map(p => p.v); let lo = Math.min(...vs), hi = Math.max(...vs);
+  const vs = pts.map(p => p.v), range = avg ? vs.concat(avg.map(p => p.v)) : vs;
+  let lo = Math.min(...range), hi = Math.max(...range);
   if (lo === hi) { lo = lo * 0.9; hi = hi * 1.1 || 1; }
   const pad = (hi - lo) * 0.12; lo = Math.max(0, lo - pad); hi = hi + pad;
   const step = niceStep((hi - lo) / 4);
@@ -973,17 +999,18 @@ function chartSvg(pts, unit) {
   const y = v => T + (1 - (v - lo) / (hi - lo)) * (H - T - B);
   let g = "";
   for (let v = Math.ceil(lo / step) * step; v <= hi; v += step) {
-    g += `<line class="grid" x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}"/><text class="lbl" x="${L - 8}" y="${y(v) + 4}" text-anchor="end">${fmtN(v)}</text>`;
+    g += `<line class="grid" x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}"/><text class="lbl" x="${L - 8}" y="${y(v) + 4}" text-anchor="end">${fmt(v)}</text>`;
   }
   const xy = pts.map((p, i) => [x(ts[i]), y(p.v)]);
   const line = xy.map((c, i) => (i ? "L" : "M") + c[0].toFixed(1) + " " + c[1].toFixed(1)).join(" ");
   const area = pts.length > 1 ? `<path class="area" d="${line} L${xy[xy.length - 1][0]} ${H - B} L${xy[0][0]} ${H - B} Z"/>` : "";
-  const bestI = vs.indexOf(Math.max(...vs));
+  const bestI = best ? vs.indexOf(Math.max(...vs)) : -1;
+  const avgLine = avg && avg.length > 1 ? `<path class="avg" d="${avg.map((p, i) => (i ? "L" : "M") + x(ts[i]).toFixed(1) + " " + y(p.v).toFixed(1)).join(" ")}"/>` : "";
   const idx = [...new Set([0, Math.floor((pts.length - 1) / 2), pts.length - 1])];
   const xl = idx.map(i => `<text class="lbl" x="${xy[i][0]}" y="${H - 8}" text-anchor="middle">${fmtShort(pts[i].date)}</text>`).join("");
   const dots = xy.map((c, i) => `<circle class="pt${i === bestI ? " best" : ""}" cx="${c[0]}" cy="${c[1]}" r="${i === xy.length - 1 || i === bestI ? 5 : 3.5}"><title>${fmtDate(pts[i].date)} ${fmtW(pts[i].v)}${unit}</title></circle>`).join("");
   const last = xy[xy.length - 1];
-  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="推移グラフ">${g}${area}${pts.length > 1 ? `<path class="line" d="${line}"/>` : ""}${dots}<text class="end" x="${last[0] + 9}" y="${last[1] + 5}">${fmtN(pts[pts.length - 1].v)}</text>${xl}</svg>`;
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="推移グラフ">${g}${area}${pts.length > 1 ? `<path class="line" d="${line}"/>` : ""}${avgLine}${dots}<text class="end" x="${last[0] + 9}" y="${last[1] + 5}">${fmt(pts[pts.length - 1].v)}</text>${xl}</svg>`;
 }
 // 種目ごとの記録回数
 function exCounts() {
@@ -994,14 +1021,15 @@ function exCounts() {
 function renderProgress() {
   const counts = exCounts();
   const names = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
-  const sel = $("#f-ex"), body = $("#prog-body");
+  const body = $("#prog-body");
   document.querySelectorAll("#metric button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.m === ui.metric)));
+  $("#metric").hidden = ui.bw; $("#bw-range").hidden = !ui.bw;
+  if (ui.bw) return renderBw();
   if (!names.length) {
-    $(".ex-pick-name").textContent = "記録なし"; $(".ex-pick-n").textContent = ""; sel.disabled = true;
-    body.innerHTML = `<p class="empty">記録が2回以上たまると、種目ごとに重量の伸びがグラフで見られます。</p>`;
+    $(".ex-pick-name").textContent = "記録なし"; $(".ex-pick-n").textContent = "";
+    body.innerHTML = `<p class="empty">記録が2回以上たまると、種目ごとに重量の伸びがグラフで見られます。体重は上のボタンから記録できます。</p>`;
     return;
   }
-  sel.disabled = false;
   if (!names.includes(ui.ex)) ui.ex = names[0];
   $(".ex-pick-name").textContent = ui.ex; $(".ex-pick-n").textContent = `${counts[ui.ex]}回`;
 
@@ -1036,18 +1064,102 @@ $("#f-ex").addEventListener("click", () => {
     const p = Object.keys(PRESETS).find(k => PRESETS[k].includes(n)) || "その他";
     (groups[p] ||= []).push(n);
   });
-  $("#ex-pick-list").innerHTML = [...Object.keys(PRESETS), "その他"].filter(p => groups[p]).map(p => `<h3>${p}</h3>` + groups[p].map(n =>
-    `<button class="pick-row" data-ex="${esc(n)}" aria-pressed="${n === ui.ex}"><span>${esc(n)}</span><span class="n">${counts[n]}回</span></button>`).join("")).join("");
+  const bwN = Object.keys(bwAll()).length;
+  $("#ex-pick-list").innerHTML = `<h3>体</h3><button class="pick-row" data-bw aria-pressed="${ui.bw}"><span>体重</span><span class="n">${bwN ? bwN + "日" : ""}</span></button>`
+    + [...Object.keys(PRESETS), "その他"].filter(p => groups[p]).map(p => `<h3>${p}</h3>` + groups[p].map(n =>
+    `<button class="pick-row" data-ex="${esc(n)}" aria-pressed="${!ui.bw && n === ui.ex}"><span>${esc(n)}</span><span class="n">${counts[n]}回</span></button>`).join("")).join("");
   const d = $("#ex-pick"); d.showModal();
   d.querySelector('[aria-pressed="true"]')?.scrollIntoView({ block: "center" });
 });
 $("#ex-pick").addEventListener("click", e => {
   const d = e.currentTarget;
   if (e.target === d || e.target.closest("[data-close]")) return d.close();
-  const b = e.target.closest("[data-ex]"); if (!b) return;
-  ui.ex = b.dataset.ex; d.close(); renderProgress();
+  const b = e.target.closest("[data-ex], [data-bw]"); if (!b) return;
+  ui.bw = "bw" in b.dataset; if (!ui.bw) ui.ex = b.dataset.ex;
+  d.close(); renderProgress();
 });
 $("#metric").addEventListener("click", e => { const b = e.target.closest("[data-m]"); if (!b) return; ui.metric = b.dataset.m; ls.set("liftlog.metric", ui.metric); renderProgress(); });
+
+/* ---------- 体重 ---------- */
+// { "2026-10-23": { w: 70.2, fat: 15.1 } }（fat は任意）。体の写真の体重もここを読み書きし、写真の側には持たない
+const bwAll = () => ls.get("liftlog.bodyweight", {});
+function writeBw(fn) { const all = bwAll(); fn(all); ls.set("liftlog.bodyweight", all); renderProgress(); renderPhotos(); }
+const round1 = n => Math.round(n * 10) / 10;
+// 古い順に並べ、7日間の移動平均（その日を含む直近7日に記録した体重の平均。記録のない日は数えない）を付ける
+function bwSeries() {
+  const list = Object.entries(bwAll()).filter(([, v]) => v?.w > 0).map(([date, v]) => ({ date, w: v.w, fat: v.fat })).sort((a, b) => a.date.localeCompare(b.date));
+  let j = 0, sum = 0;
+  return list.map((p, i) => {
+    sum += p.w;
+    const d = parseD(p.date); d.setDate(d.getDate() - 6);
+    while (list[j].date < ymd(d)) sum -= list[j++].w;
+    return { ...p, avg: sum / (i - j + 1) };
+  });
+}
+function fillBwForm() {
+  const v = bwAll()[$("#bw-date").value];
+  $("#bw-w").value = v?.w ?? ""; $("#bw-fat").value = v?.fat ?? "";
+}
+function renderBw() {
+  const all = bwSeries(), body = $("#prog-body");
+  $(".ex-pick-name").textContent = "体重"; $(".ex-pick-n").textContent = all.length ? `${all.length}日` : "";
+  document.querySelectorAll("#bw-range button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.r === ui.bwRange)));
+  const from = new Date(); from.setMonth(from.getMonth() - (ui.bwRange === "1m" ? 1 : 3));
+  const pts = ui.bwRange === "all" ? all : all.filter(p => p.date >= ymd(from));
+  const form = `<form class="bw-form" id="bw-form">
+      <label class="field">日付<input type="date" id="bw-date" value="${ui.bwDate}" required></label>
+      <label class="field">体重（kg）<input type="number" inputmode="decimal" step="0.1" min="0" id="bw-w" required></label>
+      <label class="field">体脂肪率（%・任意）<input type="number" inputmode="decimal" step="0.1" min="0" max="100" id="bw-fat"></label>
+      <button class="btn primary" type="submit">保存</button>
+    </form>`;
+  if (!all.length) {
+    body.innerHTML = form + `<p class="empty">毎日同じ条件（朝起きてトイレのあと・食事の前など）で量ると、増減の傾向がつかみやすくなります。</p>`;
+    fillBwForm(); return;
+  }
+  const last = all[all.length - 1], kg = n => `${fmtW(n)}<small> kg</small>`;
+  const dAvg = pts.length > 1 ? pts[pts.length - 1].avg - pts[0].avg : null;
+  body.innerHTML = form + `
+    <div class="pbs">
+      <div class="pb"><div class="k">最新</div><div class="v">${kg(last.w)}</div><div class="d">${fmtDate(last.date)}${last.fat ? `・体脂肪 ${fmtW(last.fat)}%` : ""}</div></div>
+      <div class="pb"><div class="k">期間の増減</div><div class="v">${dAvg === null ? "—" : (dAvg > 0 ? "+" : "") + kg(dAvg)}</div><div class="d">7日平均で比べた値</div></div>
+      <div class="pb"><div class="k">記録した日数</div><div class="v">${pts.length}<small> 日</small></div><div class="d">初回 ${fmtDate(all[0].date)}</div></div>
+    </div>
+    ${pts.length
+      ? `<div class="chart">${chartSvg(pts.map(p => ({ date: p.date, v: p.w })), "kg", { avg: pts.map(p => ({ date: p.date, v: p.avg })), best: false, fmt: fmtW })}</div>
+         <p class="note">点線は7日間の移動平均（その日までの7日間に記録した体重の平均）です。毎日の増減より、こちらの傾きを見てください。</p>`
+      : `<p class="empty">この期間の記録はありません。</p>`}
+    <h2>記録</h2>
+    ${pts.length ? `<div class="bw-list">${[...pts].reverse().map(p => `<div class="bw-row">
+      <span class="d">${p.date.slice(0, 4) === today().slice(0, 4) ? "" : p.date.slice(2, 4) + "/"}${fmtShort(p.date)}</span><span class="num">${kg(p.w)}</span><span class="num f">${p.fat ? `${fmtW(p.fat)}<small>%</small>` : ""}</span>
+      <button class="btn small" data-bwedit="${p.date}">修正</button><button class="btn small danger" data-bwdel="${p.date}">削除</button>
+    </div>`).join("")}</div>` : `<p class="empty">この期間の記録はありません。</p>`}`;
+  fillBwForm();
+}
+$("#bw-range").addEventListener("click", e => { const b = e.target.closest("[data-r]"); if (!b) return; ui.bwRange = b.dataset.r; ls.set("liftlog.bwRange", ui.bwRange); renderProgress(); });
+// 日付を変えたら、その日の記録があれば入れておく（同じ日に入れ直すと上書きになる）
+$("#prog-body").addEventListener("change", e => { if (e.target.id === "bw-date") { ui.bwDate = e.target.value || today(); fillBwForm(); } });
+$("#prog-body").addEventListener("submit", e => {
+  if (e.target.id !== "bw-form") return;
+  e.preventDefault();
+  const date = $("#bw-date").value || today(), w = round1(parseFloat($("#bw-w").value)), fat = round1(parseFloat($("#bw-fat").value));
+  if (!(w > 0)) { toast("体重を入れてください"); return; }
+  const had = bwAll()[date];
+  ui.bwDate = today();
+  writeBw(all => { all[date] = fat > 0 ? { w, fat } : { w }; });
+  toast(`${fmtDate(date)}の体重を${had ? "上書き" : "保存"}しました`);
+});
+$("#prog-body").addEventListener("click", async e => {
+  const ed = e.target.closest("[data-bwedit]"), del = e.target.closest("[data-bwdel]");
+  if (ed) {
+    ui.bwDate = ed.dataset.bwedit; renderBw();
+    $("#bw-form").scrollIntoView({ block: "center", behavior: "smooth" }); $("#bw-w").focus({ preventScroll: true });
+  } else if (del) {
+    const date = del.dataset.bwdel;
+    if (!await askConfirm(`${fmtDate(date)}の体重を削除しますか？`, "削除した記録は元に戻せません。同じ日の体の写真に表示される体重も消えます。", "削除")) return;
+    writeBw(all => { delete all[date]; });
+    toast("体重の記録を削除しました");
+  }
+});
 
 /* ---------- 体の写真 ---------- */
 // 写真は localStorage に入りきらないので IndexedDB に Blob で持つ。バックアップのファイルには含めない
@@ -1070,6 +1182,15 @@ async function photoStore(mode, fn) {
 }
 async function loadPhotos() {
   try { photos = await photoStore("readonly", s => s.getAll()); } catch { photos = null; }
+  // 以前は写真ごとに体重を持っていた。体重の記録へ移し、移せた（同じ値になった）ものは写真の側から消す
+  const old = (photos || []).filter(p => !p.example && p.weight);
+  if (old.length) {
+    const all = bwAll();
+    old.forEach(p => { all[p.date] ||= { w: p.weight }; });
+    ls.set("liftlog.bodyweight", all);
+    for (const p of old.filter(p => bwAll()[p.date]?.w === p.weight)) { delete p.weight; try { await photoStore("readwrite", s => s.put(p)); } catch {} }
+    renderProgress();
+  }
   photos?.sort((a, b) => b.date.localeCompare(a.date) || b.createdAt - a.createdAt);
   Object.values(phUrls).forEach(u => URL.revokeObjectURL(u));
   phUrls = Object.fromEntries((photos || []).map(p => [p.id, URL.createObjectURL(p.blob)]));
@@ -1130,16 +1251,18 @@ function renderPhotos() {
   if (!photos) { v.innerHTML = `<p class="empty">この環境では写真を保存できません。プライベートブラウズを切ってから開いてください。</p>`; return; }
   if (!photos.length) { v.innerHTML = `<p class="empty">まだ写真がありません。同じ場所・同じ姿勢で定期的に撮っておくと、見た目の変化を並べて比べられます。</p>`; return; }
   for (let i = phSel.length - 1; i >= 0; i--) if (!phUrls[phSel[i]]) phSel.splice(i, 1);
+  // 体重はその日の体重の記録から出す（見本の写真と、移せなかった古い写真は写真に付いた値）
+  const bw = bwAll(), wOf = p => bw[p.date]?.w || p.weight;
   const kg = w => w ? `<span class="num">${fmtW(w)}<small> kg</small></span>` : "";
   // 古い方をビフォー、新しい方をアフターに置く
   const pick = phSel.map(id => photos.find(p => p.id === id)).sort((a, b) => a.date.localeCompare(b.date) || a.createdAt - b.createdAt);
   const fig = (p, label) => p
-    ? `<figure><figcaption>${label}<span>${fmtDateY(p.date)}</span></figcaption><img src="${phUrls[p.id]}" alt="${fmtDateY(p.date)}の写真">${kg(p.weight)}</figure>`
+    ? `<figure><figcaption>${label}<span>${fmtDateY(p.date)}</span></figcaption><img src="${phUrls[p.id]}" alt="${fmtDateY(p.date)}の写真">${kg(wOf(p))}</figure>`
     : `<div class="slot">一覧の「比較」で写真を選んでください</div>`;
   let diff = "";
   if (pick.length === 2) {
     const days = Math.round((parseD(pick[1].date) - parseD(pick[0].date)) / 864e5);
-    const dw = pick[0].weight && pick[1].weight ? pick[1].weight - pick[0].weight : null;
+    const dw = wOf(pick[0]) && wOf(pick[1]) ? wOf(pick[1]) - wOf(pick[0]) : null;
     diff = `<p class="note">${days}日間${dw === null ? "" : `・体重 ${dw > 0 ? "+" : ""}${fmtW(dw)} kg`}</p>`;
   }
   const cmp = photos.length < 2 ? "" : `<section class="cmp">
@@ -1150,7 +1273,7 @@ function renderPhotos() {
     ? `<div class="notice"><span>「サンプル」の付いた写真は見本です。自分の写真を撮り始めたら消してください。</span><button class="btn small" data-act="ph-del-samples">サンプルを削除</button></div>` : "";
   v.innerHTML = notice + cmp + `<div class="ph-grid">${photos.map(p => `<article class="ph${phSel.includes(p.id) ? " sel" : ""}">
     <img src="${phUrls[p.id]}" alt="${fmtDateY(p.date)}の写真" loading="lazy">
-    <div class="ph-info"><b>${fmtDateY(p.date)}${p.example ? ` <span class="badge sample">サンプル</span>` : ""}</b>${kg(p.weight)}${p.memo ? `<span class="ph-memo">${esc(p.memo)}</span>` : ""}</div>
+    <div class="ph-info"><b>${fmtDateY(p.date)}${p.example ? ` <span class="badge sample">サンプル</span>` : ""}</b>${kg(wOf(p))}${p.memo ? `<span class="ph-memo">${esc(p.memo)}</span>` : ""}</div>
     <div class="ph-foot"><button class="btn small" data-cmp="${esc(p.id)}" aria-pressed="${phSel.includes(p.id)}">比較</button><button class="btn small danger" data-phdel="${esc(p.id)}">削除</button></div>
   </article>`).join("")}</div>`;
 }
@@ -1160,18 +1283,22 @@ document.querySelectorAll(".f-photo").forEach(inp => inp.addEventListener("chang
   if (!f) return;
   try { phNew = await shrinkImage(f); } catch { toast("この写真は読み込めませんでした"); return; }
   $("#ph-preview").src = URL.createObjectURL(phNew);
-  $("#ph-date").value = today(); $("#ph-weight").value = ""; $("#ph-memo").value = "";
+  $("#ph-date").value = today(); $("#ph-weight").value = bwAll()[today()]?.w ?? ""; $("#ph-memo").value = "";
   $("#ph-new").showModal();
 }));
 $("#ph-new").addEventListener("click", e => { if (e.target.closest("[data-close]")) e.currentTarget.close(); });
+// 写真の日付を変えたら、その日の体重を入れておく
+$("#ph-date").addEventListener("change", e => { $("#ph-weight").value = bwAll()[e.target.value]?.w ?? ""; });
 $("#ph-new").addEventListener("close", () => { URL.revokeObjectURL($("#ph-preview").src); phNew = null; });
 $("#ph-form").addEventListener("submit", async e => {
   e.preventDefault();
   if (!phNew) return;
-  const w = parseFloat($("#ph-weight").value);
-  const data = { id: "p-" + newId().slice(2), date: $("#ph-date").value || today(), weight: w > 0 ? w : null, memo: $("#ph-memo").value.trim(), blob: phNew, createdAt: Date.now() };
+  const w = round1(parseFloat($("#ph-weight").value));
+  const data = { id: "p-" + newId().slice(2), date: $("#ph-date").value || today(), memo: $("#ph-memo").value.trim(), blob: phNew, createdAt: Date.now() };
   try {
     await photoStore("readwrite", s => s.put(data));
+    // 体重は体重の記録に入れる（体脂肪率は残す）。空のときはその日の記録に触らない
+    if (w > 0) { const bw = bwAll(); bw[data.date] = { ...bw[data.date], w }; ls.set("liftlog.bodyweight", bw); renderProgress(); }
     $("#ph-new").close(); toast(`${fmtDate(data.date)}の写真を保存しました`); loadPhotos();
   } catch { toast("保存できませんでした。端末の空き容量やプライベートブラウズでないかを確かめてください"); }
 });
