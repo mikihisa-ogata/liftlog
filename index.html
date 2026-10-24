@@ -109,7 +109,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 
 /* ---- タブ ---- */
 .tabs { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); padding-block: 8px; }
-.seg { display: grid; grid-template-columns: repeat(4, 1fr); border: 2px solid var(--ink); border-radius: var(--radius-ctl); overflow: hidden; }
+.seg { display: grid; grid-template-columns: repeat(5, 1fr); border: 2px solid var(--ink); border-radius: var(--radius-ctl); overflow: hidden; }
 .seg button { border: 0; background: transparent; color: var(--ink); font: 800 14px var(--font-body); padding: 10px 4px; cursor: pointer; border-radius: 0; }
 .seg button[aria-selected="true"] { background: var(--ink); color: var(--bg); }
 .tabs .seg button { display: flex; align-items: center; justify-content: center; gap: 5px; }
@@ -231,6 +231,30 @@ button { font-family: var(--font-body); }
 .pb .d { font-size: 12px; color: var(--muted); }
 .note { font-size: 12px; color: var(--muted); margin: 0; }
 
+/* ---- 体の写真 ---- */
+.ph-add { display: flex; gap: 8px; }
+.ph-add .btn { flex: 1; padding: 13px 8px; font-size: 15px; }
+.ph-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.ph { background: var(--surface); border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; }
+.ph.sel { outline: 3px solid var(--accent); outline-offset: -3px; }
+.ph img { display: block; width: 100%; aspect-ratio: 3 / 4; object-fit: cover; background: var(--field); }
+.ph-info { padding: 8px 10px 6px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ph-info b { font-size: 13px; }
+.ph-info .num, .cmp figure .num { font-size: 18px; }
+.ph-info small, .cmp figure small { font-family: var(--font-body); font-style: normal; font-size: 12px; color: var(--muted); }
+.ph-memo { font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ph-foot { display: flex; gap: 6px; padding: 0 8px 8px; margin-top: auto; }
+.ph-foot .btn { flex: 1; padding-inline: 4px; }
+.ph-foot .btn[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.cmp { background: var(--surface); border-radius: var(--radius); padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+.cmp-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.cmp figure { margin: 0; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.cmp figcaption { display: flex; flex-direction: column; font-size: 12px; font-weight: 800; line-height: 1.4; }
+.cmp figcaption span { color: var(--muted); font-weight: 700; }
+.cmp img, .cmp .slot { display: block; width: 100%; aspect-ratio: 3 / 4; object-fit: contain; background: var(--field); border-radius: min(var(--radius), 8px); }
+.cmp .slot { display: flex; align-items: center; justify-content: center; padding: 10px; text-align: center; font-size: 12px; color: var(--muted); border: 1px dashed var(--line); }
+#ph-preview { display: block; width: 100%; max-height: 34vh; object-fit: contain; background: var(--field); border-radius: min(var(--radius), 8px); }
+
 /* ---- 種目ガイド ---- */
 .g-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
 .gcard { border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: var(--radius); padding: 8px 8px 10px; display: flex; flex-direction: column; gap: 4px; text-align: left; cursor: pointer; font: inherit; }
@@ -287,7 +311,7 @@ button { font-family: var(--font-body); }
 /* ==== IRON 固有 ==== */
 [data-skin="iron"] .hz { display: block; height: 10px; margin-left: calc(-1 * max(16px, env(safe-area-inset-left, 0px))); margin-right: calc(-1 * max(16px, env(safe-area-inset-right, 0px))); background: repeating-linear-gradient(-45deg, var(--accent) 0 12px, var(--bg) 12px 24px); }
 [data-skin="iron"] .stat { border-left: 4px solid var(--accent); }
-[data-skin="iron"] .ex, [data-skin="iron"] .day, [data-skin="iron"] .pb, [data-skin="iron"] .chart { border: 1px solid var(--line); }
+[data-skin="iron"] .ex, [data-skin="iron"] .day, [data-skin="iron"] .pb, [data-skin="iron"] .chart, [data-skin="iron"] .ph, [data-skin="iron"] .cmp { border: 1px solid var(--line); }
 
 /* ==== PLATE 固有 ==== */
 [data-skin="plate"] .hero {
@@ -311,7 +335,7 @@ button { font-family: var(--font-body); }
 [data-skin="plate"] .skins { color: var(--ink); }
 [data-skin="plate"] .seg { border: 0; background: var(--surface); padding: 4px; gap: 4px; box-shadow: 0 1px 0 var(--line); }
 [data-skin="plate"] .seg button { border-radius: 999px; }
-[data-skin="plate"] .ex, [data-skin="plate"] .day, [data-skin="plate"] .pb, [data-skin="plate"] .chart { box-shadow: 0 2px 0 rgba(0, 0, 0, .05); }
+[data-skin="plate"] .ex, [data-skin="plate"] .day, [data-skin="plate"] .pb, [data-skin="plate"] .chart, [data-skin="plate"] .ph, [data-skin="plate"] .cmp { box-shadow: 0 2px 0 rgba(0, 0, 0, .05); }
 [data-skin="plate"] .setgrid input { border: 0; }
 [data-skin="plate"] .ex-head h3::before { content: ""; display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); margin-right: 8px; vertical-align: .1em; }
 [data-skin="plate"] .setno { color: var(--muted); }
@@ -329,7 +353,7 @@ button { font-family: var(--font-body); }
 [data-skin="clock"] .stat:last-child .v { color: var(--pr); text-shadow: 0 0 10px rgba(57, 255, 136, .5); }
 [data-skin="clock"] .seg { border: 1px solid var(--line); background: var(--surface); }
 [data-skin="clock"] .seg button[aria-selected="true"] { background: transparent; color: var(--accent); text-shadow: var(--glow); box-shadow: inset 0 -3px 0 var(--accent); }
-[data-skin="clock"] .ex, [data-skin="clock"] .day, [data-skin="clock"] .pb, [data-skin="clock"] .chart, [data-skin="clock"] .skins { border: 1px solid var(--line); }
+[data-skin="clock"] .ex, [data-skin="clock"] .day, [data-skin="clock"] .pb, [data-skin="clock"] .chart, [data-skin="clock"] .ph, [data-skin="clock"] .cmp, [data-skin="clock"] .skins { border: 1px solid var(--line); }
 [data-skin="clock"] .badge.pr { background: transparent; color: var(--pr); border: 1px solid var(--pr); text-shadow: 0 0 6px rgba(57, 255, 136, .5); }
 [data-skin="clock"] .btn.primary { box-shadow: 0 0 18px rgba(255, 46, 46, .35); }
 [data-skin="clock"] .chart .line { filter: drop-shadow(0 0 4px rgba(255, 46, 46, .6)); }
@@ -391,6 +415,7 @@ button { font-family: var(--font-body); }
       <button role="tab" id="tab-log" data-tab="log"><svg class="tab-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13 7l4 4"/></svg>記録</button>
       <button role="tab" id="tab-history" data-tab="history"><svg class="tab-ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>履歴</button>
       <button role="tab" id="tab-progress" data-tab="progress"><svg class="tab-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>推移</button>
+      <button role="tab" id="tab-body" data-tab="body"><svg class="tab-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8h4l2-3h6l2 3h4v11H3z"/><circle cx="12" cy="13" r="3.5"/></svg>体</button>
       <button role="tab" id="tab-guide" data-tab="guide"><svg class="tab-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.5C10 5 7 4.5 3.5 5v13.5c3.5-.5 6.5 0 8.5 1.5 2-1.5 5-2 8.5-1.5V5C17 4.5 14 5 12 6.5z"/><path d="M12 6.5V20"/></svg>ガイド</button>
     </div>
   </nav>
@@ -423,7 +448,7 @@ button { font-family: var(--font-body); }
     <div id="view-history" class="view"></div>
     <div class="backup">
       <h2>バックアップ</h2>
-      <p class="note">記録はこの端末の中だけに保存されます。機種変更の前や、ときどきの控えとしてファイルに書き出しておいてください。読み込むと、同じ記録は上書きされ、それ以外は追加されます。</p>
+      <p class="note">記録はこの端末の中だけに保存されます。機種変更の前や、ときどきの控えとしてファイルに書き出しておいてください。読み込むと、同じ記録は上書きされ、それ以外は追加されます。体の写真は含まれません。</p>
       <div class="actions">
         <button class="btn small" id="btn-export">ファイルに書き出す</button>
         <button class="btn small" id="btn-import">ファイルから読み込む</button>
@@ -442,6 +467,18 @@ button { font-family: var(--font-body); }
       </div>
     </div>
     <div id="prog-body" class="view"></div>
+  </section>
+
+  <!-- 体の写真 -->
+  <section class="view" id="view-body" hidden>
+    <div class="ph-add">
+      <button class="btn primary" data-pick="cam">撮影する</button>
+      <button class="btn" data-pick="lib">写真から選ぶ</button>
+      <input type="file" class="f-photo" id="f-photo-cam" accept="image/*" capture hidden>
+      <input type="file" class="f-photo" id="f-photo-lib" accept="image/*" hidden>
+    </div>
+    <div id="ph-body" class="view"></div>
+    <p class="note">写真はこの端末の中だけに保存され、外には送りません。容量が大きくなるため、履歴の「バックアップ」には含まれません。</p>
   </section>
 
   <!-- 種目ガイド -->
@@ -463,6 +500,16 @@ button { font-family: var(--font-body); }
     <p id="confirm-note"></p>
     <div class="confirm-actions"><button class="btn" value="cancel">キャンセル</button><button class="btn destroy" value="ok" id="confirm-ok"></button></div>
   </div>
+</dialog>
+<dialog class="confirm-dlg" id="ph-new" aria-labelledby="ph-new-title">
+  <form class="confirm-body" id="ph-form">
+    <h3 id="ph-new-title">写真を保存</h3>
+    <img id="ph-preview" alt="保存する写真">
+    <label class="field">日付<input type="date" id="ph-date" required></label>
+    <label class="field">体重（kg・任意）<input type="number" inputmode="decimal" step="0.1" min="0" id="ph-weight"></label>
+    <label class="field">メモ（任意）<textarea id="ph-memo" placeholder="朝・食前など、撮った条件"></textarea></label>
+    <div class="confirm-actions"><button class="btn" type="button" data-close>キャンセル</button><button class="btn primary" type="submit" autofocus>保存</button></div>
+  </form>
 </dialog>
 <div id="toast" class="toast hide" role="status"></div>
 
@@ -577,6 +624,7 @@ function setTab(t) {
   $("#view-log").hidden = t !== "log";
   $("#view-history-wrap").hidden = t !== "history";
   $("#view-progress").hidden = t !== "progress";
+  $("#view-body").hidden = t !== "body";
   $("#view-guide").hidden = t !== "guide";
   window.scrollTo({ top: 0 });
 }
@@ -900,6 +948,152 @@ $("#ex-pick").addEventListener("click", e => {
   ui.ex = b.dataset.ex; d.close(); renderProgress();
 });
 $("#metric").addEventListener("click", e => { const b = e.target.closest("[data-m]"); if (!b) return; ui.metric = b.dataset.m; ls.set("liftlog.metric", ui.metric); renderProgress(); });
+
+/* ---------- 体の写真 ---------- */
+// 写真は localStorage に入りきらないので IndexedDB に Blob で持つ。バックアップのファイルには含めない
+let photos = [], phUrls = {}, phDb, phNew = null;
+const phSel = []; // 比較に選んだ写真の id（2枚まで）
+const fmtDateY = s => s.slice(0, 4) + "/" + fmtDate(s);
+function openPhotoDb() {
+  return phDb ||= new Promise((res, rej) => {
+    const r = indexedDB.open("liftlog", 1);
+    r.onupgradeneeded = () => r.result.createObjectStore("photos", { keyPath: "id" });
+    r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+  });
+}
+async function photoStore(mode, fn) {
+  const db = await openPhotoDb();
+  return new Promise((res, rej) => {
+    const t = db.transaction("photos", mode), req = fn(t.objectStore("photos"));
+    t.oncomplete = () => res(req.result); t.onerror = t.onabort = () => rej(t.error);
+  });
+}
+async function loadPhotos() {
+  try { photos = await photoStore("readonly", s => s.getAll()); } catch { photos = null; }
+  photos?.sort((a, b) => b.date.localeCompare(a.date) || b.createdAt - a.createdAt);
+  Object.values(phUrls).forEach(u => URL.revokeObjectURL(u));
+  phUrls = Object.fromEntries((photos || []).map(p => [p.id, URL.createObjectURL(p.blob)]));
+  renderPhotos();
+}
+// 初回起動時だけ見本の写真を入れる（「サンプルを削除」で消せる）。画像はその場で描く
+async function seedPhotos() {
+  if (ls.get("liftlog.photoSeeded", false) || !photos || photos.length) return;
+  ls.set("liftlog.photoSeeded", true);
+  const shots = [[84, 74.2, 1.14, "撮り始め。朝・食前に同じ場所で"], [56, 73.1, 1.08, ""], [28, 71.8, 1.02, "お腹まわりが少し締まった"], [1, 70.6, .96, ""]];
+  try {
+    for (const [n, weight, waist, memo] of shots) {
+      const d = new Date(); d.setDate(d.getDate() - n);
+      const blob = await sampleImage(waist);
+      await photoStore("readwrite", s => s.put({ id: "sample-p" + n, example: true, date: ymd(d), weight, memo, blob, createdAt: -n }));
+    }
+  } catch {}
+  loadPhotos();
+}
+// 見本の写真：正面から撮った体のシルエット。waist が小さいほど腰まわりが細い
+function sampleImage(waist) {
+  const c = document.createElement("canvas"); c.width = 810; c.height = 1080;
+  const g = c.getContext("2d"), cx = 405;
+  const bg = g.createLinearGradient(0, 0, 0, 1080); bg.addColorStop(0, "#d9dcdf"); bg.addColorStop(1, "#a9afb5");
+  g.fillStyle = bg; g.fillRect(0, 0, 810, 1080);
+  g.fillStyle = g.strokeStyle = "#3d4248"; g.lineCap = "round";
+  g.beginPath(); g.arc(cx, 190, 66, 0, Math.PI * 2); g.fill();
+  g.fillRect(cx - 34, 240, 68, 70);
+  const sh = 200, ch = 168, wa = 118 * waist, hp = 150 * Math.min(waist, 1.06);
+  g.beginPath();
+  g.moveTo(cx - sh, 330); g.quadraticCurveTo(cx, 280, cx + sh, 330);
+  g.quadraticCurveTo(cx + ch + 10, 420, cx + ch, 470); g.quadraticCurveTo(cx + wa, 560, cx + wa, 640); g.quadraticCurveTo(cx + hp + 5, 700, cx + hp, 760);
+  g.lineTo(cx + 120, 1080); g.lineTo(cx + 25, 1080); g.lineTo(cx, 800); g.lineTo(cx - 25, 1080); g.lineTo(cx - 120, 1080);
+  g.lineTo(cx - hp, 760); g.quadraticCurveTo(cx - hp - 5, 700, cx - wa, 640); g.quadraticCurveTo(cx - wa, 560, cx - ch, 470); g.quadraticCurveTo(cx - ch - 10, 420, cx - sh, 330);
+  g.fill();
+  g.lineWidth = 62;
+  for (const k of [-1, 1]) { g.beginPath(); g.moveTo(cx + k * (sh - 20), 350); g.quadraticCurveTo(cx + k * (sh + 45), 520, cx + k * (sh + 30), 720); g.stroke(); }
+  g.fillStyle = "rgba(255, 255, 255, .85)"; g.font = "700 44px sans-serif"; g.fillText("SAMPLE", 36, 72);
+  return new Promise((res, rej) => c.toBlob(b => b ? res(b) : rej(), "image/jpeg", 0.8));
+}
+// 長辺1080pxの JPEG（品質0.8）に縮めてから保存する
+function shrinkImage(file) {
+  return new Promise((res, rej) => {
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      const k = Math.min(1, 1080 / Math.max(img.naturalWidth, img.naturalHeight)), c = document.createElement("canvas");
+      c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      c.toBlob(b => b ? res(b) : rej(), "image/jpeg", 0.8);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(); };
+    img.src = url;
+  });
+}
+function renderPhotos() {
+  const v = $("#ph-body");
+  if (!photos) { v.innerHTML = `<p class="empty">この環境では写真を保存できません。プライベートブラウズを切ってから開いてください。</p>`; return; }
+  if (!photos.length) { v.innerHTML = `<p class="empty">まだ写真がありません。同じ場所・同じ姿勢で定期的に撮っておくと、見た目の変化を並べて比べられます。</p>`; return; }
+  for (let i = phSel.length - 1; i >= 0; i--) if (!phUrls[phSel[i]]) phSel.splice(i, 1);
+  const kg = w => w ? `<span class="num">${fmtW(w)}<small> kg</small></span>` : "";
+  // 古い方をビフォー、新しい方をアフターに置く
+  const pick = phSel.map(id => photos.find(p => p.id === id)).sort((a, b) => a.date.localeCompare(b.date) || a.createdAt - b.createdAt);
+  const fig = (p, label) => p
+    ? `<figure><figcaption>${label}<span>${fmtDateY(p.date)}</span></figcaption><img src="${phUrls[p.id]}" alt="${fmtDateY(p.date)}の写真">${kg(p.weight)}</figure>`
+    : `<div class="slot">一覧の「比較」で写真を選んでください</div>`;
+  let diff = "";
+  if (pick.length === 2) {
+    const days = Math.round((parseD(pick[1].date) - parseD(pick[0].date)) / 864e5);
+    const dw = pick[0].weight && pick[1].weight ? pick[1].weight - pick[0].weight : null;
+    diff = `<p class="note">${days}日間${dw === null ? "" : `・体重 ${dw > 0 ? "+" : ""}${fmtW(dw)} kg`}</p>`;
+  }
+  const cmp = photos.length < 2 ? "" : `<section class="cmp">
+    <div class="mapcard-head"><h2>ビフォー・アフター</h2>${pick.length ? `<button class="link" data-act="ph-clear">選択を解除</button>` : ""}</div>
+    <div class="cmp-pair">${fig(pick[0], "ビフォー")}${fig(pick[1], "アフター")}</div>${diff}
+  </section>`;
+  const notice = photos.some(p => p.example)
+    ? `<div class="notice"><span>「サンプル」の付いた写真は見本です。自分の写真を撮り始めたら消してください。</span><button class="btn small" data-act="ph-del-samples">サンプルを削除</button></div>` : "";
+  v.innerHTML = notice + cmp + `<div class="ph-grid">${photos.map(p => `<article class="ph${phSel.includes(p.id) ? " sel" : ""}">
+    <img src="${phUrls[p.id]}" alt="${fmtDateY(p.date)}の写真" loading="lazy">
+    <div class="ph-info"><b>${fmtDateY(p.date)}${p.example ? ` <span class="badge sample">サンプル</span>` : ""}</b>${kg(p.weight)}${p.memo ? `<span class="ph-memo">${esc(p.memo)}</span>` : ""}</div>
+    <div class="ph-foot"><button class="btn small" data-cmp="${esc(p.id)}" aria-pressed="${phSel.includes(p.id)}">比較</button><button class="btn small danger" data-phdel="${esc(p.id)}">削除</button></div>
+  </article>`).join("")}</div>`;
+}
+$(".ph-add").addEventListener("click", e => { const b = e.target.closest("[data-pick]"); if (b) $(`#f-photo-${b.dataset.pick}`).click(); });
+document.querySelectorAll(".f-photo").forEach(inp => inp.addEventListener("change", async e => {
+  const f = e.target.files[0]; e.target.value = "";
+  if (!f) return;
+  try { phNew = await shrinkImage(f); } catch { toast("この写真は読み込めませんでした"); return; }
+  $("#ph-preview").src = URL.createObjectURL(phNew);
+  $("#ph-date").value = today(); $("#ph-weight").value = ""; $("#ph-memo").value = "";
+  $("#ph-new").showModal();
+}));
+$("#ph-new").addEventListener("click", e => { if (e.target.closest("[data-close]")) e.currentTarget.close(); });
+$("#ph-new").addEventListener("close", () => { URL.revokeObjectURL($("#ph-preview").src); phNew = null; });
+$("#ph-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  if (!phNew) return;
+  const w = parseFloat($("#ph-weight").value);
+  const data = { id: "p-" + newId().slice(2), date: $("#ph-date").value || today(), weight: w > 0 ? w : null, memo: $("#ph-memo").value.trim(), blob: phNew, createdAt: Date.now() };
+  try {
+    await photoStore("readwrite", s => s.put(data));
+    $("#ph-new").close(); toast(`${fmtDate(data.date)}の写真を保存しました`); loadPhotos();
+  } catch { toast("保存できませんでした。端末の空き容量やプライベートブラウズでないかを確かめてください"); }
+});
+$("#ph-body").addEventListener("click", async e => {
+  const c = e.target.closest("[data-cmp]"), del = e.target.closest("[data-phdel]");
+  if (e.target.closest('[data-act="ph-clear"]')) { phSel.length = 0; renderPhotos(); }
+  else if (e.target.closest('[data-act="ph-del-samples"]')) {
+    if (!await askConfirm("サンプルの写真を削除しますか？", "最初に入っている見本の写真をすべて消します。自分で撮った写真は消えません。", "削除")) return;
+    try { for (const p of photos.filter(p => p.example)) await photoStore("readwrite", s => s.delete(p.id)); toast("サンプルの写真を削除しました"); } catch { toast("削除できませんでした。もう一度試してください"); }
+    loadPhotos();
+  }
+  else if (c) {
+    const i = phSel.indexOf(c.dataset.cmp);
+    if (i >= 0) phSel.splice(i, 1); else { phSel.push(c.dataset.cmp); if (phSel.length > 2) phSel.shift(); }
+    renderPhotos();
+    if (phSel.length === 2) window.scrollTo({ top: 0, behavior: "smooth" });
+  } else if (del) {
+    const p = photos.find(x => x.id === del.dataset.phdel); if (!p) return;
+    if (!await askConfirm(`${fmtDate(p.date)}の写真を削除しますか？`, "削除した写真は元に戻せません。", "削除")) return;
+    try { await photoStore("readwrite", s => s.delete(p.id)); toast("写真を削除しました"); loadPhotos(); } catch { toast("削除できませんでした。もう一度試してください"); }
+  }
+});
 
 /* ---------- 種目ガイド ---------- */
 // 図は棒人間を関節の位置から描く。横から見た図は右向きで、地面は y=146。
@@ -1399,6 +1593,7 @@ setTab(ui.tab);
 renderLog();
 seedSamples();
 loadLocal();
+loadPhotos().then(seedPhotos);
 navigator.storage?.persist?.().catch(() => {});
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
 </script>
