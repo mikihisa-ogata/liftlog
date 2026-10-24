@@ -317,13 +317,17 @@ button { font-family: var(--font-body); }
 }
 /* スマホ幅ではタブを画面下に固定する（親指で届くように）。入力中はキーボードの邪魔になるので隠す */
 @media (max-width: 640px) {
-  body { padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px)); }
+  body { padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)); }
   .tabs {
     position: fixed; top: auto; left: 0; right: 0; bottom: 0; border-top: 1px solid var(--line);
-    padding: 8px max(16px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+    padding: 0 env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
   }
+  /* 枠なしで端まで敷き、アイコンの下に小さく文言を置く（テーマ側の枠・角丸もここで打ち消す） */
+  .tabs .seg { border: 0; border-radius: 0; padding: 0; gap: 0; background: transparent; box-shadow: none; }
+  .tabs .seg button { flex-direction: column; gap: 3px; padding: 8px 4px; font-size: 11px; line-height: 1.2; border-radius: 0; }
+  .tabs .tab-ic { width: 24px; height: 24px; }
   .typing .tabs { display: none; }
-  .toast { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
+  .toast { bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }
   .typing .toast { bottom: calc(20px + env(safe-area-inset-bottom, 0px)); }
 }
 @media (prefers-reduced-motion: reduce) { .toast { transition: none; } }
