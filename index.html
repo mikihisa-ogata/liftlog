@@ -94,8 +94,8 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .stat .v small { font-family: var(--font-body); font-style: normal; font-size: 12px; color: var(--muted); font-weight: 700; margin-left: 3px; }
 
 /* テーマ選択 */
-.skin-dlg, .guide-dlg { border: 0; padding: 0; background: transparent; color: var(--ink); width: min(440px, calc(100% - 32px)); max-width: none; }
-.skin-dlg::backdrop, .guide-dlg::backdrop { background: rgba(0, 0, 0, .6); }
+.skin-dlg, .guide-dlg, .pick-dlg { border: 0; padding: 0; background: transparent; color: var(--ink); width: min(440px, calc(100% - 32px)); max-width: none; }
+.skin-dlg::backdrop, .guide-dlg::backdrop, .pick-dlg::backdrop { background: rgba(0, 0, 0, .6); }
 .skins { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; background: var(--surface); padding: 12px; border-radius: var(--radius); }
 .skins-head { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; }
 .skins-head .icon-btn:hover { color: var(--ink); }
@@ -199,7 +199,20 @@ button { font-family: var(--font-body); }
 /* ---- 推移 ---- */
 .prog-ctrl { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; }
 .prog-ctrl .field { flex: 1 1 220px; }
-.seg.small { grid-template-columns: repeat(3, auto); display: inline-grid; border-width: 1px; }
+/* 種目選択：押すと部位ごとの一覧を開く */
+.ex-pick { display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; background: var(--field); color: var(--ink); border: 1px solid var(--line); border-radius: min(var(--radius-ctl), 10px); padding: 9px 12px; cursor: pointer; font: inherit; }
+.ex-pick:disabled { cursor: default; opacity: .6; }
+.ex-pick-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--font-head); font-weight: var(--head-weight); font-size: 18px; }
+.ex-pick-n { font-size: 12px; font-weight: 700; color: var(--muted); }
+.ex-pick svg { width: 18px; height: 18px; flex: none; fill: none; stroke: var(--muted); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.pick-dlg:focus, .pick-dlg:focus-visible, .pick-body:focus, .pick-body:focus-visible { outline: none; }
+.pick-body { background: var(--surface); border-radius: var(--radius); padding: 12px 12px 16px; display: flex; flex-direction: column; gap: 4px; max-height: min(72vh, 600px); overflow-y: auto; }
+.pick-body h3 { margin: 10px 4px 2px; font-size: 12px; color: var(--muted); letter-spacing: .08em; }
+.pick-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; width: 100%; padding: 12px; border: 0; border-radius: min(var(--radius-ctl), 10px); background: transparent; color: var(--ink); font: 700 15px var(--font-body); text-align: left; cursor: pointer; }
+.pick-row:hover { background: var(--field); }
+.pick-row[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.pick-row .n { font-size: 12px; opacity: .75; white-space: nowrap; }
+.seg.small { grid-template-columns: repeat(2, auto); display: inline-grid; border-width: 1px; }
 .seg.small button { padding: 7px 12px; font-size: 13px; }
 .chart { background: var(--surface); border-radius: var(--radius); padding: 10px 6px 4px; }
 .chart svg { display: block; width: 100%; height: auto; }
@@ -422,7 +435,7 @@ button { font-family: var(--font-body); }
   <!-- 推移 -->
   <section class="view" id="view-progress" hidden>
     <div class="prog-ctrl">
-      <label class="field">種目<select id="f-ex"></select></label>
+      <label class="field">種目<button class="ex-pick" id="f-ex" aria-haspopup="dialog" aria-controls="ex-pick"><span class="ex-pick-name"></span><span class="ex-pick-n"></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></label>
       <div class="seg small" id="metric">
         <button data-m="e1rm">推定1RM</button>
         <button data-m="max">最大重量</button>
@@ -438,6 +451,12 @@ button { font-family: var(--font-body); }
   </section>
 </div>
 <dialog class="guide-dlg" id="guide" aria-labelledby="guide-title"><div class="guide-body"></div></dialog>
+<dialog class="pick-dlg" id="ex-pick" aria-labelledby="ex-pick-title">
+  <div class="pick-body">
+    <div class="skins-head"><h2 id="ex-pick-title">種目を選ぶ</h2><button class="icon-btn" data-close aria-label="閉じる">×</button></div>
+    <div id="ex-pick-list"></div>
+  </div>
+</dialog>
 <dialog class="confirm-dlg" id="confirm" aria-labelledby="confirm-title" aria-describedby="confirm-note">
   <div class="confirm-body">
     <h3 id="confirm-title"></h3>
@@ -818,20 +837,25 @@ function chartSvg(pts, unit) {
   const last = xy[xy.length - 1];
   return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="推移グラフ">${g}${area}${pts.length > 1 ? `<path class="line" d="${line}"/>` : ""}${dots}<text class="end" x="${last[0] + 9}" y="${last[1] + 5}">${fmtN(pts[pts.length - 1].v)}</text>${xl}</svg>`;
 }
-function renderProgress() {
+// 種目ごとの記録回数
+function exCounts() {
   const counts = {};
   workouts.forEach(w => w.exercises.forEach(e => counts[e.name] = (counts[e.name] || 0) + 1));
+  return counts;
+}
+function renderProgress() {
+  const counts = exCounts();
   const names = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
   const sel = $("#f-ex"), body = $("#prog-body");
   document.querySelectorAll("#metric button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.m === ui.metric)));
   if (!names.length) {
-    sel.innerHTML = `<option>記録なし</option>`; sel.disabled = true;
+    $(".ex-pick-name").textContent = "記録なし"; $(".ex-pick-n").textContent = ""; sel.disabled = true;
     body.innerHTML = `<p class="empty">記録が2回以上たまると、種目ごとに重量の伸びがグラフで見られます。</p>`;
     return;
   }
   sel.disabled = false;
   if (!names.includes(ui.ex)) ui.ex = names[0];
-  sel.innerHTML = names.map(n => `<option value="${esc(n)}"${n === ui.ex ? " selected" : ""}>${esc(n)}（${counts[n]}回）</option>`).join("");
+  $(".ex-pick-name").textContent = ui.ex; $(".ex-pick-n").textContent = `${counts[ui.ex]}回`;
 
   const sessions = [...workouts].reverse().map(w => ({ date: w.date, e: w.exercises.find(x => x.name === ui.ex) })).filter(s => s.e);
   const metricOf = { e1rm: e => Math.max(...e.sets.map(s => e1rm(s.w, s.r))), max: e => Math.max(...e.sets.map(s => s.w)) };
@@ -857,7 +881,24 @@ function renderProgress() {
     <h2>最近のセッション</h2>
     ${sessions.slice(-6).reverse().map(s => `<div class="day"><div class="day-head"><span class="day-date">${fmtDate(s.date)}</span><span class="day-meta">${s.e.sets.length}セット</span></div><span class="num">${esc(setsText(s.e.sets))}</span></div>`).join("")}`;
 }
-$("#f-ex").addEventListener("change", e => { ui.ex = e.target.value; renderProgress(); });
+// 記録のある種目を部位ごとにまとめて出す（部位の決まっていない種目は「その他」）
+$("#f-ex").addEventListener("click", () => {
+  const counts = exCounts(), groups = {};
+  Object.keys(counts).sort((a, b) => counts[b] - counts[a]).forEach(n => {
+    const p = Object.keys(PRESETS).find(k => PRESETS[k].includes(n)) || "その他";
+    (groups[p] ||= []).push(n);
+  });
+  $("#ex-pick-list").innerHTML = [...Object.keys(PRESETS), "その他"].filter(p => groups[p]).map(p => `<h3>${p}</h3>` + groups[p].map(n =>
+    `<button class="pick-row" data-ex="${esc(n)}" aria-pressed="${n === ui.ex}"><span>${esc(n)}</span><span class="n">${counts[n]}回</span></button>`).join("")).join("");
+  const d = $("#ex-pick"); d.showModal();
+  d.querySelector('[aria-pressed="true"]')?.scrollIntoView({ block: "center" });
+});
+$("#ex-pick").addEventListener("click", e => {
+  const d = e.currentTarget;
+  if (e.target === d || e.target.closest("[data-close]")) return d.close();
+  const b = e.target.closest("[data-ex]"); if (!b) return;
+  ui.ex = b.dataset.ex; d.close(); renderProgress();
+});
 $("#metric").addEventListener("click", e => { const b = e.target.closest("[data-m]"); if (!b) return; ui.metric = b.dataset.m; ls.set("liftlog.metric", ui.metric); renderProgress(); });
 
 /* ---------- 種目ガイド ---------- */
