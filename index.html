@@ -315,6 +315,17 @@ button { font-family: var(--font-body); }
   .day li { grid-template-columns: 1fr; gap: 0; }
   .setgrid input { font-size: 24px; }
 }
+/* スマホ幅ではタブを画面下に固定する（親指で届くように）。入力中はキーボードの邪魔になるので隠す */
+@media (max-width: 640px) {
+  body { padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px)); }
+  .tabs {
+    position: fixed; top: auto; left: 0; right: 0; bottom: 0; border-top: 1px solid var(--line);
+    padding: 8px max(16px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+  }
+  .typing .tabs { display: none; }
+  .toast { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
+  .typing .toast { bottom: calc(20px + env(safe-area-inset-bottom, 0px)); }
+}
 @media (prefers-reduced-motion: reduce) { .toast { transition: none; } }
 </style>
 </head>
@@ -1289,6 +1300,10 @@ function renderData() {
   if (!$("#view-log").contains(document.activeElement)) renderLog();
 }
 document.querySelectorAll("[data-tab]").forEach(b => b.addEventListener("click", () => setTab(b.dataset.tab)));
+// 入力中（キーボード表示中）は下タブを隠す。入力欄を移るときにちらつかないよう、外れたかは次の tick で見る
+const isTyping = el => el && el.matches("input:not([type=checkbox]):not([type=radio]):not([type=button]), textarea, select");
+document.addEventListener("focusin", e => { if (isTyping(e.target)) document.body.classList.add("typing"); });
+document.addEventListener("focusout", () => setTimeout(() => { if (!isTyping(document.activeElement)) document.body.classList.remove("typing"); }));
 renderPicker();
 renderGuide();
 setTab(ui.tab);
