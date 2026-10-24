@@ -149,7 +149,7 @@ button { font-family: var(--font-body); }
 .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-family: var(--font-head); font-weight: var(--head-weight); }
 .btn.small { font-size: 12px; padding: 6px 12px; }
 .btn.danger { color: var(--danger); }
-.btn.armed, .btn.destroy { background: var(--danger); border-color: var(--danger); color: #ffffff; }
+.btn.destroy { background: var(--danger); border-color: var(--danger); color: #ffffff; }
 .btn.add-set { width: 100%; border-style: dashed; background: transparent; color: var(--muted); }
 .icon-btn { border: 0; background: transparent; color: var(--muted); font-size: 20px; line-height: 1; padding: 6px; cursor: pointer; border-radius: 6px; }
 .icon-btn:hover { color: var(--danger); }
@@ -440,11 +440,11 @@ button { font-family: var(--font-body); }
 </div>
 <dialog class="guide-dlg" id="guide" aria-labelledby="guide-title"><div class="guide-body"></div></dialog>
 <dialog class="confirm-dlg" id="confirm" aria-labelledby="confirm-title" aria-describedby="confirm-note">
-  <form method="dialog" class="confirm-body">
+  <div class="confirm-body">
     <h3 id="confirm-title"></h3>
     <p id="confirm-note"></p>
     <div class="confirm-actions"><button class="btn" value="cancel">キャンセル</button><button class="btn destroy" value="ok" id="confirm-ok"></button></div>
-  </form>
+  </div>
 </dialog>
 <div id="toast" class="toast hide" role="status"></div>
 
@@ -523,20 +523,23 @@ function toast(msg) {
   clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.add("hide"), 2200);
 }
 // 確認ダイアログを出し、実行するボタンが押されたら true を返す。外側・Esc・キャンセルは false
+// close イベントは遅れて届くことがあるので、押した時点で結果を返す
+let confirmDone = null;
 function askConfirm(title, note, ok) {
-  const d = $("#confirm");
   $("#confirm-title").textContent = title; $("#confirm-note").textContent = note; $("#confirm-ok").textContent = ok;
-  d.returnValue = ""; d.showModal();
-  return new Promise(res => d.addEventListener("close", () => res(d.returnValue === "ok"), { once: true }));
+  $("#confirm").showModal();
+  return new Promise(res => { confirmDone = res; });
 }
-$("#confirm").addEventListener("click", e => { if (e.target === e.currentTarget) e.currentTarget.close(); });
-// 確認ダイアログの代わりに「2回押し」で実行する
-function twoTap(btn, label, fn) {
-  if (btn.dataset.armed) { delete btn.dataset.armed; btn.classList.remove("armed"); fn(); return; }
-  const orig = btn.textContent;
-  btn.dataset.armed = "1"; btn.classList.add("armed"); btn.textContent = label;
-  setTimeout(() => { if (btn.dataset.armed) { delete btn.dataset.armed; btn.classList.remove("armed"); btn.textContent = orig; } }, 3000);
+function finishConfirm(v) {
+  const res = confirmDone; confirmDone = null;
+  if ($("#confirm").open) $("#confirm").close();
+  if (res) res(v);
 }
+$("#confirm").addEventListener("click", e => {
+  const b = e.target.closest("button[value]");
+  if (b) finishConfirm(b.value === "ok"); else if (e.target === e.currentTarget) finishConfirm(false);
+});
+$("#confirm").addEventListener("cancel", e => { e.preventDefault(); finishConfirm(false); });
 function setTab(t) {
   ui.tab = t; ls.set("liftlog.tab", t);
   document.querySelectorAll("[data-tab]").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === t)));
@@ -729,23 +732,22 @@ function renderHistory() {
   }
   v.innerHTML = html;
 }
-$("#view-history").addEventListener("click", e => {
+$("#view-history").addEventListener("click", async e => {
   const hp = e.target.closest("[data-hp]");
   if (hp) { ui.hp = +hp.dataset.hp; ls.set("liftlog.hp", ui.hp); return renderHistory(); }
   const ed = e.target.closest("[data-edit]"), del = e.target.closest("[data-del]");
   if (e.target.id === "btn-del-samples") {
-    twoTap(e.target, "もう一度押すと削除", async () => {
-      for (const w of workouts.filter(w => w.example)) await removeWorkout(w.id).catch(() => {});
-      toast("サンプルを削除しました");
-    });
+    if (!await askConfirm("サンプルを削除しますか？", "最初に入っているサンプルの記録をすべて消します。自分で付けた記録は消えません。", "削除")) return;
+    for (const w of workouts.filter(w => w.example)) await removeWorkout(w.id).catch(() => {});
+    toast("サンプルを削除しました");
   } else if (ed) {
     const w = workouts.find(x => x.id === ed.dataset.edit); if (!w) return;
     draft = { id: w.id, date: w.date, memo: w.memo || "", exercises: w.exercises.map(e => ({ name: e.name, sets: e.sets.map(s => ({ w: String(s.w), r: String(s.r) })) })) };
     saveDraft(); renderLog(); setTab("log");
   } else if (del) {
-    twoTap(del, "もう一度押すと削除", async () => {
-      try { await removeWorkout(del.dataset.del); toast("記録を削除しました"); } catch { toast("削除できませんでした。もう一度試してください"); }
-    });
+    const w = workouts.find(x => x.id === del.dataset.del); if (!w) return;
+    if (!await askConfirm(`${fmtDate(w.date)}の記録を削除しますか？`, "削除した記録は元に戻せません。", "削除")) return;
+    try { await removeWorkout(w.id); toast("記録を削除しました"); } catch { toast("削除できませんでした。もう一度試してください"); }
   }
 });
 
