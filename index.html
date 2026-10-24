@@ -426,7 +426,6 @@ button { font-family: var(--font-body); }
       <div class="seg small" id="metric">
         <button data-m="e1rm">推定1RM</button>
         <button data-m="max">最大重量</button>
-        <button data-m="vol">ボリューム</button>
       </div>
     </div>
     <div id="prog-body" class="view"></div>
@@ -471,13 +470,11 @@ const fmtShort = s => { const d = parseD(s); return `${d.getMonth() + 1}/${d.get
 const fmtN = n => Math.round(n).toLocaleString("ja-JP");
 const fmtW = n => String(Math.round(n * 10) / 10);
 const e1rm = (w, r) => r <= 0 || w <= 0 ? 0 : (r === 1 ? w : w * (1 + r / 30));
-const exVol = e => e.sets.reduce((a, s) => a + (+s.w || 0) * (+s.r || 0), 0);
-const wVol = w => w.exercises.reduce((a, e) => a + exVol(e), 0);
 const setsText = sets => sets.map(s => (+s.w ? fmtW(+s.w) + "×" : "自重×") + (+s.r || 0)).join(" · ");
 const newId = () => "w-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 
 let workouts = [];
-const ui = { tab: ls.get("liftlog.tab", "log"), part: "胸", gpart: "胸", ex: null, metric: ls.get("liftlog.metric", "e1rm"), hp: [7, 28, 91].includes(ls.get("liftlog.hp")) ? ls.get("liftlog.hp") : 7 };
+const ui = { tab: ls.get("liftlog.tab", "log"), part: "胸", gpart: "胸", ex: null, metric: ls.get("liftlog.metric") === "max" ? "max" : "e1rm", hp: [7, 28, 91].includes(ls.get("liftlog.hp")) ? ls.get("liftlog.hp") : 7 };
 const blankDraft = () => ({ id: null, date: today(), exercises: [], memo: "" });
 let draft = ls.get("liftlog.draft", null) || blankDraft();
 const saveDraft = () => ls.set("liftlog.draft", draft);
@@ -720,7 +717,7 @@ function renderHistory() {
     html += `<article class="day">
       <div class="day-head">
         <span class="day-date">${fmtDate(w.date)}${w.example ? `<span class="badge sample">サンプル</span>` : ""}</span>
-        <span class="day-meta">${w.exercises.length}種目 · ${nSets}セット · <span class="num">${fmtN(wVol(w))}</span> kg</span>
+        <span class="day-meta">${w.exercises.length}種目 · ${nSets}セット</span>
       </div>
       <div class="day-body">
         <ul>${w.exercises.map(e => `<li><b>${esc(e.name)} ${prs[w.id]?.has(e.name) ? `<span class="badge pr">自己ベスト</span>` : ""}</b><span class="num">${esc(setsText(e.sets))}</span></li>`).join("")}</ul>
@@ -823,7 +820,7 @@ function renderProgress() {
   sel.innerHTML = names.map(n => `<option value="${esc(n)}"${n === ui.ex ? " selected" : ""}>${esc(n)}（${counts[n]}回）</option>`).join("");
 
   const sessions = [...workouts].reverse().map(w => ({ date: w.date, e: w.exercises.find(x => x.name === ui.ex) })).filter(s => s.e);
-  const metricOf = { e1rm: e => Math.max(...e.sets.map(s => e1rm(s.w, s.r))), max: e => Math.max(...e.sets.map(s => s.w)), vol: exVol };
+  const metricOf = { e1rm: e => Math.max(...e.sets.map(s => e1rm(s.w, s.r))), max: e => Math.max(...e.sets.map(s => s.w)) };
   const unit = "kg";
   const pts = sessions.map(s => ({ date: s.date, v: metricOf[ui.metric](s.e) }));
   const bestE = sessions.reduce((b, s) => { const v = metricOf.e1rm(s.e); return v > b.v ? { v, date: s.date } : b; }, { v: 0, date: "" });
@@ -839,12 +836,12 @@ function renderProgress() {
            <div class="pb"><div class="k">最大重量</div><div class="v">${fmtW(bestW.v)}<small> kg</small></div><div class="d">${fmtDate(bestW.date)}</div></div>`}
       <div class="pb"><div class="k">記録した回数</div><div class="v">${sessions.length}<small> 回</small></div><div class="d">初回 ${fmtDate(sessions[0].date)}</div></div>
     </div>
-    ${bodyweight && ui.metric !== "vol"
+    ${bodyweight
       ? `<p class="note">自重種目のため重量のグラフはありません。</p>`
       : `<div class="chart">${chartSvg(pts, unit)}</div>`}
     <p class="note">推定1RM はエプリー式（重量 ×（1 + 回数 ÷ 30））で、その日いちばん高いセットの値です。赤い点がベスト。</p>
     <h2>最近のセッション</h2>
-    ${sessions.slice(-6).reverse().map(s => `<div class="day"><div class="day-head"><span class="day-date">${fmtDate(s.date)}</span><span class="day-meta"><span class="num">${fmtN(exVol(s.e))}</span> kg</span></div><span class="num">${esc(setsText(s.e.sets))}</span></div>`).join("")}`;
+    ${sessions.slice(-6).reverse().map(s => `<div class="day"><div class="day-head"><span class="day-date">${fmtDate(s.date)}</span><span class="day-meta">${s.e.sets.length}セット</span></div><span class="num">${esc(setsText(s.e.sets))}</span></div>`).join("")}`;
 }
 $("#f-ex").addEventListener("change", e => { ui.ex = e.target.value; renderProgress(); });
 $("#metric").addEventListener("click", e => { const b = e.target.closest("[data-m]"); if (!b) return; ui.metric = b.dataset.m; ls.set("liftlog.metric", ui.metric); renderProgress(); });
