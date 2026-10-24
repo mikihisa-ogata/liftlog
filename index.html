@@ -81,7 +81,6 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .brand { font-family: "Anton", "Arial Narrow", sans-serif; font-weight: 400; font-size: 40px; letter-spacing: .02em; line-height: .9; margin: 0; }
 .brand span { color: var(--accent); }
 .top-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
-.today { font-family: var(--font-num); font-style: var(--num-style); font-size: 15px; color: var(--muted); letter-spacing: .06em; }
 .skin-btn { border: 1px solid var(--line); background: transparent; color: var(--muted); font: 700 12px var(--font-body); padding: 4px 10px; border-radius: var(--radius-ctl); cursor: pointer; }
 
 .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
@@ -275,7 +274,7 @@ button { font-family: var(--font-body); }
 [data-skin="plate"] .hero > * { position: relative; z-index: 1; }
 [data-skin="plate"] .brand { font-family: "Barlow Condensed", sans-serif; font-style: italic; font-weight: 900; font-size: 30px; }
 [data-skin="plate"] .brand span { color: #ffffff; }
-[data-skin="plate"] .today, [data-skin="plate"] .stat .k, [data-skin="plate"] .stat .v small { color: #b5b5b5; }
+[data-skin="plate"] .stat .k, [data-skin="plate"] .stat .v small { color: #b5b5b5; }
 [data-skin="plate"] .skin-btn { border-color: #555; color: #ddd; }
 [data-skin="plate"] .stats { padding-right: 64px; }
 [data-skin="plate"] .stat { background: transparent; padding: 0; }
@@ -293,7 +292,7 @@ button { font-family: var(--font-body); }
 /* ==== GYM CLOCK 固有 ==== */
 [data-skin="clock"] .brand { font-family: "DotGothic16", monospace; font-size: 30px; letter-spacing: .08em; }
 [data-skin="clock"] .brand span { text-shadow: var(--glow); }
-[data-skin="clock"] .today, [data-skin="clock"] h2, [data-skin="clock"] .setgrid .h { font-family: "Share Tech Mono", monospace; letter-spacing: .2em; }
+[data-skin="clock"] h2, [data-skin="clock"] .setgrid .h { font-family: "Share Tech Mono", monospace; letter-spacing: .2em; }
 [data-skin="clock"] .stats { background: #000000; border: 3px solid #26262c; border-radius: 14px; padding: 14px 10px; gap: 0; box-shadow: 0 10px 30px rgba(0, 0, 0, .6); }
 [data-skin="clock"] .stat { background: transparent; align-items: center; padding: 0 4px; border-radius: 0; }
 [data-skin="clock"] .stat + .stat { border-left: 1px solid #1d1d22; }
@@ -325,7 +324,6 @@ button { font-family: var(--font-body); }
     <header class="top">
       <h1 class="brand">LIFT<span>LOG</span></h1>
       <div class="top-right">
-        <span class="today" id="today"></span>
         <button class="skin-btn" id="btn-skin" aria-haspopup="dialog" aria-controls="skins">テーマ</button>
       </div>
     </header>
@@ -1229,7 +1227,7 @@ function bodyMap(level, cls = "") {
     }).join("");
     return `<g transform="translate(${x} 0)"><g class="bm-sil">${mir(BODY_SIL)}</g>${parts}<text x="50" y="219">${label}</text></g>`;
   };
-  return `<svg class="body-map ${cls}" viewBox="0 0 210 224" role="img" aria-label="鍛えた部位">${fig("front", 0, "前")}${fig("back", 110, "後ろ")}</svg>`;
+  return `<svg class="body-map ${cls}" viewBox="0 0 210 224" role="img" aria-label="鍛えた部位">${fig("front", 0, "前")}${fig("back", 110, "後")}</svg>`;
 }
 // 効く部位の図：主に効く部位は濃く、補助で使う部位は薄く塗る
 const mapSvg = g => bodyMap(m => g.main.includes(m) ? 4 : g.sub.includes(m) ? 2 : 0);
@@ -1282,7 +1280,6 @@ $("#skins").addEventListener("click", e => {
   if (e.target === e.currentTarget || e.target.closest("[data-close]")) return e.currentTarget.close();
   const b = e.target.closest(".skin"); if (b) applySkin(b.dataset.skin);
 });
-{ const d = new Date(); $("#today").textContent = `${ymd(d).replaceAll("-", ".")} ${"SUN MON TUE WED THU FRI SAT".split(" ")[d.getDay()]}`; }
 applySkin(document.documentElement.dataset.skin || "iron");
 
 /* ---------- 起動 ---------- */
