@@ -188,8 +188,8 @@ button { font-family: var(--font-body); }
 .mapcard-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
 .mapcard-body { display: flex; flex-direction: column; gap: 14px; align-items: center; }
 .mapcard-body .body-map { max-width: 280px; }
-.mrank { list-style: none; margin: 0; padding: 0; align-self: stretch; columns: 2 140px; column-gap: 24px; font-size: 13px; font-weight: 700; }
-.mrank li { display: flex; align-items: center; gap: 8px; padding-block: 2px; break-inside: avoid; }
+.mrank { list-style: none; margin: 0; padding: 0; align-self: stretch; columns: 2 140px; column-gap: 16px; font-size: 12px; font-weight: 700; }
+.mrank li { display: flex; align-items: center; gap: 6px; padding-block: 2px; break-inside: avoid; }
 .mrank .num { margin-left: auto; font-size: 17px; }
 .sw-lv { width: 12px; height: 12px; flex: none; background: var(--c); border-radius: 3px; }
 .mlegend { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; font-size: 12px; color: var(--muted); }
@@ -911,10 +911,10 @@ const MUSCLE = {
   lats: "広背筋", traps: "僧帽筋・菱形筋", lowback: "脊柱起立筋（腰）",
   glutes: "大臀筋（お尻）", quads: "大腿四頭筋（太もも前）", hams: "ハムストリングス（太もも裏）", calves: "下腿三頭筋（ふくらはぎ）"
 };
-// 履歴の一覧で使う短い呼び名
+// 履歴の一覧で使う短い呼び名（筋肉の名称だけで、場所の補足は省く）
 const MUSCLE_SHORT = {
-  chest: "胸", delt_front: "肩（前）", delt_side: "肩（横）", delt_rear: "肩（後ろ）", biceps: "力こぶ", triceps: "二の腕", forearm: "前腕", abs: "腹",
-  lats: "背中（広背筋）", traps: "背中（上部）", lowback: "腰", glutes: "お尻", quads: "太もも前", hams: "太もも裏", calves: "ふくらはぎ"
+  chest: "大胸筋", delt_front: "三角筋（前）", delt_side: "三角筋（横）", delt_rear: "三角筋（後ろ）", biceps: "上腕二頭筋", triceps: "上腕三頭筋", forearm: "前腕", abs: "腹直筋",
+  lats: "広背筋", traps: "僧帽筋・菱形筋", lowback: "脊柱起立筋", glutes: "大臀筋", quads: "大腿四頭筋", hams: "ハムストリングス", calves: "下腿三頭筋"
 };
 const bench = (x1, x2, y) => [{ k: "line", a: [x1, y], b: [x2, y], w: 7 }, { k: "line", a: [x1 + 8, y], b: [x1 + 8, 146], w: 3 }, { k: "line", a: [x2 - 8, y], b: [x2 - 8, 146], w: 3 }];
 const GUIDE = {
