@@ -81,6 +81,8 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .brand { font-family: "Anton", "Arial Narrow", sans-serif; font-weight: 400; font-size: 40px; letter-spacing: .02em; line-height: .9; margin: 0; }
 .brand span { color: var(--accent); }
 .hero.bare { gap: 0; }
+/* アイアンは縞の下からすぐ始め、縞のないプレート・ジムクロックは上端に少し余白をとる */
+[data-skin="plate"] .top, [data-skin="clock"] .top { padding-top: 12px; }
 .hero.bare > :not(.hz) { display: none; }
 .top-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
 .skin-btn { border: 1px solid var(--line); background: transparent; color: var(--muted); font: 700 12px var(--font-body); padding: 4px 10px; border-radius: var(--radius-ctl); cursor: pointer; }
