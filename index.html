@@ -378,7 +378,10 @@ body.rest-on { padding-top: var(--rest-h); }
 .fig-gear .solid { fill: var(--muted); stroke: none; }
 .ex-ic { width: 30px; height: 30px; flex: none; display: block; }
 .ex-ic .fig-body { stroke-width: 13; }
-.ex-ic.generic { fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; padding: 2px; }
+/* アイコンは人と器具を色で分ける（人は文字色、器具はアクセント色） */
+.ex-ic .fig-gear { stroke: var(--accent); }
+.ex-ic .fig-gear .solid { fill: var(--accent); }
+.ex-ic.generic { fill: none; stroke: var(--accent); stroke-width: 2.4; stroke-linecap: round; padding: 2px; }
 .chip.ex-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px 4px 6px; }
 .chip.ex-chip::before { content: none; }
 .ex-toggle .ex-ic { width: 36px; height: 36px; }
