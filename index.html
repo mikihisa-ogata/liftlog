@@ -837,7 +837,7 @@ function renderLog() {
   list.innerHTML = draft.exercises.map((e, i) => {
     const prev = lastSession(e.name);
     const prevHtml = prev
-      ? `<p class="prev">前回 ${fmtShort(prev.date)}<span class="num">${esc(setsText(prev.sets))}</span><button class="link" data-act="copy-prev">前回をコピー</button></p>`
+      ? `<p class="prev"><button class="link" data-act="copy-prev">前回をコピー</button></p>`
       : `<p class="prev">この種目は初めての記録です</p>`;
     const rows = e.sets.map((s, j) => `
       <span class="setno">${String(j + 1).padStart(2, "0")}</span>
