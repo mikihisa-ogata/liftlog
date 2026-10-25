@@ -2033,7 +2033,7 @@ function openGuide(name, fromLog) {
     </div>
     ${g.note ? `<p class="note">${esc(g.note)}。薄い線がスタートの姿勢、矢印が動く向き</p>` : `<p class="note">横から見た図。薄い線がスタートの姿勢、矢印が動く向き</p>`}
     <h2>効く部位</h2>
-    <div class="muscles">${mapSvg(g)}<div class="mlist">${chips(g.main, "main")}${chips(g.sub, "sub")}<p class="note">濃い色：主に効く　薄い色：補助で使う</p></div></div>
+    <div class="muscles">${mapSvg(g)}<div class="mlist">${chips(g.main, "main")}${chips(g.sub, "sub")}<p class="note">濃い色：主に効く<br>薄い色：補助で使う</p></div></div>
     <h2>やり方</h2>
     <ol class="steps">${g.steps.map(s => `<li>${esc(s)}</li>`).join("")}</ol>
     <h2>ポイント</h2>
