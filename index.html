@@ -196,7 +196,20 @@ button { font-family: var(--font-body); }
 
 /* ---- 履歴 ---- */
 .month { font-family: var(--font-num); font-style: var(--num-style); font-weight: var(--num-weight); font-size: 22px; letter-spacing: .04em; margin: 8px 0 -4px; }
-.day { background: var(--surface); border-radius: var(--radius); padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+.day { background: var(--surface); border-radius: var(--radius); padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; scroll-margin-top: 96px; }
+.day.flash { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* カレンダー：記録のある日を塗る。週の始まりは月曜 */
+.cal-nav { display: flex; align-items: center; gap: 4px; }
+.cal-nav .num { font-size: 20px; min-width: 5.5em; text-align: center; }
+.cal-nav .icon-btn:hover { color: var(--ink); }
+.cal-nav .icon-btn:disabled { opacity: .3; cursor: default; }
+.cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; text-align: center; }
+.cal .wd { font-size: 11px; color: var(--muted); font-weight: 700; padding-bottom: 2px; }
+.cal button, .cal span.d { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border: 0; border-radius: min(var(--radius-ctl), 8px); font: 700 14px var(--font-body); color: var(--muted); background: transparent; padding: 0; }
+.cal button { background: var(--accent); color: var(--accent-ink); cursor: pointer; }
+.cal .today { box-shadow: inset 0 0 0 2px var(--ink); }
+.cal-streak { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; font-weight: 700; }
+.cal-streak .num { font-size: 24px; color: var(--accent); margin-right: 2px; }
 .day-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
 .day-date { font-weight: 800; font-size: 16px; display: flex; gap: 8px; align-items: center; }
 .day-meta { font-size: 12px; color: var(--muted); }
@@ -643,6 +656,7 @@ const newId = () => "w-" + Date.now().toString(36) + Math.random().toString(36).
 
 let workouts = [];
 const ui = { tab: ls.get("liftlog.tab", "log"), part: "胸", gpart: "胸", ex: null, metric: ls.get("liftlog.metric") === "max" ? "max" : "e1rm", hp: [7, 28, 91].includes(ls.get("liftlog.hp")) ? ls.get("liftlog.hp") : 7,
+  cal: today().slice(0, 7), goal: [1, 2, 3, 4, 5].includes(ls.get("liftlog.goal")) ? ls.get("liftlog.goal") : 2,
   bw: false, bwDate: today(), bwRange: ["1m", "3m", "all"].includes(ls.get("liftlog.bwRange")) ? ls.get("liftlog.bwRange") : "1m" };
 const blankDraft = () => ({ id: null, date: today(), exercises: [], memo: "" });
 let draft = ls.get("liftlog.draft", null) || blankDraft();
@@ -1089,6 +1103,40 @@ function mapCard() {
     <p class="note">補助で使う部位は0.5セットとして数えています。${unknown.size ? `部位が登録されていない種目（${[...unknown].map(esc).join("・")}）は含みません。` : ""}</p>
   </section>`;
 }
+// その週（月曜始まり）に記録した日数。同じ日に2回記録しても1回と数える
+function weekDays() {
+  const m = {};
+  for (const d of new Set(workouts.map(w => w.date))) { const x = parseD(d); x.setDate(x.getDate() - (x.getDay() + 6) % 7); m[ymd(x)] = (m[ymd(x)] || 0) + 1; }
+  return m;
+}
+// 週 goal 回以上を何週続けているか。今週がまだ届いていなければ先週までで数える
+function goalStreak(goal) {
+  const m = weekDays(), wk = weekStart();
+  if ((m[ymd(wk)] || 0) < goal) wk.setDate(wk.getDate() - 7);
+  let n = 0;
+  while ((m[ymd(wk)] || 0) >= goal) { n++; wk.setDate(wk.getDate() - 7); }
+  return n;
+}
+function calCard() {
+  const [y, mo] = ui.cal.split("-").map(Number), first = new Date(y, mo - 1, 1), days = new Date(y, mo, 0).getDate();
+  const has = new Set(workouts.map(w => w.date)), t = today(), goal = ui.goal, n = goalStreak(goal);
+  const cur = ymd(new Date()).slice(0, 7);
+  const cells = [..."月火水木金土日"].map(d => `<span class="wd">${d}</span>`)
+    .concat(Array((first.getDay() + 6) % 7).fill(`<span></span>`))
+    .concat(Array.from({ length: days }, (_, i) => {
+      const d = `${ui.cal}-${String(i + 1).padStart(2, "0")}`, cls = d === t ? ` class="today"` : "";
+      return has.has(d) ? `<button data-day="${d}"${cls} aria-label="${fmtDate(d)}の記録を見る">${i + 1}</button>` : `<span class="d${d === t ? " today" : ""}">${i + 1}</span>`;
+    }));
+  const inMonth = workouts.filter(w => w.date.startsWith(ui.cal)), nDays = new Set(inMonth.map(w => w.date)).size;
+  return `<section class="mapcard">
+    <div class="mapcard-head"><h2>カレンダー</h2>
+      <div class="cal-nav"><button class="icon-btn" data-cal="-1" aria-label="前の月">‹</button><span class="num">${y}.${String(mo).padStart(2, "0")}</span><button class="icon-btn" data-cal="1" aria-label="次の月"${ui.cal >= cur ? " disabled" : ""}>›</button></div></div>
+    <div class="cal">${cells.join("")}</div>
+    <p class="note">この月は${nDays}日記録しています。塗られた日を押すと、その日の記録へ移ります。</p>
+    <div class="cal-streak"><span><span class="num">${n}</span>週連続で週${goal}回以上</span>
+      <div class="chips" aria-label="1週間の目標回数">${[1, 2, 3, 4, 5].map(g => `<button class="chip" data-goal="${g}" aria-pressed="${g === goal}">週${g}</button>`).join("")}</div></div>
+  </section>`;
+}
 function renderHistory() {
   const v = $("#view-history");
   if (!workouts.length) {
@@ -1096,14 +1144,14 @@ function renderHistory() {
     return;
   }
   const prs = prMap();
-  let html = mapCard() + (workouts.some(w => w.example)
+  let html = calCard() + mapCard() + (workouts.some(w => w.example)
     ? `<div class="notice"><span>「サンプル」の付いた記録は見本です。自分の記録をつけ始めたら消してください。</span><button class="btn small" id="btn-del-samples">サンプルを削除</button></div>` : "");
   let month = "";
   for (const w of workouts) {
     const m = w.date.slice(0, 7);
     if (m !== month) { month = m; html += `<h3 class="month num">${m.replace("-", ".")}</h3>`; }
     const nSets = w.exercises.reduce((a, e) => a + e.sets.length, 0);
-    html += `<article class="day">
+    html += `<article class="day" data-date="${w.date}">
       <div class="day-head">
         <span class="day-date">${fmtDate(w.date)}${w.example ? `<span class="badge sample">サンプル</span>` : ""}</span>
         <span class="day-meta">${w.exercises.length}種目 · ${nSets}セット</span>
@@ -1121,6 +1169,15 @@ function renderHistory() {
 $("#view-history").addEventListener("click", async e => {
   const hp = e.target.closest("[data-hp]");
   if (hp) { ui.hp = +hp.dataset.hp; ls.set("liftlog.hp", ui.hp); return renderHistory(); }
+  const cal = e.target.closest("[data-cal]"), goal = e.target.closest("[data-goal]"), day = e.target.closest("[data-day]");
+  if (cal) { const [y, m] = ui.cal.split("-").map(Number); ui.cal = ymd(new Date(y, m - 1 + +cal.dataset.cal, 1)).slice(0, 7); return renderHistory(); }
+  if (goal) { ui.goal = +goal.dataset.goal; ls.set("liftlog.goal", ui.goal); return renderHistory(); }
+  if (day) {
+    const a = document.querySelector(`.day[data-date="${day.dataset.day}"]`); if (!a) return;
+    a.scrollIntoView({ behavior: "smooth", block: "start" });
+    a.classList.add("flash"); setTimeout(() => a.classList.remove("flash"), 2400);
+    return;
+  }
   const ed = e.target.closest("[data-edit]"), del = e.target.closest("[data-del]"), rf = e.target.closest("[data-rt-from]");
   if (rf) {
     const w = workouts.find(x => x.id === rf.dataset.rtFrom); if (!w) return;
