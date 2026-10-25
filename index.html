@@ -1044,7 +1044,7 @@ function renderRtList() {
       <ol class="rt-ex">${r.exercises.map((n, i) => `<li data-i="${i}"><button class="icon-btn rt-grip" type="button" data-i="${i}" aria-label="${esc(n)}を並び替え（上下の矢印キーでも動かせます）">${GRIP_IC}</button>
         <span>${esc(n)}</span>
         <button class="icon-btn" data-act="del" data-i="${i}" aria-label="${esc(n)}を外す">${DEL_IC}</button></li>`).join("")}</ol>
-      <form class="custom"><input list="ex-names" placeholder="種目名を入れて追加" aria-label="${esc(r.name)}に追加する種目"><button class="btn small" type="submit">追加</button></form>
+      <form class="custom"><input list="ex-names" placeholder="種目名" aria-label="${esc(r.name)}に追加する種目"><button class="btn small" type="submit">追加</button></form>
       <button class="btn small danger" data-act="rt-del">このルーティンを削除</button>
     </section>`).join("");
 }
