@@ -723,6 +723,22 @@ function seedSamples() {
   ls.set("liftlog.workouts", all);
 }
 
+// 初回だけ見本のルーティンを部位ごとに入れる。ルーティンを持っている端末には入れない（消したあとも入れ直さない）
+function seedRoutines() {
+  if (ls.get("liftlog.rtSeeded", false)) return;
+  ls.set("liftlog.rtSeeded", true);
+  if (rtAll().length) return;
+  const list = [
+    ["胸トレ", ["ベンチプレス", "インクラインベンチプレス", "ダンベルフライ", "ディップス"]],
+    ["肩トレ", ["ショルダープレス", "サイドレイズ", "リアレイズ", "フェイスプル"]],
+    ["背中トレ", ["デッドリフト", "懸垂", "ラットプルダウン", "ベントオーバーロウ"]],
+    ["脚トレ", ["スクワット", "レッグプレス", "ルーマニアンデッドリフト", "レッグカール", "カーフレイズ"]],
+    ["腕トレ", ["バーベルカール", "ハンマーカール", "プレスダウン", "フレンチプレス"]],
+    ["腹トレ", ["クランチ", "アブローラー", "ハンギングレッグレイズ"]]
+  ];
+  ls.set("liftlog.routines", list.map(([name, exercises], i) => ({ id: "r-sample-" + i, name, exercises })));
+}
+
 /* ---------- 共通 ---------- */
 let toastTimer;
 function toast(msg) {
@@ -930,10 +946,10 @@ function renderRoutines() {
     ? list.map(r => `<button class="chip add" data-rt="${esc(r.id)}">${esc(r.name)}<span class="rt-n">${r.exercises.length}種目</span></button>`).join("")
     : `<p class="note">よくやる種目の組み合わせを保存しておくと、ここからまとめて追加できます。</p>`;
 }
-// 名前の初期値は部位から付ける（例：胸の日）。部位がばらけていれば「ルーティン」。同じ名前があれば番号を足す
+// 名前の初期値は部位から付ける（例：胸トレ）。部位がばらけていれば「ルーティン」。同じ名前があれば番号を足す
 function rtName(names) {
   const parts = [...new Set(names.map(n => Object.keys(PRESETS).find(p => PRESETS[p].includes(n))).filter(Boolean))];
-  const base = parts.length && parts.length <= 2 ? parts.join("・") + "の日" : "ルーティン";
+  const base = parts.length && parts.length <= 2 ? parts.join("・") + "トレ" : "ルーティン";
   const used = new Set(rtAll().map(r => r.name));
   if (!used.has(base)) return base;
   for (let i = 2; ; i++) if (!used.has(`${base} ${i}`)) return `${base} ${i}`;
@@ -951,7 +967,7 @@ const DEL_IC = `<svg class="del-ic" viewBox="0 0 24 24" aria-hidden="true"><path
 function renderRtList() {
   const list = rtAll();
   $("#ex-names").innerHTML = [...new Set([...Object.values(PRESETS).flat(), ...Object.keys(exCounts())])].map(n => `<option value="${esc(n)}">`).join("");
-  $("#rt-list").innerHTML = list.length ? list.map(r => `<section class="rt" data-rt="${esc(r.id)}">
+  $("#rt-list").innerHTML = list.map(r => `<section class="rt" data-rt="${esc(r.id)}">
       <input class="rt-name" value="${esc(r.name)}" maxlength="30" aria-label="ルーティンの名前">
       <ol class="rt-ex">${r.exercises.map((n, i) => `<li><span>${esc(n)}</span>
         <button class="icon-btn" data-act="up" data-i="${i}" aria-label="${esc(n)}を上へ"${i ? "" : " disabled"}>${UP_IC}</button>
@@ -959,7 +975,7 @@ function renderRtList() {
         <button class="icon-btn" data-act="del" data-i="${i}" aria-label="${esc(n)}を外す">${DEL_IC}</button></li>`).join("")}</ol>
       <form class="custom"><input list="ex-names" placeholder="種目名を入れて追加" aria-label="${esc(r.name)}に追加する種目"><button class="btn small" type="submit">追加</button></form>
       <button class="btn small danger" data-act="rt-del">このルーティンを削除</button>
-    </section>`).join("") : `<p class="note">まだルーティンがありません。</p>`;
+    </section>`).join("");
 }
 function openRoutines(focusId) {
   renderRtList();
@@ -2095,6 +2111,7 @@ const isTyping = el => el && el.matches("input:not([type=checkbox]):not([type=ra
 document.addEventListener("focusin", e => { if (isTyping(e.target)) document.body.classList.add("typing"); });
 document.addEventListener("focusout", () => setTimeout(() => { if (!isTyping(document.activeElement)) document.body.classList.remove("typing"); }));
 renderPicker();
+seedRoutines();
 renderRoutines();
 renderGuide();
 setTab(ui.tab);
