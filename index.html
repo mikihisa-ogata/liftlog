@@ -716,6 +716,12 @@ const ui = { tab: ls.get("liftlog.tab", "log"), part: "胸", gpart: "胸", ex: n
 const blankDraft = () => ({ id: null, date: today(), exercises: [], memo: "" });
 let draft = ls.get("liftlog.draft", null) || blankDraft();
 const saveDraft = () => ls.set("liftlog.draft", draft);
+// 何も入れていない下書きは、日をまたいで開いたら日付を今日に戻す（保存した日のまま残らないように）
+function freshDraftDate() {
+  if (draft.id || draft.exercises.length || draft.memo || draft.date === today()) return false;
+  draft.date = today(); saveDraft(); return true;
+}
+freshDraftDate();
 
 /* ---------- 保存先：この端末（localStorage） ---------- */
 const localAll = () => ls.get("liftlog.workouts", {});
@@ -835,8 +841,9 @@ function lastSession(name) {
 function weekStart() { const now = new Date(); return new Date(now.getFullYear(), now.getMonth(), now.getDate() - ((now.getDay() + 6) % 7)); }
 function renderStats() {
   const mon = weekStart();
-  const wk = workouts.filter(w => w.date >= ymd(mon));
-  $("#s-week").innerHTML = `${wk.length}<small>回</small>`;
+  // 同じ日に複数の記録があっても1回と数える（累計・カレンダーと同じ数え方）
+  const wk = new Set(workouts.filter(w => w.date >= ymd(mon)).map(w => w.date));
+  $("#s-week").innerHTML = `${wk.size}<small>回</small>`;
   // 1回以上やった週（月曜始まり）が何週続いているか。今週がまだなら先週までで数える
   const weeks = new Set(workouts.map(w => { const d = parseD(w.date); d.setDate(d.getDate() - (d.getDay() + 6) % 7); return ymd(d); }));
   const wkStart = new Date(mon);
@@ -1210,7 +1217,12 @@ $("#rest").addEventListener("click", e => {
 });
 // 開き直したあとは AudioContext が無いので、数えている間にどこかを触ったら起こしておく
 document.addEventListener("pointerdown", () => { if (rest) wakeAudio(); });
-document.addEventListener("visibilitychange", () => { if (!document.hidden) renderRest(); });
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) return;
+  renderRest();
+  // 開いたまま日をまたいだときも、空の下書きの日付を今日に戻す
+  if (freshDraftDate() && !$("#view-log").contains(document.activeElement)) renderLog();
+});
 
 /* ---------- 履歴 ---------- */
 // 各記録で、その日までの自己ベスト（推定1RM）を更新した種目
@@ -1349,6 +1361,9 @@ $("#view-history").addEventListener("click", async e => {
     toast("サンプルを削除しました");
   } else if (ed) {
     const w = workouts.find(x => x.id === ed.dataset.edit); if (!w) return;
+    // 入力中の内容があれば、上書きしてよいか先に聞く（同じ記録を編集中なら聞かずにそのまま開く）
+    if (draft.id === w.id) return setTab("log");
+    if ((draft.exercises.length || draft.memo.trim()) && !await askConfirm(`${fmtDate(w.date)}の記録を編集しますか？`, "入力中の種目・セット・メモは消えます。保存済みの記録はそのまま残ります。", "編集する")) return;
     draft = { id: w.id, date: w.date, memo: w.memo || "", exercises: w.exercises.map(e => ({ name: e.name, sets: e.sets.map(s => ({ w: String(s.w), r: String(s.r) })) })) };
     saveDraft(); renderLog(); setTab("log");
   } else if (del) {
