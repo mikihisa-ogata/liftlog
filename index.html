@@ -201,7 +201,11 @@ button { font-family: var(--font-body); }
 .rt-ex li { display: flex; align-items: center; gap: 2px; padding: 2px 0; font-size: 14px; font-weight: 700; counter-increment: rt; }
 .rt-ex li::before { content: counter(rt); width: 22px; flex: none; color: var(--accent); font-family: var(--font-num); font-style: var(--num-style); }
 .rt-ex li span { flex: 1; min-width: 0; }
-.rt-ex .icon-btn:disabled { opacity: .3; cursor: default; }
+/* 並び替えはつまみを掴んで上下にドラッグする。つまみの上ではスクロールさせない */
+.rt-grip { touch-action: none; cursor: grab; }
+.rt-grip:hover { color: var(--ink); }
+.rt-ex li.dragging { position: relative; z-index: 1; background: var(--surface); box-shadow: 0 4px 14px rgba(0,0,0,.3); border-radius: 6px; }
+.rt-ex li.dragging .rt-grip { cursor: grabbing; color: var(--accent); }
 .rt .btn.danger { align-self: flex-end; }
 .custom .btn { white-space: nowrap; }
 .actions { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -1030,18 +1034,16 @@ function createRoutine(names) {
   openRoutines(r.id);
   return r;
 }
-const UP_IC = `<svg class="del-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg>`;
-const DOWN_IC = `<svg class="del-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>`;
+const GRIP_IC = `<svg class="del-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14M5 12h14M5 16h14"/></svg>`;
 const DEL_IC = `<svg class="del-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13M10 11v5.5M14 11v5.5"/></svg>`;
 function renderRtList() {
   const list = rtAll();
   $("#ex-names").innerHTML = [...new Set([...Object.keys(PRESETS).flatMap(p => [...PRESETS[p], ...ownOf(p)]), ...Object.keys(exCounts())])].map(n => `<option value="${esc(n)}">`).join("");
   $("#rt-list").innerHTML = list.map(r => `<section class="rt" data-rt="${esc(r.id)}">
       <input class="rt-name" value="${esc(r.name)}" maxlength="30" aria-label="ルーティンの名前">
-      <ol class="rt-ex">${r.exercises.map((n, i) => `<li><span>${esc(n)}</span>
-        <button class="icon-btn" data-act="up" data-i="${i}" aria-label="${esc(n)}を上へ"${i ? "" : " disabled"}>${UP_IC}</button>
-        <button class="icon-btn" data-act="down" data-i="${i}" aria-label="${esc(n)}を下へ"${i < r.exercises.length - 1 ? "" : " disabled"}>${DOWN_IC}</button>
-        <button class="icon-btn" data-act="del" data-i="${i}" aria-label="${esc(n)}を外す">${DEL_IC}</button></li>`).join("")}</ol>
+      <ol class="rt-ex">${r.exercises.map((n, i) => `<li data-i="${i}"><span>${esc(n)}</span>
+        <button class="icon-btn" data-act="del" data-i="${i}" aria-label="${esc(n)}を外す">${DEL_IC}</button>
+        <button class="icon-btn rt-grip" type="button" data-i="${i}" aria-label="${esc(n)}を並び替え（上下の矢印キーでも動かせます）">${GRIP_IC}</button></li>`).join("")}</ol>
       <form class="custom"><input list="ex-names" placeholder="種目名を入れて追加" aria-label="${esc(r.name)}に追加する種目"><button class="btn small" type="submit">追加</button></form>
       <button class="btn small danger" data-act="rt-del">このルーティンを削除</button>
     </section>`).join("");
@@ -1064,15 +1066,59 @@ $("#rt-dlg").addEventListener("click", async e => {
   const d = e.currentTarget;
   if (e.target === d || e.target.closest("[data-close]")) return d.close();
   const b = e.target.closest("[data-act]"); if (!b) return;
-  const id = b.closest(".rt").dataset.rt, i = +b.dataset.i, swap = (ex, a, c) => { [ex[a], ex[c]] = [ex[c], ex[a]]; };
-  if (b.dataset.act === "up") editRt(id, r => swap(r.exercises, i, i - 1));
-  if (b.dataset.act === "down") editRt(id, r => swap(r.exercises, i, i + 1));
+  const id = b.closest(".rt").dataset.rt, i = +b.dataset.i;
   if (b.dataset.act === "del") editRt(id, r => r.exercises.splice(i, 1));
   if (b.dataset.act === "rt-del") {
     const r = rtAll().find(x => x.id === id); if (!r) return;
     if (!await askConfirm(`「${r.name}」を削除しますか？`, "ルーティンだけを消します。保存済みの記録はそのまま残ります。", "削除")) return;
     writeRt(rtAll().filter(x => x.id !== id)); renderRtList(); toast("ルーティンを削除しました");
   }
+});
+// 種目の並び替え。つまみを掴んだ行を指に追従させ、隣の行の真ん中を越えたら DOM 上で入れ替える
+// 離したときに DOM の並び（各行の data-i が元の位置）をそのまま保存する
+let rtDrag = null; // { li, grip, startY }
+function rtReorder(ol) {
+  const id = ol.closest(".rt").dataset.rt, order = [...ol.children].map(li => +li.dataset.i);
+  if (order.every((v, k) => v === k)) return;
+  editRt(id, r => { r.exercises = order.map(k => r.exercises[k]); });
+}
+$("#rt-dlg").addEventListener("pointerdown", e => {
+  const grip = e.target.closest(".rt-grip"); if (!grip || e.button) return;
+  e.preventDefault();
+  const li = grip.closest("li");
+  grip.setPointerCapture(e.pointerId);
+  li.classList.add("dragging");
+  rtDrag = { li, grip, startY: e.clientY };
+});
+$("#rt-dlg").addEventListener("pointermove", e => {
+  if (!rtDrag) return;
+  const { li } = rtDrag, y = e.clientY;
+  for (let prev; (prev = li.previousElementSibling) && y < prev.getBoundingClientRect().top + prev.offsetHeight / 2;) {
+    li.after(prev); rtDrag.startY -= prev.offsetHeight;
+  }
+  for (let next; (next = li.nextElementSibling) && y > next.getBoundingClientRect().top + next.offsetHeight / 2;) {
+    li.before(next); rtDrag.startY += next.offsetHeight;
+  }
+  li.style.transform = `translateY(${y - rtDrag.startY}px)`;
+});
+function rtDrop() {
+  if (!rtDrag) return;
+  const { li } = rtDrag; rtDrag = null;
+  li.classList.remove("dragging"); li.style.transform = "";
+  rtReorder(li.parentElement);
+}
+$("#rt-dlg").addEventListener("pointerup", rtDrop);
+$("#rt-dlg").addEventListener("pointercancel", rtDrop);
+// キーボードでは、つまみにフォーカスして上下の矢印キーで1つずつ動かす
+$("#rt-dlg").addEventListener("keydown", e => {
+  const grip = e.target.closest(".rt-grip"); if (!grip || (e.key !== "ArrowUp" && e.key !== "ArrowDown")) return;
+  e.preventDefault();
+  const li = grip.closest("li"), ol = li.parentElement, sib = e.key === "ArrowUp" ? li.previousElementSibling : li.nextElementSibling;
+  if (!sib) return;
+  const id = ol.closest(".rt").dataset.rt, to = [...ol.children].indexOf(sib);
+  e.key === "ArrowUp" ? sib.before(li) : sib.after(li);
+  rtReorder(ol);
+  $(`#rt-list .rt[data-rt="${CSS.escape(id)}"] .rt-ex li:nth-child(${to + 1}) .rt-grip`)?.focus();
 });
 $("#rt-dlg").addEventListener("submit", e => {
   e.preventDefault();
