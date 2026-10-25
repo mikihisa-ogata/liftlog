@@ -1,6 +1,6 @@
 // オフラインでも開けるようにアプリ本体をキャッシュする。
 // index.html などを変えたら VERSION を上げると、次の起動時に更新される。
-const VERSION = "v16";
+const VERSION = "v17";
 const CACHE = "liftlog-" + VERSION;
 const APP = [
   "./",

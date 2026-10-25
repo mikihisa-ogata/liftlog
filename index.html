@@ -199,7 +199,7 @@ button { font-family: var(--font-body); }
 .day { background: var(--surface); border-radius: var(--radius); padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; scroll-margin-top: 96px; }
 .day.flash { outline: 2px solid var(--accent); outline-offset: 2px; }
 /* カレンダー：記録のある日を塗る。週の始まりは月曜 */
-.cal-nav { display: flex; align-items: center; gap: 4px; }
+.cal-nav { display: flex; align-items: center; justify-content: center; gap: 4px; }
 .cal-nav .num { font-size: 20px; min-width: 5.5em; text-align: center; }
 .cal-nav .icon-btn:hover { color: var(--ink); }
 .cal-nav .icon-btn:disabled { opacity: .3; cursor: default; }
@@ -1138,8 +1138,7 @@ function calCard() {
       return has.has(d) ? `<button data-day="${d}"${cls} aria-label="${fmtDate(d)}の記録を見る">${i + 1}</button>` : `<span class="d${d === t ? " today" : ""}">${i + 1}</span>`;
     }));
   return `<section class="mapcard">
-    <div class="mapcard-head"><h2>カレンダー</h2>
-      <div class="cal-nav"><button class="icon-btn" data-cal="-1" aria-label="前の月">‹</button><span class="num">${y}.${String(mo).padStart(2, "0")}</span><button class="icon-btn" data-cal="1" aria-label="次の月"${ui.cal >= cur ? " disabled" : ""}>›</button></div></div>
+    <div class="cal-nav"><button class="icon-btn" data-cal="-1" aria-label="前の月">‹</button><span class="num">${y}.${String(mo).padStart(2, "0")}</span><button class="icon-btn" data-cal="1" aria-label="次の月"${ui.cal >= cur ? " disabled" : ""}>›</button></div>
     <div class="cal">${cells.join("")}</div>
     <div class="cal-streak"><span><span class="num">${n}</span>週連続で週${goal}回以上</span>
       <div class="chips" aria-label="1週間の目標回数">${[1, 2, 3, 4, 5].map(g => `<button class="chip" data-goal="${g}" aria-pressed="${g === goal}">週${g}</button>`).join("")}</div></div>
