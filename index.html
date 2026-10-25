@@ -87,7 +87,22 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .top-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
 .skin-btn { border: 1px solid var(--line); background: transparent; color: var(--muted); font: 700 12px var(--font-body); padding: 4px 10px; border-radius: var(--radius-ctl); cursor: pointer; }
 
-.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; cursor: pointer; }
+.stats .more { margin-left: 4px; color: var(--accent); }
+/* 部位ごとの週のボリューム：濃い棒が今週、枠だけの棒が先週 */
+.wk-sum { display: flex; gap: 16px; padding: 4px 4px 8px; font-size: 12px; color: var(--muted); font-weight: 700; flex-wrap: wrap; }
+.wk-sum b { font-size: 20px; color: var(--ink); margin-right: 2px; }
+.wk-row { display: grid; grid-template-columns: 52px 1fr auto; gap: 4px 10px; align-items: center; padding: 8px 4px; border-top: 1px solid var(--line); }
+.wk-part { font-weight: 800; font-size: 14px; }
+.wk-bars { position: relative; height: 18px; }
+.wk-bars i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; }
+.wk-bars .last { border: 1.5px solid var(--muted); opacity: .7; }
+.wk-bars .now { background: var(--accent); top: 4px; bottom: 4px; }
+.wk-n { text-align: right; white-space: nowrap; font-size: 12px; color: var(--muted); font-weight: 700; }
+.wk-n .num { font-size: 20px; color: var(--ink); margin-right: 2px; }
+.wk-sub { grid-column: 2 / -1; display: flex; justify-content: space-between; gap: 8px; font-size: 12px; color: var(--muted); }
+.wk-up { color: var(--accent); font-weight: 800; }
+.wk-down { color: var(--danger); font-weight: 800; }
 .stat { background: var(--surface); padding: 12px 14px; display: flex; flex-direction: column; gap: 2px; min-width: 0; border-radius: var(--radius); container-type: inline-size; }
 .stat .k { font-size: 12px; color: var(--muted); letter-spacing: .08em; font-weight: 700; }
 .stat .v { font-family: var(--font-num); font-style: var(--num-style); font-weight: var(--num-weight); line-height: 1.1; font-variant-numeric: tabular-nums; white-space: nowrap; font-size: min(32px, 26cqi); }
@@ -457,9 +472,9 @@ body.rest-on { padding-top: var(--rest-h); }
         <button class="skin-btn" id="btn-skin" aria-haspopup="dialog" aria-controls="skins">テーマ</button>
       </div>
     </header>
-    <section class="stats" aria-label="今週のまとめ">
+    <section class="stats" id="stats" role="button" tabindex="0" aria-haspopup="dialog" aria-controls="wk-dlg" aria-label="今週のまとめ。押すと部位ごとのセット数を開く">
       <div class="stat"><span class="k">連続</span><span class="v" id="s-streak">0<small>週</small></span></div>
-      <div class="stat"><span class="k">今週</span><span class="v" id="s-week">0<small>回</small></span></div>
+      <div class="stat"><span class="k">今週<span class="more" aria-hidden="true">部位別 ›</span></span><span class="v" id="s-week">0<small>回</small></span></div>
       <div class="stat"><span class="k">累計</span><span class="v" id="s-total">0<small>日</small></span></div>
     </section>
   </div>
@@ -565,6 +580,12 @@ body.rest-on { padding-top: var(--rest-h); }
   <div class="pick-body">
     <div class="skins-head"><h2 id="ex-pick-title">種目を選ぶ</h2><button class="icon-btn" data-close aria-label="閉じる">×</button></div>
     <div id="ex-pick-list"></div>
+  </div>
+</dialog>
+<dialog class="pick-dlg" id="wk-dlg" aria-labelledby="wk-title">
+  <div class="pick-body">
+    <div class="skins-head"><h2 id="wk-title">部位ごとの今週</h2><button class="icon-btn" data-close aria-label="閉じる">×</button></div>
+    <div id="wk-body"></div>
   </div>
 </dialog>
 <dialog class="pick-dlg" id="rt-dlg" aria-labelledby="rt-title">
@@ -724,8 +745,10 @@ function lastSession(name) {
 }
 
 /* ---------- まとめ ---------- */
+// 今週の月曜（renderStats と部位ごとの集計で同じ週の区切りを使う）
+function weekStart() { const now = new Date(); return new Date(now.getFullYear(), now.getMonth(), now.getDate() - ((now.getDay() + 6) % 7)); }
 function renderStats() {
-  const now = new Date(); const mon = new Date(now.getFullYear(), now.getMonth(), now.getDate() - ((now.getDay() + 6) % 7));
+  const mon = weekStart();
   const wk = workouts.filter(w => w.date >= ymd(mon));
   $("#s-week").innerHTML = `${wk.length}<small>回</small>`;
   // 1回以上やった週（月曜始まり）が何週続いているか。今週がまだなら先週までで数える
@@ -737,6 +760,45 @@ function renderStats() {
   $("#s-streak").innerHTML = `${streak}<small>週</small>`;
   $("#s-total").innerHTML = `${new Set(workouts.map(w => w.date)).size}<small>日</small>`;
 }
+
+// 部位ごとのセット数とボリューム（重量×回数）。部位は PRESETS から引き、載っていない種目は「その他」
+// 回数の入っていないセットは数えない。自重種目はボリューム0になるので、セット数を主に見せる
+function partTotals(ws) {
+  const t = {}, other = new Set();
+  for (const w of ws) for (const e of w.exercises) {
+    const p = Object.keys(PRESETS).find(k => PRESETS[k].includes(e.name)) || "その他";
+    if (p === "その他") other.add(e.name);
+    const sets = e.sets.filter(x => +x.r > 0);
+    const o = t[p] ||= { sets: 0, vol: 0 };
+    o.sets += sets.length; o.vol += sets.reduce((a, x) => a + (+x.w || 0) * +x.r, 0);
+  }
+  return { t, other };
+}
+const diff = (a, b, unit = "") => a === b ? `<span>±0${unit}</span>` : `<span class="${a > b ? "wk-up" : "wk-down"}">${a > b ? "+" : "−"}${fmtN(Math.abs(a - b))}${unit}</span>`;
+function renderWeek() {
+  const mon = weekStart(), prev = new Date(mon); prev.setDate(prev.getDate() - 7);
+  const now = partTotals(workouts.filter(w => w.date >= ymd(mon)));
+  const last = partTotals(workouts.filter(w => w.date >= ymd(prev) && w.date < ymd(mon)));
+  const parts = [...Object.keys(PRESETS), ...(now.t["その他"] || last.t["その他"] ? ["その他"] : [])];
+  const get = (x, p) => x.t[p] || { sets: 0, vol: 0 };
+  const sum = (x, k) => Object.values(x.t).reduce((a, o) => a + o[k], 0);
+  const max = Math.max(1, ...parts.flatMap(p => [get(now, p).sets, get(last, p).sets]));
+  const pct = n => (n / max * 100).toFixed(1) + "%";
+  const other = [...new Set([...now.other, ...last.other])];
+  $("#wk-body").innerHTML = `
+    <div class="wk-sum"><span><b class="num">${sum(now, "sets")}</b>セット ${diff(sum(now, "sets"), sum(last, "sets"))}</span><span><b class="num">${fmtN(sum(now, "vol"))}</b>kg ${diff(sum(now, "vol"), sum(last, "vol"), "kg")}</span></div>
+    ${parts.map(p => { const a = get(now, p), b = get(last, p); return `<div class="wk-row">
+      <span class="wk-part">${p}</span>
+      <div class="wk-bars" role="img" aria-label="${p} 今週${a.sets}セット、先週${b.sets}セット">${b.sets ? `<i class="last" style="width:${pct(b.sets)}"></i>` : ""}${a.sets ? `<i class="now" style="width:${pct(a.sets)}"></i>` : ""}</div>
+      <span class="wk-n"><span class="num">${a.sets}</span>セット</span>
+      <div class="wk-sub"><span>${fmtN(a.vol)}kg（先週 ${fmtN(b.vol)}kg）</span><span>先週比 ${diff(a.sets, b.sets)}</span></div>
+    </div>`; }).join("")}
+    <p class="note">${fmtDate(ymd(mon))}から今日までの記録。塗りつぶした棒が今週、枠だけの棒が先週のセット数です。ボリュームは重量×回数の合計で、自重の種目は0kgになります。${other.length ? `部位が決まっていない種目（${other.map(esc).join("・")}）は「その他」に数えています。` : ""}</p>`;
+}
+function openWeek() { renderWeek(); $("#wk-dlg").showModal(); }
+$("#stats").addEventListener("click", openWeek);
+$("#stats").addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openWeek(); } });
+$("#wk-dlg").addEventListener("click", e => { if (e.target === e.currentTarget || e.target.closest("[data-close]")) e.currentTarget.close(); });
 
 /* ---------- 記録 ---------- */
 function renderPicker() {
