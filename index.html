@@ -377,6 +377,10 @@ body.rest-on { padding-top: var(--rest-h); }
 .steps, .tips { margin: 0; padding-left: 1.4em; display: flex; flex-direction: column; gap: 4px; font-size: 14px; }
 .guide-body .btn.primary { padding: 13px; font-size: 16px; margin-top: 6px; }
 .ex-title { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; min-width: 0; }
+.ex-toggle { display: inline-flex; align-items: center; gap: 6px; border: 0; background: none; color: inherit; font: inherit; padding: 0; cursor: pointer; text-align: left; }
+.ex-toggle svg { width: 18px; height: 18px; flex: none; fill: none; stroke: var(--muted); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform .15s; }
+.ex-toggle[aria-expanded="false"] svg { transform: rotate(-90deg); }
+.ex-body { display: flex; flex-direction: column; gap: 10px; }
 .backup { display: flex; flex-direction: column; gap: 10px; border-top: 1px solid var(--line); padding-top: 16px; margin-top: 8px; }
 .backup .actions { gap: 8px; }
 
@@ -841,11 +845,15 @@ function renderLog() {
       <span class="times">×</span>
       <input inputmode="numeric" type="number" step="1" min="0" id="r-${i}-${j}" data-s="${j}" data-k="r" value="${esc(s.r)}" placeholder="0" aria-label="${j + 1}セット目の回数">
       <button class="icon-btn" data-act="set-del" data-s="${j}" aria-label="${j + 1}セット目を削除"><svg class="del-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13M10 11v5.5M14 11v5.5"/></svg></button>`).join("");
+    // 閉じているときは種目名だけを出し、それ以外は ex-body ごと隠す
+    const open = !e.closed;
     return `<article class="ex" data-i="${i}">
-      <div class="ex-head"><div class="ex-title"><h3>${esc(e.name)}</h3>${GUIDE[e.name] ? `<button class="link" data-act="guide">やり方</button>` : ""}</div><button class="btn small danger" data-act="ex-del">種目を外す</button></div>
-      ${prevHtml}
-      <div class="setgrid"><span class="h">SET</span><span class="h">重量（kg）</span><span></span><span class="h">回数</span><span></span>${rows}</div>
-      <button class="btn small add-set" data-act="set-add">＋ セット追加</button>
+      <div class="ex-head"><div class="ex-title"><h3><button class="ex-toggle" data-act="toggle" aria-expanded="${open}" aria-controls="ex-body-${i}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>${esc(e.name)}</button></h3>${open && GUIDE[e.name] ? `<button class="link" data-act="guide">やり方</button>` : ""}</div>${open ? `<button class="btn small danger" data-act="ex-del">種目を外す</button>` : ""}</div>
+      <div class="ex-body" id="ex-body-${i}"${open ? "" : " hidden"}>
+        ${prevHtml}
+        <div class="setgrid"><span class="h">SET</span><span class="h">重量（kg）</span><span></span><span class="h">回数</span><span></span>${rows}</div>
+        <button class="btn small add-set" data-act="set-add">＋ セット追加</button>
+      </div>
     </article>`;
   }).join("");
 }
@@ -853,6 +861,7 @@ function addExercise(name) {
   name = name.trim(); if (!name) return;
   const prev = lastSession(name);
   const sets = prev ? prev.sets.map(s => ({ w: s.w, r: s.r })) : [{ w: "", r: "" }];
+  draft.exercises.forEach(e => { e.closed = true; });
   draft.exercises.push({ name, sets }); saveDraft(); renderLog();
   toast(prev ? `${name}を追加（前回の内容を入力済み）` : `${name}を追加`);
 }
@@ -870,6 +879,7 @@ $("#ex-list").addEventListener("click", e => {
   const b = e.target.closest("[data-act]"); if (!b) return;
   const i = +b.closest(".ex").dataset.i, ex = draft.exercises[i];
   if (b.dataset.act === "guide") return openGuide(ex.name, true);
+  if (b.dataset.act === "toggle") ex.closed = !ex.closed;
   if (b.dataset.act === "set-add") { const last = ex.sets[ex.sets.length - 1] || { w: "", r: "" }; ex.sets.push({ w: last.w, r: last.r }); }
   if (b.dataset.act === "set-del") ex.sets.splice(+b.dataset.s, 1);
   if (b.dataset.act === "ex-del") draft.exercises.splice(i, 1);
