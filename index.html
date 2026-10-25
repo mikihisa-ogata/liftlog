@@ -229,6 +229,12 @@ button { font-family: var(--font-body); }
 .mapcard-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
 .mapcard-body { display: flex; flex-direction: column; gap: 14px; align-items: center; }
 .mapcard-body .body-map { max-width: 280px; }
+.body-map.tap .m { cursor: pointer; }
+.body-map .m.sel { stroke: var(--ink); stroke-width: 1.6; }
+.bm-name { margin: -6px 0 0; line-height: 26px; font-size: 14px; font-weight: 800; text-align: center; }
+.bm-name .num { font-size: 17px; margin-left: 6px; }
+.bm-name small { font-size: 11px; font-weight: 700; color: var(--muted); margin-left: 2px; }
+.bm-name.hint { font-size: 12px; font-weight: 400; color: var(--muted); }
 .mrank { list-style: none; margin: 0; padding: 0; align-self: stretch; columns: 2 140px; column-gap: 16px; font-size: 12px; font-weight: 700; }
 .mrank li { display: flex; align-items: center; gap: 6px; padding-block: 2px; break-inside: avoid; }
 .mrank .num { margin-left: auto; font-size: 17px; }
@@ -1104,10 +1110,12 @@ function mapCard() {
   const { sets, unknown } = muscleSets(workouts.filter(w => w.date >= ymd(from)));
   const perWeek = m => (sets[m] || 0) * 7 / days;
   const lv = m => lvOf(perWeek(m), WEEK_STEPS);
-  const rank = Object.keys(sets).sort((a, b) => sets[b] - sets[a]);
+  const rank = Object.keys(sets).sort((a, b) => sets[b] - sets[a]), sel = ui.hm;
   return `<section class="mapcard">
     <div class="mapcard-head"><h2>鍛えた部位</h2><div class="chips">${PERIODS.map(([d, l]) => `<button class="chip" data-hp="${d}" aria-pressed="${d === days}">${l}</button>`).join("")}</div></div>
-    <div class="mapcard-body">${bodyMap(lv)}
+    <div class="mapcard-body">${bodyMap(lv, "tap", sel)}
+      ${sel ? `<p class="bm-name">${MUSCLE[sel]}<span class="num">${Math.round(perWeek(sel) * 10) / 10}</span><small>セット／週</small></p>`
+        : `<p class="bm-name hint">図の部位を押すと名称が出ます</p>`}
       ${rank.length ? `<ol class="mrank">${rank.map(m => `<li class="lv${lv(m)}" title="${MUSCLE[m]}"><i class="sw-lv"></i>${MUSCLE_SHORT[m]}<span class="num">${Math.round(perWeek(m) * 10) / 10}</span></li>`).join("")}</ol>`
         : `<p class="empty">この期間の記録はありません。</p>`}
     </div>
@@ -1182,6 +1190,8 @@ function renderHistory() {
 $("#view-history").addEventListener("click", async e => {
   const hp = e.target.closest("[data-hp]");
   if (hp) { ui.hp = +hp.dataset.hp; ls.set("liftlog.hp", ui.hp); return renderHistory(); }
+  // 鍛えた部位の図：部位を押すと名称を出す。同じ部位か部位の外を押すと消す
+  if (e.target.closest(".body-map.tap")) { const m = e.target.closest("[data-m]")?.dataset.m; ui.hm = m && m !== ui.hm ? m : null; return renderHistory(); }
   const cal = e.target.closest("[data-cal]"), goal = e.target.closest("[data-goal]"), day = e.target.closest("[data-day]");
   if (cal) { const [y, m] = ui.cal.split("-").map(Number); ui.cal = ymd(new Date(y, m - 1 + +cal.dataset.cal, 1)).slice(0, 7); return renderHistory(); }
   if (goal) { ui.goal = +goal.dataset.goal; ls.set("liftlog.goal", ui.goal); return renderHistory(); }
@@ -2004,14 +2014,14 @@ const BODY = {
     }
   }
 };
-// level(m) は 0〜4。0 は鍛えていない部位
-function bodyMap(level, cls = "") {
+// level(m) は 0〜4。0 は鍛えていない部位。sel の部位は縁取りして目立たせる
+function bodyMap(level, cls = "", sel = null) {
   const fig = (v, x, label) => {
     const b = BODY[v], mir = s => `${s}<g transform="translate(100 0) scale(-1 1)">${s}</g>`;
     const parts = Object.entries(b.parts).map(([m, ds]) => {
       const lv = level(m), d = ds.map(p => `<path d="${p}"/>`).join("");
       const mid = m === "traps" && b.mid ? b.mid.map(p => `<path d="${p}"/>`).join("") : "";
-      return `<g class="m lv${lv}"><title>${MUSCLE[m]}</title>${mid}${d ? mir(d) : ""}</g>`;
+      return `<g class="m lv${lv}${m === sel ? " sel" : ""}" data-m="${m}"><title>${MUSCLE[m]}</title>${mid}${d ? mir(d) : ""}</g>`;
     }).join("");
     return `<g transform="translate(${x} 0)"><g class="bm-sil">${mir(BODY_SIL)}</g>${parts}<text x="50" y="219">${label}</text></g>`;
   };
