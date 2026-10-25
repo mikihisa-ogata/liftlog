@@ -368,6 +368,8 @@ body.rest-on { padding-top: var(--rest-h); }
 .guide-body { background: var(--surface); border-radius: var(--radius-dlg); padding: 16px; display: flex; flex-direction: column; gap: 10px; }
 .guide-body h3 { margin: 0; font-family: var(--font-head); font-weight: var(--head-weight); font-size: 21px; line-height: 1.3; }
 .guide-body h2 { margin-top: 6px; }
+.fig-wrap { position: relative; display: block; }
+.view-tag { position: absolute; top: 5px; left: 5px; font-size: 10px; font-weight: 800; line-height: 1.5; padding: 0 6px; color: var(--muted); background: var(--surface); border: 1px solid var(--line); border-radius: min(var(--radius-ctl), 4px); }
 .poses { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .poses figure { margin: 0; display: flex; flex-direction: column; gap: 4px; }
 .poses figcaption { font-size: 12px; font-weight: 800; }
@@ -1735,11 +1737,11 @@ const GUIDE = {
     tips: ["バーベルより深く下ろせるぶん、胸がよく伸びる", "終わったら膝の上に戻してから起き上がる（横に落とさない）"]
   },
   "ダンベルフライ": {
-    gear: "ダンベル・ベンチ", main: ["chest"], sub: ["delt_front"], view: "front", note: "足の側から見た図",
-    g: [{ k: "rect", x: 66, y: 106, w: 28, h: 8 }, { k: "line", a: [80, 114], b: [80, 146], w: 3 }, { k: "dbf", at: "hand" }],
+    gear: "ダンベル・ベンチ", main: ["chest"], sub: ["delt_front"], note: "腕は体の左右へ開く",
+    g: [...bench(18, 118, 105), { k: "db", at: "hand" }],
     poses: [
-      { sc: [80, 100], hands: [[70, 54], [90, 54]], eb: 1, head: [0, -11] },
-      { sc: [80, 100], hands: [[28, 104], [132, 104]], eb: -1, head: [0, -11] }
+      { hip: [96, 98], t: 180, hand: [51, 52], foot: [126, 142], eb: 1, kb: -1 },
+      { hip: [96, 98], t: 180, hand: [62, 104], foot: [126, 142], eb: 1, kb: -1 }
     ],
     steps: ["ベンチに仰向けになり、手のひらを向かい合わせにしてダンベルを胸の上に上げる", "肘を軽く曲げたまま、弧を描くように左右へ開いて下ろす", "胸が伸びたところで止め、抱きかかえるように元の位置へ戻す"],
     tips: ["肘の角度は最後まで変えない（曲げ伸ばしするとプレスになる）", "重さより胸が伸びる感覚を優先して、軽めで行う"]
@@ -1882,7 +1884,7 @@ const GUIDE = {
     tips: ["膝は伸ばしたまま。曲げると効く場所が変わる", "いちばん上と下で一瞬止めると、反動が使えずよく効く"]
   },
   "ショルダープレス": {
-    gear: "ダンベル・背もたれ付きベンチ", main: ["delt_front", "delt_side"], sub: ["triceps", "traps"], view: "front", note: "前から見た図",
+    gear: "ダンベル・背もたれ付きベンチ", main: ["delt_front", "delt_side"], sub: ["triceps", "traps"], view: "front",
     g: [{ k: "rect", x: 62, y: 110, w: 36, h: 6 }, { k: "line", a: [80, 116], b: [80, 146], w: 3 }, { k: "dbf", at: "hand" }],
     poses: [
       { sc: [80, 62], hip: [80, 106], hands: [[50, 52], [110, 52]], feet: [[60, 142], [100, 142]], eb: -1, kb: 1 },
@@ -1892,7 +1894,7 @@ const GUIDE = {
     tips: ["腰を反らせすぎない。お腹に力を入れておく", "上げきったところで肩をすくめない"]
   },
   "サイドレイズ": {
-    gear: "ダンベル", main: ["delt_side"], sub: ["traps"], view: "front", note: "前から見た図",
+    gear: "ダンベル", main: ["delt_side"], sub: ["traps"], view: "front",
     g: [{ k: "dbf", at: "hand" }],
     poses: [
       { sc: [80, 32], hip: [80, 76], hands: [[62, 80], [98, 80]], feet: [[72, 142], [88, 142]], eb: -1, kb: 1 },
@@ -1902,11 +1904,11 @@ const GUIDE = {
     tips: ["肩より上に上げない。首の筋肉（僧帽筋）に効いてしまう", "軽い重量で丁寧に。反動を使うと肩に効かない"]
   },
   "リアレイズ": {
-    gear: "ダンベル", main: ["delt_rear"], sub: ["traps"], view: "front", note: "前から見た図（上体を前に倒した状態）",
-    g: [{ k: "dbf", at: "hand" }],
+    gear: "ダンベル", main: ["delt_rear"], sub: ["traps"], note: "腕は体の左右へ開く",
+    g: [{ k: "db", at: "hand" }],
     poses: [
-      { sc: [80, 70], hip: [80, 78], hands: [[66, 118], [94, 118]], feet: [[70, 142], [90, 142]], eb: -1, kb: 1, head: [0, 9] },
-      { sc: [80, 70], hip: [80, 78], hands: [[28, 76], [132, 76]], feet: [[70, 142], [90, 142]], eb: -1, kb: 1, head: [0, 9] }
+      { hip: [56, 84], t: -14, hand: [102, 120], foot: [80, 142], eb: 1, kb: -1 },
+      { hip: [56, 84], t: -14, hand: [106, 62], foot: [80, 142], eb: 1, kb: -1, al: .3 }
     ],
     steps: ["ダンベルを持ち、お尻を引いて上体を床と平行近くまで倒す", "肘を軽く曲げ、腕を横へ広げるように持ち上げる", "肩の高さまで上げたら、ゆっくり下ろす"],
     tips: ["肩甲骨は寄せすぎない。寄せると背中の種目になる", "軽めの重量で、肩の後ろを意識する"]
@@ -2014,7 +2016,7 @@ const GUIDE = {
     tips: ["軌道が決まっているので、初めての人でもフォームが崩れにくい", "肘を伸ばしきってロックしない"]
   },
   "ペックフライ": {
-    gear: "ペックフライマシン", main: ["chest"], sub: ["delt_front"], view: "front", note: "前から見た図",
+    gear: "ペックフライマシン", main: ["chest"], sub: ["delt_front"], view: "front",
     g: [{ k: "rect", x: 62, y: 110, w: 36, h: 6 }, { k: "line", a: [80, 116], b: [80, 146], w: 3 }, { k: "pad", at: "hand" }],
     poses: [
       { sc: [80, 62], hip: [80, 106], hands: [[34, 76], [126, 76]], feet: [[60, 142], [100, 142]], eb: -1, kb: 1 },
@@ -2024,7 +2026,7 @@ const GUIDE = {
     tips: ["肘の角度は最後まで変えない", "戻すときは胸が伸びるところまで。開きすぎると肩を痛める"]
   },
   "ケーブルクロスオーバー": {
-    gear: "ケーブルマシン（左右2本）", main: ["chest"], sub: ["delt_front"], view: "front", note: "前から見た図",
+    gear: "ケーブルマシン（左右2本）", main: ["chest"], sub: ["delt_front"], view: "front",
     g: [{ k: "cable", from: [[4, 4], [156, 4]], at: "hand" }, { k: "bar", at: "hand" }],
     poses: [
       { sc: [80, 32], hip: [80, 76], hands: [[36, 20], [124, 20]], feet: [[66, 142], [94, 142]], eb: -1, kb: 1 },
@@ -2054,7 +2056,7 @@ const GUIDE = {
     tips: ["肘は手より高い位置に保つ", "あごの高さまで引き上げると肩を痛めやすい。胸の高さで止める"]
   },
   "シュラッグ": {
-    gear: "ダンベル（バーベルでも可）", main: ["traps"], sub: ["forearm"], view: "front", note: "前から見た図",
+    gear: "ダンベル（バーベルでも可）", main: ["traps"], sub: ["forearm"], view: "front",
     g: [{ k: "dbf", at: "hand" }],
     poses: [
       { sc: [80, 34], hip: [80, 78], hands: [[60, 82], [100, 82]], feet: [[72, 142], [88, 142]], eb: -1, kb: 1 },
@@ -2232,7 +2234,8 @@ const at = (o, len, deg) => [o[0] + len * Math.cos(deg * Math.PI / 180), o[1] + 
 function joints(p, front) {
   if (!front) {
     const shoulder = at(p.hip, BONE.torso, p.t);
-    const [elbow, hand] = ik(shoulder, p.hand, BONE.ua, BONE.fa, p.eb ?? 1);
+    // al は腕を短く描く倍率。横から見て腕が手前に向いている姿勢（リアレイズの上げきり）で使う
+    const [elbow, hand] = ik(shoulder, p.hand, BONE.ua * (p.al ?? 1), BONE.fa * (p.al ?? 1), p.eb ?? 1);
     const [knee, foot] = ik(p.hip, p.foot, BONE.th, BONE.sh, p.kb ?? -1);
     const j = { hip: p.hip, shoulder, head: at(shoulder, BONE.neck, p.t), elbow, hand, knee, foot, toe: at(foot, BONE.ft, p.ft ?? 0) };
     // foot2 があれば奥側の脚も描く（ランジなど、左右の脚が別の位置にある種目）
@@ -2364,10 +2367,12 @@ function bodyMap(level, cls = "", sel = null) {
 // 効く部位の図：主に効く部位は濃く、補助で使う部位は薄く塗る
 const mapSvg = g => bodyMap(m => g.main.includes(m) ? 4 : g.sub.includes(m) ? 2 : 0);
 
+// 図の左上に出す、どの向きから見た図かのラベル。原則は横から、腕を左右に開く立ち・座りの種目だけ前から
+const viewTag = g => `<span class="view-tag">${g.view === "front" ? "前から" : "横から"}</span>`;
 function renderGuide() {
   $("#g-parts").innerHTML = Object.keys(PRESETS).map(p => `<button class="chip" data-gpart="${p}" aria-pressed="${p === ui.gpart}">${p}</button>`).join("");
   $("#g-list").innerHTML = PRESETS[ui.gpart].filter(n => GUIDE[n]).map(n => `<button class="gcard" data-guide="${esc(n)}">
-    <span class="gfig">${poseSvg(GUIDE[n], 1)}</span><b>${esc(n)}</b><small>${GUIDE[n].main.map(m => MUSCLE[m]).join("・")}</small></button>`).join("");
+    <span class="gfig fig-wrap">${poseSvg(GUIDE[n], 1)}${viewTag(GUIDE[n])}</span><b>${esc(n)}</b><small>${GUIDE[n].main.map(m => MUSCLE[m]).join("・")}</small></button>`).join("");
 }
 // fromLog: 記録中の種目カードから開いたとき（記録に追加するボタンは出さない）
 function openGuide(name, fromLog) {
@@ -2377,10 +2382,10 @@ function openGuide(name, fromLog) {
     <div class="skins-head"><h3 id="guide-title">${esc(name)}</h3><button class="icon-btn" data-close aria-label="閉じる">×</button></div>
     <p class="note">器具：${esc(g.gear)}</p>
     <div class="poses">
-      <figure><figcaption>① スタート</figcaption>${poseSvg(g, 0)}</figure>
-      <figure><figcaption>② フィニッシュ</figcaption>${poseSvg(g, 1)}</figure>
+      <figure><figcaption>① スタート</figcaption><div class="fig-wrap">${poseSvg(g, 0)}${viewTag(g)}</div></figure>
+      <figure><figcaption>② フィニッシュ</figcaption><div class="fig-wrap">${poseSvg(g, 1)}${viewTag(g)}</div></figure>
     </div>
-    ${g.note ? `<p class="note">${esc(g.note)}。薄い線がスタートの姿勢、矢印が動く向き</p>` : `<p class="note">横から見た図。薄い線がスタートの姿勢、矢印が動く向き</p>`}
+    <p class="note">${g.note ? esc(g.note) + "。" : ""}薄い線がスタートの姿勢、矢印が動く向き</p>
     <h2>効く部位</h2>
     <div class="muscles">${mapSvg(g)}<div class="mlist">${chips(g.main, "main")}${chips(g.sub, "sub")}<p class="note">濃い色：主に効く<br>薄い色：補助で使う</p></div></div>
     <h2>やり方</h2>
