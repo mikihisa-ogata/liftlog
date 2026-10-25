@@ -165,6 +165,7 @@ button { font-family: var(--font-body); }
 .btn.small { font-size: 12px; padding: 6px 12px; }
 .btn.danger { color: var(--danger); }
 .btn.destroy { background: var(--danger); border-color: var(--danger); color: #ffffff; }
+.btn.more-log { width: 100%; border-style: dashed; background: transparent; color: var(--muted); }
 .btn.add-set { width: 100%; border-style: dashed; background: transparent; color: var(--muted); }
 .icon-btn { border: 0; background: transparent; color: var(--muted); font-size: 20px; line-height: 1; padding: 6px; cursor: pointer; border-radius: 6px; }
 .icon-btn:hover { color: var(--danger); }
@@ -661,7 +662,7 @@ const newId = () => "w-" + Date.now().toString(36) + Math.random().toString(36).
 let workouts = [];
 const ui = { tab: ls.get("liftlog.tab", "log"), part: "胸", gpart: "胸", ex: null, metric: ls.get("liftlog.metric") === "max" ? "max" : "e1rm", hp: [7, 28, 91].includes(ls.get("liftlog.hp")) ? ls.get("liftlog.hp") : 7,
   cal: today().slice(0, 7), goal: [1, 2, 3, 4, 5].includes(ls.get("liftlog.goal")) ? ls.get("liftlog.goal") : 2,
-  bw: false, bwDate: today(), bwRange: ["1m", "3m", "all"].includes(ls.get("liftlog.bwRange")) ? ls.get("liftlog.bwRange") : "1m" };
+  bw: false, bwDate: today(), histAll: false, bwRange: ["1m", "3m", "all"].includes(ls.get("liftlog.bwRange")) ? ls.get("liftlog.bwRange") : "1m" };
 const blankDraft = () => ({ id: null, date: today(), exercises: [], memo: "" });
 let draft = ls.get("liftlog.draft", null) || blankDraft();
 const saveDraft = () => ls.set("liftlog.draft", draft);
@@ -749,6 +750,7 @@ function setTab(t) {
   $("#view-progress").hidden = t !== "progress";
   $("#view-body").hidden = t !== "body";
   $("#view-guide").hidden = t !== "guide";
+  if (t === "history" && ui.histAll) { ui.histAll = false; renderHistory(); } // 履歴タブを開き直したら直近だけに戻す
   renderRest();
   window.scrollTo({ top: 0 });
 }
@@ -1144,6 +1146,7 @@ function calCard() {
       <div class="chips" aria-label="1週間の目標回数">${[1, 2, 3, 4, 5].map(g => `<button class="chip" data-goal="${g}" aria-pressed="${g === goal}">週${g}</button>`).join("")}</div></div>
   </section>`;
 }
+const HIST_N = 5;
 function renderHistory() {
   const v = $("#view-history");
   if (!workouts.length) {
@@ -1153,8 +1156,10 @@ function renderHistory() {
   const prs = prMap();
   let html = calCard() + mapCard() + (workouts.some(w => w.example)
     ? `<div class="notice"><span>「サンプル」の付いた記録は見本です。自分の記録をつけ始めたら消してください。</span><button class="btn small" id="btn-del-samples">サンプルを削除</button></div>` : "");
+  // 直近 HIST_N 件だけ並べ、それより前は「すべて表示」を押したときだけ出す
+  const shown = ui.histAll ? workouts : workouts.slice(0, HIST_N);
   let month = "";
-  for (const w of workouts) {
+  for (const w of shown) {
     const m = w.date.slice(0, 7);
     if (m !== month) { month = m; html += `<h3 class="month num">${m.replace("-", ".")}</h3>`; }
     const nSets = w.exercises.reduce((a, e) => a + e.sets.length, 0);
@@ -1171,6 +1176,7 @@ function renderHistory() {
       <div class="day-foot"><button class="btn small" data-rt-from="${esc(w.id)}">ルーティンにする</button><button class="btn small" data-edit="${esc(w.id)}">編集</button><button class="btn small danger" data-del="${esc(w.id)}">削除</button></div>
     </article>`;
   }
+  if (shown.length < workouts.length) html += `<button class="btn more-log" data-hist-all>それより前の記録 ${workouts.length - shown.length}件を表示</button>`;
   v.innerHTML = html;
 }
 $("#view-history").addEventListener("click", async e => {
@@ -1179,7 +1185,9 @@ $("#view-history").addEventListener("click", async e => {
   const cal = e.target.closest("[data-cal]"), goal = e.target.closest("[data-goal]"), day = e.target.closest("[data-day]");
   if (cal) { const [y, m] = ui.cal.split("-").map(Number); ui.cal = ymd(new Date(y, m - 1 + +cal.dataset.cal, 1)).slice(0, 7); return renderHistory(); }
   if (goal) { ui.goal = +goal.dataset.goal; ls.set("liftlog.goal", ui.goal); return renderHistory(); }
+  if (e.target.closest("[data-hist-all]")) { ui.histAll = true; return renderHistory(); }
   if (day) {
+    if (!document.querySelector(`.day[data-date="${day.dataset.day}"]`)) { ui.histAll = true; renderHistory(); }
     const a = document.querySelector(`.day[data-date="${day.dataset.day}"]`); if (!a) return;
     a.scrollIntoView({ behavior: "smooth", block: "start" });
     a.classList.add("flash"); setTimeout(() => a.classList.remove("flash"), 2400);
