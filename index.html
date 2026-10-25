@@ -202,7 +202,7 @@ button { font-family: var(--font-body); }
 .rt-ex li::before { content: counter(rt); width: 22px; flex: none; color: var(--accent); font-family: var(--font-num); font-style: var(--num-style); }
 .rt-ex li span { flex: 1; min-width: 0; }
 /* 並び替えはつまみを掴んで上下にドラッグする。つまみの上ではスクロールさせない */
-.rt-grip { touch-action: none; cursor: grab; }
+.rt-grip { touch-action: none; cursor: grab; order: -1; } /* 番号（li::before）より左に出す */
 .rt-grip:hover { color: var(--ink); }
 .rt-ex li.dragging { position: relative; z-index: 1; background: var(--surface); box-shadow: 0 4px 14px rgba(0,0,0,.3); border-radius: 6px; }
 .rt-ex li.dragging .rt-grip { cursor: grabbing; color: var(--accent); }
@@ -1041,9 +1041,9 @@ function renderRtList() {
   $("#ex-names").innerHTML = [...new Set([...Object.keys(PRESETS).flatMap(p => [...PRESETS[p], ...ownOf(p)]), ...Object.keys(exCounts())])].map(n => `<option value="${esc(n)}">`).join("");
   $("#rt-list").innerHTML = list.map(r => `<section class="rt" data-rt="${esc(r.id)}">
       <input class="rt-name" value="${esc(r.name)}" maxlength="30" aria-label="ルーティンの名前">
-      <ol class="rt-ex">${r.exercises.map((n, i) => `<li data-i="${i}"><span>${esc(n)}</span>
-        <button class="icon-btn" data-act="del" data-i="${i}" aria-label="${esc(n)}を外す">${DEL_IC}</button>
-        <button class="icon-btn rt-grip" type="button" data-i="${i}" aria-label="${esc(n)}を並び替え（上下の矢印キーでも動かせます）">${GRIP_IC}</button></li>`).join("")}</ol>
+      <ol class="rt-ex">${r.exercises.map((n, i) => `<li data-i="${i}"><button class="icon-btn rt-grip" type="button" data-i="${i}" aria-label="${esc(n)}を並び替え（上下の矢印キーでも動かせます）">${GRIP_IC}</button>
+        <span>${esc(n)}</span>
+        <button class="icon-btn" data-act="del" data-i="${i}" aria-label="${esc(n)}を外す">${DEL_IC}</button></li>`).join("")}</ol>
       <form class="custom"><input list="ex-names" placeholder="種目名を入れて追加" aria-label="${esc(r.name)}に追加する種目"><button class="btn small" type="submit">追加</button></form>
       <button class="btn small danger" data-act="rt-del">このルーティンを削除</button>
     </section>`).join("");
