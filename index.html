@@ -169,6 +169,8 @@ button { font-family: var(--font-body); }
 .btn.add-set { width: 100%; border-style: dashed; background: transparent; color: var(--muted); }
 .icon-btn { border: 0; background: transparent; color: var(--muted); font-size: 20px; line-height: 1; padding: 6px; cursor: pointer; border-radius: 6px; }
 .icon-btn:hover { color: var(--danger); }
+.ex-del { padding: 8px; margin: -8px -8px -8px 0; }
+.ex-del .del-ic { width: 22px; height: 22px; }
 .del-ic { display: block; width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .link { border: 0; background: none; color: var(--accent); font-weight: 800; font-size: 12px; padding: 0; cursor: pointer; }
 
@@ -858,7 +860,7 @@ function renderLog() {
     // 閉じているときは種目名だけを出し、それ以外は ex-body ごと隠す
     const open = !e.closed;
     return `<article class="ex" data-i="${i}">
-      <div class="ex-head"><div class="ex-title"><h3><button class="ex-toggle" data-act="toggle" aria-expanded="${open}" aria-controls="ex-body-${i}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>${esc(e.name)}</button></h3>${open && GUIDE[e.name] ? `<button class="link" data-act="guide">やり方</button>` : ""}</div>${open ? `<button class="btn small danger" data-act="ex-del">種目を外す</button>` : ""}</div>
+      <div class="ex-head"><div class="ex-title"><h3><button class="ex-toggle" data-act="toggle" aria-expanded="${open}" aria-controls="ex-body-${i}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>${esc(e.name)}</button></h3>${open && GUIDE[e.name] ? `<button class="link" data-act="guide">やり方</button>` : ""}</div>${open ? `<button class="icon-btn ex-del" data-act="ex-del" aria-label="${esc(e.name)}を外す" title="種目を外す"><svg class="del-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>` : ""}</div>
       <div class="ex-body" id="ex-body-${i}"${open ? "" : " hidden"}>
         ${prevHtml}
         <div class="setgrid"><span class="h">SET</span><span class="h">重量（kg）</span><span></span><span class="h">回数</span><span></span>${rows}</div>
