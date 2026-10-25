@@ -1137,12 +1137,10 @@ function calCard() {
       const d = `${ui.cal}-${String(i + 1).padStart(2, "0")}`, cls = d === t ? ` class="today"` : "";
       return has.has(d) ? `<button data-day="${d}"${cls} aria-label="${fmtDate(d)}の記録を見る">${i + 1}</button>` : `<span class="d${d === t ? " today" : ""}">${i + 1}</span>`;
     }));
-  const inMonth = workouts.filter(w => w.date.startsWith(ui.cal)), nDays = new Set(inMonth.map(w => w.date)).size;
   return `<section class="mapcard">
     <div class="mapcard-head"><h2>カレンダー</h2>
       <div class="cal-nav"><button class="icon-btn" data-cal="-1" aria-label="前の月">‹</button><span class="num">${y}.${String(mo).padStart(2, "0")}</span><button class="icon-btn" data-cal="1" aria-label="次の月"${ui.cal >= cur ? " disabled" : ""}>›</button></div></div>
     <div class="cal">${cells.join("")}</div>
-    <p class="note">この月は${nDays}日記録しています。塗られた日を押すと、その日の記録へ移ります。</p>
     <div class="cal-streak"><span><span class="num">${n}</span>週連続で週${goal}回以上</span>
       <div class="chips" aria-label="1週間の目標回数">${[1, 2, 3, 4, 5].map(g => `<button class="chip" data-goal="${g}" aria-pressed="${g === goal}">週${g}</button>`).join("")}</div></div>
   </section>`;
