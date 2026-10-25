@@ -162,6 +162,18 @@ button { font-family: var(--font-body); }
 .chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 .chip.add::before { content: "＋ "; color: var(--accent); }
 .custom { display: flex; gap: 8px; }
+/* ルーティン：記録画面の呼び出しと、編集のダイアログ */
+.rt-head { display: flex; justify-content: space-between; align-items: center; }
+.chip .rt-n { margin-left: 6px; font-size: 11px; color: var(--muted); }
+#btn-rt-save { align-self: flex-start; }
+.rt { border-top: 1px solid var(--line); padding: 12px 4px; display: flex; flex-direction: column; gap: 8px; }
+.rt-name { font-weight: 800; }
+.rt-ex { list-style: none; margin: 0; padding: 0; counter-reset: rt; }
+.rt-ex li { display: flex; align-items: center; gap: 2px; padding: 2px 0; font-size: 14px; font-weight: 700; counter-increment: rt; }
+.rt-ex li::before { content: counter(rt); width: 22px; flex: none; color: var(--accent); font-family: var(--font-num); font-style: var(--num-style); }
+.rt-ex li span { flex: 1; min-width: 0; }
+.rt-ex .icon-btn:disabled { opacity: .3; cursor: default; }
+.rt .btn.danger { align-self: flex-end; }
 .custom .btn { white-space: nowrap; }
 .actions { display: flex; gap: 10px; flex-wrap: wrap; }
 .actions .primary { flex: 1 1 200px; padding: 15px; font-size: 18px; }
@@ -304,7 +316,7 @@ body.rest-on { padding-top: var(--rest-h); }
 .confirm-body h3 { margin: 0; font-size: 17px; }
 .confirm-body p { margin: 0; font-size: 13px; color: var(--muted); }
 .confirm-actions { display: flex; gap: 8px; margin-top: 12px; }
-.confirm-actions .btn { flex: 1; padding: 12px; }
+.confirm-actions .btn { flex: 1; padding: 12px 6px; white-space: nowrap; }
 .guide-body { background: var(--surface); border-radius: var(--radius); padding: 16px; display: flex; flex-direction: column; gap: 10px; }
 .guide-body h3 { margin: 0; font-family: var(--font-head); font-weight: var(--head-weight); font-size: 21px; line-height: 1.3; }
 .guide-body h2 { margin-top: 6px; }
@@ -479,6 +491,11 @@ body.rest-on { padding-top: var(--rest-h); }
     </div>
     <div id="ex-list" class="view"></div>
     <div class="picker">
+      <div class="rt-head"><h2>ルーティン</h2><button class="link" id="btn-rt-edit" aria-haspopup="dialog" aria-controls="rt-dlg">作成・編集</button></div>
+      <div class="chips" id="rt-chips"></div>
+      <button class="btn small" id="btn-rt-save" hidden>入力中の種目をルーティンとして保存</button>
+    </div>
+    <div class="picker">
       <h2>種目を追加</h2>
       <div class="chips" id="parts"></div>
       <div class="chips" id="presets"></div>
@@ -499,7 +516,7 @@ body.rest-on { padding-top: var(--rest-h); }
     <div id="view-history" class="view"></div>
     <div class="backup">
       <h2>バックアップ</h2>
-      <p class="note">記録はこの端末の中だけに保存されます。機種変更の前や、ときどきの控えとしてファイルに書き出しておいてください。読み込むと、同じ記録は上書きされ、それ以外は追加されます。体重の記録も含まれますが、体の写真は含まれません。</p>
+      <p class="note">記録はこの端末の中だけに保存されます。機種変更の前や、ときどきの控えとしてファイルに書き出しておいてください。読み込むと、同じ記録は上書きされ、それ以外は追加されます。体重の記録とルーティンも含まれますが、体の写真は含まれません。</p>
       <div class="actions">
         <button class="btn small" id="btn-export">ファイルに書き出す</button>
         <button class="btn small" id="btn-import">ファイルから読み込む</button>
@@ -550,11 +567,19 @@ body.rest-on { padding-top: var(--rest-h); }
     <div id="ex-pick-list"></div>
   </div>
 </dialog>
+<dialog class="pick-dlg" id="rt-dlg" aria-labelledby="rt-title">
+  <div class="pick-body">
+    <div class="skins-head"><h2 id="rt-title">ルーティン</h2><button class="icon-btn" data-close aria-label="閉じる">×</button></div>
+    <div id="rt-list"></div>
+    <button class="btn" id="btn-rt-new">＋ 新しいルーティン</button>
+  </div>
+  <datalist id="ex-names"></datalist>
+</dialog>
 <dialog class="confirm-dlg" id="confirm" aria-labelledby="confirm-title" aria-describedby="confirm-note">
   <div class="confirm-body">
     <h3 id="confirm-title"></h3>
     <p id="confirm-note"></p>
-    <div class="confirm-actions"><button class="btn" value="cancel">キャンセル</button><button class="btn destroy" value="ok" id="confirm-ok"></button></div>
+    <div class="confirm-actions"><button class="btn" value="cancel">キャンセル</button><button class="btn" value="alt" id="confirm-alt" hidden></button><button class="btn destroy" value="ok" id="confirm-ok"></button></div>
   </div>
 </dialog>
 <dialog class="confirm-dlg" id="ph-new" aria-labelledby="ph-new-title">
@@ -657,10 +682,12 @@ function toast(msg) {
   clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.add("hide"), 2200);
 }
 // 確認ダイアログを出し、実行するボタンが押されたら true を返す。外側・Esc・キャンセルは false
+// alt を渡すと2つ目の選択肢を出し、それが押されたら "alt" を返す
 // close イベントは遅れて届くことがあるので、押した時点で結果を返す
 let confirmDone = null;
-function askConfirm(title, note, ok) {
+function askConfirm(title, note, ok, alt) {
   $("#confirm-title").textContent = title; $("#confirm-note").textContent = note; $("#confirm-ok").textContent = ok;
+  $("#confirm-alt").hidden = !alt; $("#confirm-alt").textContent = alt || "";
   $("#confirm").showModal();
   return new Promise(res => { confirmDone = res; });
 }
@@ -671,7 +698,7 @@ function finishConfirm(v) {
 }
 $("#confirm").addEventListener("click", e => {
   const b = e.target.closest("button[value]");
-  if (b) finishConfirm(b.value === "ok"); else if (e.target === e.currentTarget) finishConfirm(false);
+  if (b) finishConfirm(b.value === "ok" || (b.value === "alt" && "alt")); else if (e.target === e.currentTarget) finishConfirm(false);
 });
 $("#confirm").addEventListener("cancel", e => { e.preventDefault(); finishConfirm(false); });
 function setTab(t) {
@@ -721,6 +748,7 @@ function renderLog() {
   $("#f-memo").value = draft.memo;
   $("#edit-flag").hidden = !draft.id;
   $("#btn-save").textContent = draft.id ? "変更を保存" : "保存";
+  $("#btn-rt-save").hidden = !draft.exercises.length;
   const list = $("#ex-list");
   if (!draft.exercises.length) {
     list.innerHTML = "";
@@ -792,6 +820,104 @@ $("#btn-save").addEventListener("click", async () => {
 $("#btn-clear").addEventListener("click", async () => {
   if (!await askConfirm("入力をクリアしますか？", "入力中の種目・セット・メモが消えます。保存済みの記録はそのまま残ります。", "クリア")) return;
   draft = blankDraft(); saveDraft(); renderLog(); toast("入力をクリアしました");
+});
+
+/* ---------- ルーティン ---------- */
+// 種目名の並びだけを持つ。重量・回数は呼び出したときに addExercise が前回の記録から入れる
+const rtAll = () => ls.get("liftlog.routines", []);
+function writeRt(list) { ls.set("liftlog.routines", list); renderRoutines(); }
+function renderRoutines() {
+  const list = rtAll();
+  $("#rt-chips").innerHTML = list.length
+    ? list.map(r => `<button class="chip add" data-rt="${esc(r.id)}">${esc(r.name)}<span class="rt-n">${r.exercises.length}種目</span></button>`).join("")
+    : `<p class="note">よくやる種目の組み合わせを保存しておくと、ここからまとめて追加できます。</p>`;
+}
+// 名前の初期値は部位から付ける（例：胸の日）。部位がばらけていれば「ルーティン」。同じ名前があれば番号を足す
+function rtName(names) {
+  const parts = [...new Set(names.map(n => Object.keys(PRESETS).find(p => PRESETS[p].includes(n))).filter(Boolean))];
+  const base = parts.length && parts.length <= 2 ? parts.join("・") + "の日" : "ルーティン";
+  const used = new Set(rtAll().map(r => r.name));
+  if (!used.has(base)) return base;
+  for (let i = 2; ; i++) if (!used.has(`${base} ${i}`)) return `${base} ${i}`;
+}
+// 作ったらすぐ編集画面を開き、名前を書き換えられるようにする
+function createRoutine(names) {
+  const r = { id: "r-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), name: rtName(names), exercises: [...new Set(names)] };
+  writeRt([...rtAll(), r]);
+  openRoutines(r.id);
+  return r;
+}
+const UP_IC = `<svg class="del-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg>`;
+const DOWN_IC = `<svg class="del-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>`;
+const DEL_IC = `<svg class="del-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13M10 11v5.5M14 11v5.5"/></svg>`;
+function renderRtList() {
+  const list = rtAll();
+  $("#ex-names").innerHTML = [...new Set([...Object.values(PRESETS).flat(), ...Object.keys(exCounts())])].map(n => `<option value="${esc(n)}">`).join("");
+  $("#rt-list").innerHTML = list.length ? list.map(r => `<section class="rt" data-rt="${esc(r.id)}">
+      <input class="rt-name" value="${esc(r.name)}" maxlength="30" aria-label="ルーティンの名前">
+      <ol class="rt-ex">${r.exercises.map((n, i) => `<li><span>${esc(n)}</span>
+        <button class="icon-btn" data-act="up" data-i="${i}" aria-label="${esc(n)}を上へ"${i ? "" : " disabled"}>${UP_IC}</button>
+        <button class="icon-btn" data-act="down" data-i="${i}" aria-label="${esc(n)}を下へ"${i < r.exercises.length - 1 ? "" : " disabled"}>${DOWN_IC}</button>
+        <button class="icon-btn" data-act="del" data-i="${i}" aria-label="${esc(n)}を外す">${DEL_IC}</button></li>`).join("")}</ol>
+      <form class="custom"><input list="ex-names" placeholder="種目名を入れて追加" aria-label="${esc(r.name)}に追加する種目"><button class="btn small" type="submit">追加</button></form>
+      <button class="btn small danger" data-act="rt-del">このルーティンを削除</button>
+    </section>`).join("") : `<p class="note">まだルーティンがありません。</p>`;
+}
+function openRoutines(focusId) {
+  renderRtList();
+  const d = $("#rt-dlg"); if (!d.open) d.showModal();
+  const inp = focusId && d.querySelector(`.rt[data-rt="${CSS.escape(focusId)}"] .rt-name`);
+  if (inp) { inp.scrollIntoView({ block: "center" }); inp.focus(); inp.select(); }
+}
+// id のルーティンを fn で書き換えて保存し、編集画面を描き直す
+function editRt(id, fn) {
+  const list = rtAll(), r = list.find(x => x.id === id); if (!r) return;
+  fn(r); writeRt(list); renderRtList();
+}
+$("#btn-rt-edit").addEventListener("click", () => openRoutines());
+$("#btn-rt-new").addEventListener("click", () => createRoutine([]));
+$("#btn-rt-save").addEventListener("click", () => { createRoutine(draft.exercises.map(e => e.name)); toast("ルーティンを作りました。名前は書き換えられます"); });
+$("#rt-dlg").addEventListener("click", async e => {
+  const d = e.currentTarget;
+  if (e.target === d || e.target.closest("[data-close]")) return d.close();
+  const b = e.target.closest("[data-act]"); if (!b) return;
+  const id = b.closest(".rt").dataset.rt, i = +b.dataset.i, swap = (ex, a, c) => { [ex[a], ex[c]] = [ex[c], ex[a]]; };
+  if (b.dataset.act === "up") editRt(id, r => swap(r.exercises, i, i - 1));
+  if (b.dataset.act === "down") editRt(id, r => swap(r.exercises, i, i + 1));
+  if (b.dataset.act === "del") editRt(id, r => r.exercises.splice(i, 1));
+  if (b.dataset.act === "rt-del") {
+    const r = rtAll().find(x => x.id === id); if (!r) return;
+    if (!await askConfirm(`「${r.name}」を削除しますか？`, "ルーティンだけを消します。保存済みの記録はそのまま残ります。", "削除")) return;
+    writeRt(rtAll().filter(x => x.id !== id)); renderRtList(); toast("ルーティンを削除しました");
+  }
+});
+$("#rt-dlg").addEventListener("submit", e => {
+  e.preventDefault();
+  const id = e.target.closest(".rt").dataset.rt, name = e.target.querySelector("input").value.trim(); if (!name) return;
+  if (rtAll().find(x => x.id === id)?.exercises.includes(name)) return toast(`${name}はすでに入っています`);
+  editRt(id, r => r.exercises.push(name));
+  $(`#rt-list .rt[data-rt="${CSS.escape(id)}"] .custom input`)?.focus();
+});
+$("#rt-dlg").addEventListener("change", e => {
+  const inp = e.target.closest(".rt-name"); if (!inp) return;
+  const id = inp.closest(".rt").dataset.rt, name = inp.value.trim();
+  if (!name) { inp.value = rtAll().find(x => x.id === id)?.name || ""; return; }
+  const list = rtAll(), r = list.find(x => x.id === id); if (!r) return;
+  r.name = name; writeRt(list);
+});
+// 入力中の種目があれば、後ろに足すか置き換えるかを選んでもらう。足すときはすでにある種目を重ねない
+$("#rt-chips").addEventListener("click", async e => {
+  const b = e.target.closest("[data-rt]"); if (!b) return;
+  const r = rtAll().find(x => x.id === b.dataset.rt); if (!r) return;
+  if (!r.exercises.length) return toast(`「${r.name}」には種目が入っていません。「作成・編集」から足してください`);
+  if (draft.exercises.length) {
+    const how = await askConfirm(`「${r.name}」を呼び出しますか？`, `入力中の種目が${draft.exercises.length}つあります。置き換えると、入力中のセットは消えます。`, "置き換える", "後ろに足す");
+    if (!how) return;
+    if (how === true) draft.exercises = [];
+  }
+  const have = new Set(draft.exercises.map(x => x.name)), add = r.exercises.filter(n => !have.has(n));
+  add.forEach(n => addExercise(n));
+  toast(add.length ? `「${r.name}」の${add.length}種目を追加しました` : `「${r.name}」の種目はすべて入っています`);
 });
 
 /* ---------- 休憩タイマー ---------- */
@@ -925,7 +1051,7 @@ function renderHistory() {
         ${(ms => bodyMap(m => lvOf(ms[m] || 0, DAY_STEPS), "mini"))(muscleSets([w]).sets)}
       </div>
       ${w.memo ? `<p class="memo">${esc(w.memo)}</p>` : ""}
-      <div class="day-foot"><button class="btn small" data-edit="${esc(w.id)}">編集</button><button class="btn small danger" data-del="${esc(w.id)}">削除</button></div>
+      <div class="day-foot"><button class="btn small" data-rt-from="${esc(w.id)}">ルーティンにする</button><button class="btn small" data-edit="${esc(w.id)}">編集</button><button class="btn small danger" data-del="${esc(w.id)}">削除</button></div>
     </article>`;
   }
   v.innerHTML = html;
@@ -933,8 +1059,11 @@ function renderHistory() {
 $("#view-history").addEventListener("click", async e => {
   const hp = e.target.closest("[data-hp]");
   if (hp) { ui.hp = +hp.dataset.hp; ls.set("liftlog.hp", ui.hp); return renderHistory(); }
-  const ed = e.target.closest("[data-edit]"), del = e.target.closest("[data-del]");
-  if (e.target.id === "btn-del-samples") {
+  const ed = e.target.closest("[data-edit]"), del = e.target.closest("[data-del]"), rf = e.target.closest("[data-rt-from]");
+  if (rf) {
+    const w = workouts.find(x => x.id === rf.dataset.rtFrom); if (!w) return;
+    createRoutine(w.exercises.map(e => e.name)); toast("ルーティンを作りました。名前は書き換えられます");
+  } else if (e.target.id === "btn-del-samples") {
     if (!await askConfirm("サンプルを削除しますか？", "最初に入っているサンプルの記録をすべて消します。自分で付けた記録は消えません。", "削除")) return;
     for (const w of workouts.filter(w => w.example)) await removeWorkout(w.id).catch(() => {});
     toast("サンプルを削除しました");
@@ -951,7 +1080,7 @@ $("#view-history").addEventListener("click", async e => {
 
 /* ---------- バックアップ ---------- */
 $("#btn-export").addEventListener("click", () => {
-  const body = JSON.stringify({ app: "liftlog", version: 1, exportedAt: new Date().toISOString(), workouts: localAll(), bodyweight: bwAll() }, null, 2);
+  const body = JSON.stringify({ app: "liftlog", version: 1, exportedAt: new Date().toISOString(), workouts: localAll(), bodyweight: bwAll(), routines: rtAll() }, null, 2);
   const file = new File([body], `liftlog-${today()}.json`, { type: "application/json" });
   // iPhone は共有シートから「ファイルに保存」できる。使えなければ通常のダウンロード
   if (navigator.canShare?.({ files: [file] })) {
@@ -975,10 +1104,13 @@ $("#f-import").addEventListener("change", async e => {
     const valid = Object.entries(incoming).filter(([, w]) => typeof w?.date === "string" && Array.isArray(w.exercises));
     const bw = data.bodyweight && typeof data.bodyweight === "object"
       ? Object.entries(data.bodyweight).filter(([d, v]) => /^\d{4}-\d{2}-\d{2}$/.test(d) && typeof v?.w === "number" && v.w > 0) : [];
+    // ルーティンは同じ id を上書きし、ないものは後ろに足す
+    const rts = Array.isArray(data.routines) ? data.routines.filter(r => typeof r?.id === "string" && typeof r.name === "string" && Array.isArray(r.exercises) && r.exercises.every(n => typeof n === "string")) : [];
     writeAll({ ...localAll(), ...Object.fromEntries(valid) });
     if (bw.length) ls.set("liftlog.bodyweight", { ...bwAll(), ...Object.fromEntries(bw) });
+    if (rts.length) { const cur = rtAll(), inc = new Map(rts.map(r => [r.id, r])); writeRt([...cur.map(r => inc.get(r.id) || r), ...rts.filter(r => !cur.some(c => c.id === r.id))]); }
     loadLocal(); renderPhotos();
-    toast(`${valid.length}件の記録${bw.length ? `と${bw.length}日分の体重` : ""}を読み込みました`);
+    toast(`${valid.length}件の記録${bw.length ? `と${bw.length}日分の体重` : ""}${rts.length ? `、${rts.length}件のルーティン` : ""}を読み込みました`);
   } catch {
     toast("読み込めませんでした。このアプリで書き出したファイルを選んでください");
   }
@@ -1815,6 +1947,7 @@ const isTyping = el => el && el.matches("input:not([type=checkbox]):not([type=ra
 document.addEventListener("focusin", e => { if (isTyping(e.target)) document.body.classList.add("typing"); });
 document.addEventListener("focusout", () => setTimeout(() => { if (!isTyping(document.activeElement)) document.body.classList.remove("typing"); }));
 renderPicker();
+renderRoutines();
 renderGuide();
 setTab(ui.tab);
 tickRest();
