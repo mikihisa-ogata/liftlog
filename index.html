@@ -258,6 +258,7 @@ button { font-family: var(--font-body); }
 .sw-lv { width: 12px; height: 12px; flex: none; background: var(--c); border-radius: 3px; }
 .mlegend { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; font-size: 12px; color: var(--muted); }
 .mlegend span { display: inline-flex; align-items: center; gap: 4px; }
+.mlegend-head { flex-basis: 100%; }
 .day-body { display: grid; grid-template-columns: minmax(0, 1fr) 120px; gap: 12px; align-items: start; }
 
 /* ---- 推移 ---- */
@@ -1254,7 +1255,7 @@ function mapCard() {
       ${rank.length ? `<ol class="mrank">${rank.map(m => `<li class="lv${lv(m)}" title="${MUSCLE[m]}"><i class="sw-lv"></i>${MUSCLE_SHORT[m]}<span class="num">${Math.round(perWeek(m) * 10) / 10}</span></li>`).join("")}</ol>`
         : `<p class="empty">この期間の記録はありません。</p>`}
     </div>
-    <div class="mlegend">数字と色の濃さは1週間あたりのセット数：${["1〜", "4〜", "8〜", "12〜"].map((t, i) => `<span class="lv${i + 1}"><i class="sw-lv"></i>${t}</span>`).join("")}</div>
+    <div class="mlegend"><div class="mlegend-head">数字と色の濃さは1週間あたりのセット数：</div>${["1〜", "4〜", "8〜", "12〜"].map((t, i) => `<span class="lv${i + 1}"><i class="sw-lv"></i>${t}</span>`).join("")}</div>
     <p class="note">補助で使う部位は0.5セットとして数えています。${unknown.size ? `部位が登録されていない種目（${[...unknown].map(esc).join("・")}）は含みません。` : ""}</p>
   </section>`;
 }
