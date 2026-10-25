@@ -180,6 +180,17 @@ button { font-family: var(--font-body); }
 .chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 .chip.add::before { content: "＋ "; color: var(--accent); }
 .custom { display: flex; gap: 8px; }
+/* 記録画面に出す種目の設定 */
+.pick-row.exset-row { justify-content: flex-start; gap: 12px; }
+.exset-row .ck { width: 20px; height: 20px; flex: none; border: 2px solid var(--line); border-radius: min(var(--radius-ctl), 5px); display: flex; align-items: center; justify-content: center; }
+.exset-row .ck svg { width: 14px; height: 14px; fill: none; stroke: var(--accent-ink); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; visibility: hidden; }
+.exset-row[aria-checked="true"] .ck { background: var(--accent); border-color: var(--accent); }
+.exset-row[aria-checked="true"] .ck svg { visibility: visible; }
+.exset-row[aria-checked="false"] > span:not(.ck) { color: var(--muted); }
+.exset-own { display: flex; align-items: center; gap: 12px; padding: 4px 4px 4px 12px; font-weight: 700; font-size: 15px; }
+.exset-own span { flex: 1; min-width: 0; }
+#exset-parts { margin: 4px 0 6px; }
+#exset-form { margin-top: 8px; }
 /* ルーティン：記録画面の呼び出しと、編集のダイアログ */
 .rt-head { display: flex; justify-content: space-between; align-items: center; }
 .chip .rt-n { margin-left: 6px; font-size: 11px; color: var(--muted); }
@@ -537,7 +548,7 @@ body.rest-on { padding-top: var(--rest-h); }
       <button class="btn small" id="btn-rt-save" hidden>入力中の種目をルーティンとして保存</button>
     </div>
     <div class="picker">
-      <h2>種目を追加</h2>
+      <div class="rt-head"><h2>種目を追加</h2><button class="link" id="btn-exset" aria-haspopup="dialog" aria-controls="exset-dlg">表示する種目を選ぶ</button></div>
       <div class="chips" id="parts"></div>
       <div class="chips" id="presets"></div>
       <form class="custom" id="custom-form">
@@ -557,7 +568,7 @@ body.rest-on { padding-top: var(--rest-h); }
     <div id="view-history" class="view"></div>
     <div class="backup">
       <h2>バックアップ</h2>
-      <p class="note">記録はこの端末の中だけに保存されます。機種変更の前や、ときどきの控えとしてファイルに書き出しておいてください。読み込むと、同じ記録は上書きされ、それ以外は追加されます。体重の記録とルーティンも含まれますが、体の写真は含まれません。</p>
+      <p class="note">記録はこの端末の中だけに保存されます。機種変更の前や、ときどきの控えとしてファイルに書き出しておいてください。読み込むと、同じ記録は上書きされ、それ以外は追加されます。体重の記録、ルーティン、記録画面に出す種目の設定も含まれますが、体の写真は含まれません。</p>
       <div class="actions">
         <button class="btn small" id="btn-export">ファイルに書き出す</button>
         <button class="btn small" id="btn-import">ファイルから読み込む</button>
@@ -622,6 +633,15 @@ body.rest-on { padding-top: var(--rest-h); }
   </div>
   <datalist id="ex-names"></datalist>
 </dialog>
+<dialog class="pick-dlg" id="exset-dlg" aria-labelledby="exset-title">
+  <div class="pick-body">
+    <div class="skins-head"><h2 id="exset-title">記録画面に出す種目</h2><button class="icon-btn" data-close aria-label="閉じる">×</button></div>
+    <p class="note">チェックを外した種目は「種目を追加」に出なくなります。ガイドからはいつでも追加できます。</p>
+    <div class="chips" id="exset-parts"></div>
+    <div id="exset-list"></div>
+    <form class="custom" id="exset-form"><input id="exset-name" maxlength="30" aria-label="この部位に足す種目名"><button class="btn small" type="submit">追加</button></form>
+  </div>
+</dialog>
 <dialog class="confirm-dlg" id="confirm" aria-labelledby="confirm-title" aria-describedby="confirm-note">
   <div class="confirm-body">
     <h3 id="confirm-title"></h3>
@@ -651,6 +671,12 @@ const PRESETS = {
   "脚": ["スクワット", "ゴブレットスクワット", "ブルガリアンスクワット", "ランジ", "レッグプレス", "ルーマニアンデッドリフト", "ヒップスラスト", "レッグカール", "レッグエクステンション", "カーフレイズ"]
 };
 const $ = s => document.querySelector(s);
+// 記録画面に出す種目の設定。hidden は出さない既定の種目、own は部位ごとに自分で足した種目
+const exset = () => { const v = ls.get("liftlog.exset", {}); return { hidden: Array.isArray(v.hidden) ? v.hidden : [], own: v.own && typeof v.own === "object" ? v.own : {} }; };
+const ownOf = (p, x = exset()) => Array.isArray(x.own[p]) ? x.own[p] : [];
+const shownOf = p => { const x = exset(); return [...PRESETS[p].filter(n => !x.hidden.includes(n)), ...ownOf(p, x)]; };
+// 種目の部位。既定の種目と自分で足した種目から引き、どちらにもなければ undefined
+const partOf = (n, x = exset()) => Object.keys(PRESETS).find(p => PRESETS[p].includes(n) || ownOf(p, x).includes(n));
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const ls = {
   get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
@@ -805,12 +831,12 @@ function renderStats() {
   $("#s-total").innerHTML = `${new Set(workouts.map(w => w.date)).size}<small>日</small>`;
 }
 
-// 部位ごとのセット数とボリューム（重量×回数）。部位は PRESETS から引き、載っていない種目は「その他」
+// 部位ごとのセット数とボリューム（重量×回数）。部位は partOf で引き、決まっていない種目は「その他」
 // 回数の入っていないセットは数えない。自重種目はボリューム0になるので、セット数を主に見せる
 function partTotals(ws) {
-  const t = {}, other = new Set();
+  const t = {}, other = new Set(), x = exset();
   for (const w of ws) for (const e of w.exercises) {
-    const p = Object.keys(PRESETS).find(k => PRESETS[k].includes(e.name)) || "その他";
+    const p = partOf(e.name, x) || "その他";
     if (p === "その他") other.add(e.name);
     const sets = e.sets.filter(x => +x.r > 0);
     const o = t[p] ||= { sets: 0, vol: 0 };
@@ -847,8 +873,40 @@ $("#wk-dlg").addEventListener("click", e => { if (e.target === e.currentTarget |
 /* ---------- 記録 ---------- */
 function renderPicker() {
   $("#parts").innerHTML = Object.keys(PRESETS).map(p => `<button class="chip" data-part="${p}" aria-pressed="${p === ui.part}">${p}</button>`).join("");
-  $("#presets").innerHTML = PRESETS[ui.part].map(n => `<button class="chip add" data-add="${esc(n)}">${esc(n)}</button>`).join("");
+  const list = shownOf(ui.part);
+  $("#presets").innerHTML = list.length ? list.map(n => `<button class="chip add" data-add="${esc(n)}">${esc(n)}</button>`).join("")
+    : `<p class="note">${ui.part}の種目はすべて非表示です。「表示する種目を選ぶ」から選んでください。</p>`;
 }
+// 記録画面に出す種目の設定。変えたらすぐ記録画面の候補に反映する
+const CHECK_IC = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>`;
+function writeExset(fn) { const x = exset(); fn(x); ls.set("liftlog.exset", x); renderExset(); renderPicker(); }
+function renderExset() {
+  const x = exset(), p = ui.part, own = ownOf(p, x);
+  $("#exset-parts").innerHTML = Object.keys(PRESETS).map(k => `<button class="chip" data-part="${k}" aria-pressed="${k === p}">${k}</button>`).join("");
+  $("#exset-list").innerHTML = PRESETS[p].map(n => `<button class="pick-row exset-row" role="checkbox" data-tog="${esc(n)}" aria-checked="${!x.hidden.includes(n)}"><span class="ck">${CHECK_IC}</span><span>${esc(n)}</span></button>`).join("")
+    + (own.length ? `<h3>自分で足した種目</h3>` + own.map(n => `<div class="exset-own"><span>${esc(n)}</span><button class="icon-btn" data-own-del="${esc(n)}" aria-label="${esc(n)}を外す">${DEL_IC}</button></div>`).join("") : "");
+  $("#exset-name").placeholder = `${p}に種目を足す`;
+}
+$("#btn-exset").addEventListener("click", () => { renderExset(); $("#exset-dlg").showModal(); });
+$("#exset-dlg").addEventListener("click", e => {
+  const d = e.currentTarget;
+  if (e.target === d || e.target.closest("[data-close]")) return d.close();
+  const part = e.target.closest("[data-part]"), tog = e.target.closest("[data-tog]"), del = e.target.closest("[data-own-del]");
+  if (part) { ui.part = part.dataset.part; renderExset(); renderPicker(); }
+  if (tog) { const n = tog.dataset.tog; writeExset(x => { x.hidden = x.hidden.includes(n) ? x.hidden.filter(h => h !== n) : [...x.hidden, n]; }); }
+  if (del) { const n = del.dataset.ownDel; writeExset(x => { x.own[ui.part] = ownOf(ui.part, x).filter(o => o !== n); }); }
+});
+// 既定の種目と同じ名前なら、新しく足さずに表示へ戻す
+$("#exset-form").addEventListener("submit", e => {
+  e.preventDefault();
+  const n = $("#exset-name").value.trim(); if (!n) return;
+  const p = partOf(n);
+  if (p && p !== ui.part) return toast(`${n}は${p}にあります`);
+  if (PRESETS[ui.part].includes(n)) { writeExset(x => { x.hidden = x.hidden.filter(h => h !== n); }); toast(`${n}を表示に戻しました`); }
+  else if (p) return toast(`${n}はすでに入っています`);
+  else writeExset(x => { x.own[ui.part] = [...ownOf(ui.part, x), n]; });
+  $("#exset-name").value = "";
+});
 function renderLog() {
   $("#f-date").value = draft.date;
   $("#f-memo").value = draft.memo;
@@ -948,7 +1006,7 @@ function renderRoutines() {
 }
 // 名前の初期値は部位から付ける（例：胸トレ）。部位がばらけていれば「ルーティン」。同じ名前があれば番号を足す
 function rtName(names) {
-  const parts = [...new Set(names.map(n => Object.keys(PRESETS).find(p => PRESETS[p].includes(n))).filter(Boolean))];
+  const parts = [...new Set(names.map(partOf).filter(Boolean))];
   const base = parts.length && parts.length <= 2 ? parts.join("・") + "トレ" : "ルーティン";
   const used = new Set(rtAll().map(r => r.name));
   if (!used.has(base)) return base;
@@ -966,7 +1024,7 @@ const DOWN_IC = `<svg class="del-ic" viewBox="0 0 24 24" aria-hidden="true"><pat
 const DEL_IC = `<svg class="del-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13M10 11v5.5M14 11v5.5"/></svg>`;
 function renderRtList() {
   const list = rtAll();
-  $("#ex-names").innerHTML = [...new Set([...Object.values(PRESETS).flat(), ...Object.keys(exCounts())])].map(n => `<option value="${esc(n)}">`).join("");
+  $("#ex-names").innerHTML = [...new Set([...Object.keys(PRESETS).flatMap(p => [...PRESETS[p], ...ownOf(p)]), ...Object.keys(exCounts())])].map(n => `<option value="${esc(n)}">`).join("");
   $("#rt-list").innerHTML = list.map(r => `<section class="rt" data-rt="${esc(r.id)}">
       <input class="rt-name" value="${esc(r.name)}" maxlength="30" aria-label="ルーティンの名前">
       <ol class="rt-ex">${r.exercises.map((n, i) => `<li><span>${esc(n)}</span>
@@ -1244,7 +1302,7 @@ $("#view-history").addEventListener("click", async e => {
 
 /* ---------- バックアップ ---------- */
 $("#btn-export").addEventListener("click", () => {
-  const body = JSON.stringify({ app: "liftlog", version: 1, exportedAt: new Date().toISOString(), workouts: localAll(), bodyweight: bwAll(), routines: rtAll() }, null, 2);
+  const body = JSON.stringify({ app: "liftlog", version: 1, exportedAt: new Date().toISOString(), workouts: localAll(), bodyweight: bwAll(), routines: rtAll(), exset: exset() }, null, 2);
   const file = new File([body], `liftlog-${today()}.json`, { type: "application/json" });
   // iPhone は共有シートから「ファイルに保存」できる。使えなければ通常のダウンロード
   if (navigator.canShare?.({ files: [file] })) {
@@ -1273,6 +1331,8 @@ $("#f-import").addEventListener("change", async e => {
     writeAll({ ...localAll(), ...Object.fromEntries(valid) });
     if (bw.length) ls.set("liftlog.bodyweight", { ...bwAll(), ...Object.fromEntries(bw) });
     if (rts.length) { const cur = rtAll(), inc = new Map(rts.map(r => [r.id, r])); writeRt([...cur.map(r => inc.get(r.id) || r), ...rts.filter(r => !cur.some(c => c.id === r.id))]); }
+    // 記録画面に出す種目の設定は、ファイルの側で置き換える
+    if (data.exset && typeof data.exset === "object") { ls.set("liftlog.exset", data.exset); renderPicker(); }
     loadLocal(); renderPhotos();
     toast(`${valid.length}件の記録${bw.length ? `と${bw.length}日分の体重` : ""}${rts.length ? `、${rts.length}件のルーティン` : ""}を読み込みました`);
   } catch {
@@ -1357,7 +1417,7 @@ function renderProgress() {
 $("#f-ex").addEventListener("click", () => {
   const counts = exCounts(), groups = {};
   Object.keys(counts).sort((a, b) => counts[b] - counts[a]).forEach(n => {
-    const p = Object.keys(PRESETS).find(k => PRESETS[k].includes(n)) || "その他";
+    const p = partOf(n) || "その他";
     (groups[p] ||= []).push(n);
   });
   const bwN = Object.keys(bwAll()).length;
