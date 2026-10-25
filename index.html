@@ -530,7 +530,7 @@ body.rest-on { padding-top: var(--rest-h); }
     </div>
     <div id="ex-list" class="view"></div>
     <div class="picker">
-      <div class="rt-head"><h2>ルーティン</h2><button class="link" id="btn-rt-edit" aria-haspopup="dialog" aria-controls="rt-dlg">作成・編集</button></div>
+      <div class="rt-head" id="rt-head"><h2>ルーティン</h2><button class="link" id="btn-rt-edit" aria-haspopup="dialog" aria-controls="rt-dlg">作成・編集</button></div>
       <div class="chips" id="rt-chips"></div>
       <button class="btn small" id="btn-rt-save" hidden>入力中の種目をルーティンとして保存</button>
     </div>
@@ -837,6 +837,8 @@ function renderLog() {
   $("#edit-flag").hidden = !draft.id;
   $("#btn-save").textContent = draft.id ? "変更を保存" : "保存";
   $("#btn-rt-save").hidden = !draft.exercises.length;
+  // 種目を入れ始めたらルーティンの呼び出しは隠し、保存ボタンだけ残す
+  $("#rt-head").hidden = $("#rt-chips").hidden = !!draft.exercises.length;
   const list = $("#ex-list");
   if (!draft.exercises.length) {
     list.innerHTML = "";
