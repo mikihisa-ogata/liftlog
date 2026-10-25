@@ -376,6 +376,12 @@ body.rest-on { padding-top: var(--rest-h); }
 .fig-ghost { opacity: .2; }
 .fig-gear { fill: none; stroke: var(--muted); stroke-linecap: round; }
 .fig-gear .solid { fill: var(--muted); stroke: none; }
+.ex-ic { width: 30px; height: 30px; flex: none; display: block; }
+.ex-ic .fig-body { stroke-width: 13; }
+.ex-ic.generic { fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; padding: 2px; }
+.chip.ex-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px 4px 6px; }
+.chip.ex-chip::before { content: none; }
+.ex-toggle .ex-ic { width: 36px; height: 36px; }
 .fig-arrow { stroke: var(--accent); stroke-width: 3; fill: var(--accent); stroke-linecap: round; }
 .fig-floor { stroke: var(--line); stroke-width: 2; }
 .muscles { display: flex; gap: 14px; align-items: center; }
@@ -398,8 +404,8 @@ body.rest-on { padding-top: var(--rest-h); }
 .guide-body .btn.primary { padding: 13px; font-size: 16px; margin-top: 6px; }
 .ex-title { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; min-width: 0; }
 .ex-toggle { display: inline-flex; align-items: center; gap: 6px; border: 0; background: none; color: inherit; font: inherit; padding: 0; cursor: pointer; text-align: left; }
-.ex-toggle svg { width: 18px; height: 18px; flex: none; fill: none; stroke: var(--muted); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform .15s; }
-.ex-toggle[aria-expanded="false"] svg { transform: rotate(-90deg); }
+.ex-toggle svg:not(.ex-ic) { width: 18px; height: 18px; flex: none; fill: none; stroke: var(--muted); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform .15s; }
+.ex-toggle[aria-expanded="false"] svg:not(.ex-ic) { transform: rotate(-90deg); }
 .ex-body { display: flex; flex-direction: column; gap: 10px; }
 .backup { display: flex; flex-direction: column; gap: 10px; border-top: 1px solid var(--line); padding-top: 16px; margin-top: 8px; }
 .backup .actions { gap: 8px; }
@@ -874,7 +880,7 @@ $("#wk-dlg").addEventListener("click", e => { if (e.target === e.currentTarget |
 function renderPicker() {
   $("#parts").innerHTML = Object.keys(PRESETS).map(p => `<button class="chip" data-part="${p}" aria-pressed="${p === ui.part}">${p}</button>`).join("");
   const list = shownOf(ui.part);
-  $("#presets").innerHTML = list.length ? list.map(n => `<button class="chip add" data-add="${esc(n)}">${esc(n)}</button>`).join("")
+  $("#presets").innerHTML = list.length ? list.map(n => `<button class="chip add ex-chip" data-add="${esc(n)}">${exIcon(n)}${esc(n)}</button>`).join("")
     : `<p class="note">${ui.part}の種目はすべて非表示です。「表示する種目を選ぶ」から選んでください。</p>`;
 }
 // 記録画面に出す種目の設定。変えたらすぐ記録画面の候補に反映する
@@ -934,7 +940,7 @@ function renderLog() {
     // 閉じているときは種目名だけを出し、それ以外は ex-body ごと隠す
     const open = !e.closed;
     return `<article class="ex" data-i="${i}">
-      <div class="ex-head"><div class="ex-title"><h3><button class="ex-toggle" data-act="toggle" aria-expanded="${open}" aria-controls="ex-body-${i}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>${esc(e.name)}</button></h3>${open && GUIDE[e.name] ? `<button class="link" data-act="guide">やり方</button>` : ""}</div>${open ? `<button class="icon-btn ex-del" data-act="ex-del" aria-label="${esc(e.name)}を外す" title="種目を外す"><svg class="del-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>` : ""}</div>
+      <div class="ex-head"><div class="ex-title"><h3><button class="ex-toggle" data-act="toggle" aria-expanded="${open}" aria-controls="ex-body-${i}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>${exIcon(e.name)}${esc(e.name)}</button></h3>${open && GUIDE[e.name] ? `<button class="link" data-act="guide">やり方</button>` : ""}</div>${open ? `<button class="icon-btn ex-del" data-act="ex-del" aria-label="${esc(e.name)}を外す" title="種目を外す"><svg class="del-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>` : ""}</div>
       <div class="ex-body" id="ex-body-${i}"${open ? "" : " hidden"}>
         ${prevHtml}
         <div class="setgrid"><span class="h">SET</span><span class="h">重量（kg）</span><span></span><span class="h">回数</span><span></span>${rows}</div>
@@ -1757,7 +1763,7 @@ const GUIDE = {
     tips: ["お尻が上がったり腰が落ちたりしないよう、お腹に力を入れる", "きついときは膝をついて行ってもよい"]
   },
   "デッドリフト": {
-    gear: "バーベル", main: ["hams", "glutes", "lowback"], sub: ["traps", "quads", "forearm"],
+    gear: "バーベル", main: ["hams", "glutes", "lowback"], sub: ["traps", "quads", "forearm"], icon: 0,
     g: [{ k: "plate", at: "hand" }],
     poses: [
       { hip: [50, 103], t: -23, hand: [92, 132], foot: [82, 142], eb: 1, kb: -1 },
@@ -1862,7 +1868,7 @@ const GUIDE = {
     tips: ["お尻がシートから浮かないようにする", "膝に痛みが出たら、動かす範囲を狭めるか中止する"]
   },
   "カーフレイズ": {
-    gear: "段差（ステップ）", main: ["calves"], sub: [], scale: .8,
+    gear: "段差（ステップ）", main: ["calves"], sub: [], scale: .8, crop: "lower",
     g: [{ k: "rect", x: 86, y: 118, w: 50, h: 28 }],
     poses: [
       { hip: [78, 56], t: -90, hand: [80, 58], foot: [79, 123], eb: 1, kb: -1, ft: -27 },
@@ -1903,7 +1909,7 @@ const GUIDE = {
     tips: ["肩甲骨は寄せすぎない。寄せると背中の種目になる", "軽めの重量で、肩の後ろを意識する"]
   },
   "フェイスプル": {
-    gear: "ケーブルマシン・ロープ", main: ["delt_rear", "traps"], sub: [],
+    gear: "ケーブルマシン・ロープ", main: ["delt_rear", "traps"], sub: [], crop: "upper",
     g: [{ k: "cable", from: [154, 34], at: "hand" }, { k: "bar", at: "hand" }],
     poses: [
       { hip: [78, 76], t: -92, hand: [124, 36], foot: [82, 142], eb: 1, kb: -1 },
@@ -1913,7 +1919,7 @@ const GUIDE = {
     tips: ["体を後ろに倒して引かない", "姿勢の改善や肩の保護にも役立つので、軽めで回数を多めにするとよい"]
   },
   "バーベルカール": {
-    gear: "バーベル（EZバーでも可）", main: ["biceps"], sub: ["forearm"],
+    gear: "バーベル（EZバーでも可）", main: ["biceps"], sub: ["forearm"], crop: "upper",
     g: [{ k: "plate", at: "hand" }],
     poses: [
       { hip: [78, 76], t: -90, hand: [82, 78], foot: [82, 142], eb: 1, kb: -1 },
@@ -1923,7 +1929,7 @@ const GUIDE = {
     tips: ["体を後ろに反らす反動を使わない", "肘が前に出ると、二頭筋への負荷が抜ける"]
   },
   "ハンマーカール": {
-    gear: "ダンベル", main: ["biceps", "forearm"], sub: [],
+    gear: "ダンベル", main: ["biceps", "forearm"], sub: [], crop: "upper",
     g: [{ k: "db", at: "hand" }],
     poses: [
       { hip: [78, 76], t: -90, hand: [80, 78], foot: [82, 142], eb: 1, kb: -1 },
@@ -1933,7 +1939,7 @@ const GUIDE = {
     tips: ["手首を返さず、縦持ちのまま動かす", "前腕も鍛えられるので、握力の強化にもなる"]
   },
   "プレスダウン": {
-    gear: "ケーブルマシン", main: ["triceps"], sub: [],
+    gear: "ケーブルマシン", main: ["triceps"], sub: [], crop: "upper",
     g: [{ k: "cable", from: [112, 2], at: "hand" }, { k: "bar", at: "hand" }],
     poses: [
       { hip: [78, 76], t: -84, hand: [100, 50], foot: [82, 142], eb: 1, kb: -1 },
@@ -1943,7 +1949,7 @@ const GUIDE = {
     tips: ["肘が前後に動くと、肩や背中の力を使ってしまう", "上体を倒しすぎない"]
   },
   "フレンチプレス": {
-    gear: "ダンベル・ベンチ", main: ["triceps"], sub: [],
+    gear: "ダンベル・ベンチ", main: ["triceps"], sub: [], crop: "upper",
     g: [{ k: "line", a: [56, 104], b: [96, 104], w: 7 }, { k: "line", a: [76, 104], b: [76, 146], w: 3 }, { k: "db", at: "hand" }],
     poses: [
       { hip: [74, 100], t: -90, hand: [62, 50], foot: [110, 142], eb: 1, kb: -1 },
@@ -2025,7 +2031,7 @@ const GUIDE = {
     tips: ["滑車の高さを変えると、胸の上部・下部と効く場所が変わる", "腕の力で引かず、胸を寄せる意識で動かす"]
   },
   "フロントレイズ": {
-    gear: "ダンベル", main: ["delt_front"], sub: ["delt_side"],
+    gear: "ダンベル", main: ["delt_front"], sub: ["delt_side"], crop: "upper",
     g: [{ k: "db", at: "hand" }],
     poses: [
       { hip: [78, 76], t: -90, hand: [84, 78], foot: [82, 142], eb: -1, kb: -1 },
@@ -2035,7 +2041,7 @@ const GUIDE = {
     tips: ["体を後ろに反らす反動を使わない", "左右交互に上げてもよい"]
   },
   "アップライトロウ": {
-    gear: "バーベル（ダンベルでも可）", main: ["delt_side", "traps"], sub: ["delt_front", "biceps"],
+    gear: "バーベル（ダンベルでも可）", main: ["delt_side", "traps"], sub: ["delt_front", "biceps"], crop: "upper",
     g: [{ k: "plate", at: "hand" }],
     poses: [
       { hip: [78, 76], t: -90, hand: [84, 78], foot: [82, 142], eb: 1, kb: -1 },
@@ -2076,7 +2082,7 @@ const GUIDE = {
     tips: ["一直線より上まで反らせない。腰を痛める", "慣れたら、胸の前でプレートを抱えて重さを足す"]
   },
   "ストレートアームプルダウン": {
-    gear: "ケーブルマシン", main: ["lats"], sub: ["triceps", "abs"],
+    gear: "ケーブルマシン", main: ["lats"], sub: ["triceps", "abs"], crop: "upper",
     g: [{ k: "cable", from: [150, 2], at: "hand" }, { k: "bar", at: "hand" }],
     poses: [
       { hip: [70, 78], t: -78, hand: [116, 10], foot: [78, 142], eb: -1, kb: -1 },
@@ -2086,7 +2092,7 @@ const GUIDE = {
     tips: ["肘を曲げるとプレスダウン（腕の種目）になる", "背中の広がりを感じながら、反動を使わずに引く"]
   },
   "ダンベルカール": {
-    gear: "ダンベル", main: ["biceps"], sub: ["forearm"],
+    gear: "ダンベル", main: ["biceps"], sub: ["forearm"], crop: "upper",
     g: [{ k: "db", at: "hand" }],
     poses: [
       { hip: [78, 76], t: -90, hand: [80, 78], foot: [82, 142], eb: 1, kb: -1 },
@@ -2291,6 +2297,20 @@ function poseSvg(g, i) {
   } else s += bodySvg(j, "fig-body");
   const sc = g.scale || 1;
   return `<svg viewBox="0 0 160 150" role="img" aria-label="${i ? "フィニッシュ" : "スタート"}の姿勢"><line class="fig-floor" x1="0" y1="146" x2="160" y2="146"/><g transform="translate(80 146) scale(${sc}) translate(-80 -146)">${s}</g></svg>`;
+}
+// 記録画面で種目名の前に出す小さなアイコン。ガイドの図の姿勢（icon で選ぶ。既定はフィニッシュ）を、体の範囲で正方形に切り抜く
+// 立って腕だけ動かす種目は全身だと小さくて見分けにくいので、crop で上半身（upper）か下半身（lower）だけに寄せる
+// ガイドに載っていない種目（自分で足した種目など）はダンベルの絵にする
+const GENERIC_IC = `<svg class="ex-ic generic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg>`;
+function exIcon(name) {
+  const g = GUIDE[name]; if (!g) return GENERIC_IC;
+  const front = g.view === "front", pose = g.poses[g.icon ?? 1], j = joints(pose, front);
+  const skip = { upper: ["knee", "foot", "toe", "knee2", "foot2", "toe2"], lower: ["head", "shoulder", "sc", "elbow", "hand"] }[g.crop] || [];
+  const pts = Object.entries(j).filter(([k, v]) => Array.isArray(v) && !skip.includes(k)).flatMap(([, v]) => many(v));
+  const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
+  const x0 = Math.min(...xs) - 8, x1 = Math.max(...xs) + 8, y0 = Math.min(...ys) - 8, y1 = Math.max(...ys) + 8;
+  const size = Math.max(x1 - x0, y1 - y0) + 8, cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+  return `<svg class="ex-ic" viewBox="${f1(cx - size / 2)} ${f1(cy - size / 2)} ${f1(size)} ${f1(size)}" aria-hidden="true"><g class="fig-gear">${gearSvg([...(g.g || []), ...(pose.g || [])], j)}</g>${bodySvg(j, "fig-body").replace('r="8"', 'r="11"')}</svg>`;
 }
 // 人体図（左半身だけ描き、x=50 で鏡写しにする）。viewBox は 1 体あたり 100×210
 const BODY_SIL = '<ellipse cx="50" cy="13" rx="8.5" ry="10.5"/>'
