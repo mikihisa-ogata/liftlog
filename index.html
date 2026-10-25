@@ -36,7 +36,7 @@
   --font-num: "Anton", "Arial Narrow", "M PLUS 1p", sans-serif; --num-style: normal; --num-weight: 400;
   --font-head: "M PLUS 1p", "Hiragino Sans", sans-serif; --head-weight: 800;
   --font-body: "M PLUS 1p", "Hiragino Sans", "Yu Gothic", system-ui, sans-serif;
-  --radius: 0px; --radius-ctl: 0px; --glow: none;
+  --radius: 0px; --radius-ctl: 0px; --radius-dlg: 16px; --glow: none;
   color-scheme: dark;
 }
 :root[data-skin="plate"] {
@@ -47,7 +47,7 @@
   --font-num: "Barlow Condensed", "Arial Narrow", "Noto Sans JP", sans-serif; --num-style: italic; --num-weight: 900;
   --font-head: "Noto Sans JP", "Hiragino Sans", sans-serif; --head-weight: 900;
   --font-body: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", system-ui, sans-serif;
-  --radius: 18px; --radius-ctl: 999px; --glow: none;
+  --radius: 18px; --radius-ctl: 999px; --radius-dlg: 24px; --glow: none;
   color-scheme: light;
 }
 :root[data-skin="clock"] {
@@ -58,7 +58,7 @@
   --font-num: "Share Tech Mono", ui-monospace, "SF Mono", monospace; --num-style: normal; --num-weight: 400;
   --font-head: "M PLUS 1p", "Hiragino Sans", sans-serif; --head-weight: 800;
   --font-body: "M PLUS 1p", "Hiragino Sans", "Yu Gothic", system-ui, sans-serif;
-  --radius: 10px; --radius-ctl: 10px; --glow: 0 0 10px rgba(255, 46, 46, .55);
+  --radius: 10px; --radius-ctl: 10px; --radius-dlg: 16px; --glow: 0 0 10px rgba(255, 46, 46, .55);
   color-scheme: dark;
 }
 
@@ -111,7 +111,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 /* テーマ選択 */
 .skin-dlg, .guide-dlg, .pick-dlg { border: 0; padding: 0; background: transparent; color: var(--ink); width: min(440px, calc(100% - 32px)); max-width: none; }
 .skin-dlg::backdrop, .guide-dlg::backdrop, .pick-dlg::backdrop { background: rgba(0, 0, 0, .6); }
-.skins { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; background: var(--surface); padding: 12px; border-radius: var(--radius); }
+.skins { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; background: var(--surface); padding: 12px; border-radius: var(--radius-dlg); }
 .skins-head { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; }
 .skins-head .icon-btn:hover { color: var(--ink); }
 .skin { border: 2px solid var(--line); border-radius: 10px; padding: 0; overflow: hidden; cursor: pointer; background: none; text-align: left; color: var(--ink); font: inherit; }
@@ -255,7 +255,7 @@ button { font-family: var(--font-body); }
 .ex-pick-n { font-size: 12px; font-weight: 700; color: var(--muted); }
 .ex-pick svg { width: 18px; height: 18px; flex: none; fill: none; stroke: var(--muted); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .pick-dlg:focus, .pick-dlg:focus-visible, .pick-body:focus, .pick-body:focus-visible { outline: none; }
-.pick-body { background: var(--surface); border-radius: var(--radius); padding: 12px 12px 16px; display: flex; flex-direction: column; gap: 4px; max-height: min(72vh, 600px); overflow-y: auto; }
+.pick-body { background: var(--surface); border-radius: var(--radius-dlg); padding: 12px 12px 16px; display: flex; flex-direction: column; gap: 4px; max-height: min(72vh, 600px); overflow-y: auto; }
 .pick-body h3 { margin: 10px 4px 2px; font-size: 12px; color: var(--muted); letter-spacing: .08em; }
 .pick-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; width: 100%; padding: 12px; border: 0; border-radius: min(var(--radius-ctl), 10px); background: transparent; color: var(--ink); font: 700 15px var(--font-body); text-align: left; cursor: pointer; }
 .pick-row:hover { background: var(--field); }
@@ -349,12 +349,12 @@ body.rest-on { padding-top: var(--rest-h); }
 /* 確認ダイアログ */
 .confirm-dlg { border: 0; padding: 0; background: transparent; color: var(--ink); width: min(340px, calc(100% - 32px)); max-width: none; }
 .confirm-dlg::backdrop { background: rgba(0, 0, 0, .6); }
-.confirm-body { margin: 0; background: var(--surface); border-radius: var(--radius); padding: 20px; display: flex; flex-direction: column; gap: 8px; }
+.confirm-body { margin: 0; background: var(--surface); border-radius: var(--radius-dlg); padding: 20px; display: flex; flex-direction: column; gap: 8px; }
 .confirm-body h3 { margin: 0; font-size: 17px; }
 .confirm-body p { margin: 0; font-size: 13px; color: var(--muted); }
 .confirm-actions { display: flex; gap: 8px; margin-top: 12px; }
 .confirm-actions .btn { flex: 1; padding: 12px 6px; white-space: nowrap; }
-.guide-body { background: var(--surface); border-radius: var(--radius); padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.guide-body { background: var(--surface); border-radius: var(--radius-dlg); padding: 16px; display: flex; flex-direction: column; gap: 10px; }
 .guide-body h3 { margin: 0; font-family: var(--font-head); font-weight: var(--head-weight); font-size: 21px; line-height: 1.3; }
 .guide-body h2 { margin-top: 6px; }
 .poses { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
