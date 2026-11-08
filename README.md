@@ -8,10 +8,13 @@
 - `sw.js` がアプリ本体をキャッシュするのでオフラインでも開ける。ファイルを変えたら `sw.js` の `VERSION` を上げる
 - アイコンは `icons/` の PNG
 
-## iOS 版（SwiftUI・移植中）
+## iOS 版（SwiftUI）
 
-`ios/` にある。仕様は `docs/spec.md`（Web 版の書き起こし）。
+`ios/` にある。Web 版と同じ操作・同じ文言で、全タブを移植済み。仕様は `docs/spec.md`、App Store への出し方は `docs/app-store.md`。
 
 - プロジェクトは `ios/project.yml` から XcodeGen で作る：`cd ios && xcodegen generate`
 - テスト：`xcodebuild test -project ios/LiftLog.xcodeproj -scheme LiftLog -destination 'platform=iOS Simulator,name=iPhone 17'`
-- 保存は SwiftData。Web 版のバックアップ（JSON）を履歴タブから読み込める
+- 保存は SwiftData（記録・ルーティン・体重・写真）と UserDefaults（下書き・設定。キーは Web 版と同じ）。Web 版のバックアップ（JSON）を履歴タブから読み書きできる
+- 種目・筋肉・ガイドの図は `ios/LiftLog/Resources/guide.json`。`index.html` の種目やガイドを変えたら `node ios/scripts/export-guide.mjs` で作り直す
+- アプリアイコンは `swift ios/scripts/make-icon.swift ios/LiftLog/Assets.xcassets/AppIcon.appiconset/icon-1024.png` で描き直せる
+- `privacy.html` は App Store に載せるプライバシーポリシー（GitHub Pages で公開する）

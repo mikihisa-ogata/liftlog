@@ -86,11 +86,67 @@ struct ExerciseSettings: Codable, Equatable, Sendable {
   }
 }
 
+/// 体の写真。JPEG（長辺1080px）をそのまま持つ。バックアップには含めない
+@Model
+final class Photo {
+  @Attribute(.unique) var id: String
+  var date: String
+  var memo: String
+  @Attribute(.externalStorage) var jpeg: Data
+  /// エポックミリ秒
+  var createdAt: Double
+  var isExample: Bool
+
+  init(id: String, date: String, memo: String, jpeg: Data, createdAt: Double, isExample: Bool = false) {
+    self.id = id
+    self.date = date
+    self.memo = memo
+    self.jpeg = jpeg
+    self.createdAt = createdAt
+    self.isExample = isExample
+  }
+}
+
+/// 記録タブで入力中の内容（下書き）。重量・回数は入力欄の文字のまま持つ
+struct Draft: Codable, Equatable {
+  struct SetRow: Codable, Equatable, Identifiable {
+    var id = UUID()
+    var w: String
+    var r: String
+    /// 「済」チェック。入力中の目印で、保存する中身には影響しない
+    var done = false
+  }
+  struct Exercise: Codable, Equatable, Identifiable {
+    var id = UUID()
+    var name: String
+    var sets: [SetRow]
+    var closed = false
+  }
+  /// 編集中の記録の id。新規は nil
+  var id: String?
+  var date: String
+  var exercises: [Exercise] = []
+  var memo = ""
+
+  static func blank(_ today: String) -> Draft { Draft(id: nil, date: today) }
+
+  var isEmpty: Bool { id == nil && exercises.isEmpty && memo.isEmpty }
+}
+
+/// 新しい id。Web 版と同じ "接頭辞-base36時刻+乱数4文字"
+enum NewId {
+  static func make(_ prefix: String, now: Date = .now) -> String {
+    let ms = Int64(now.timeIntervalSince1970 * 1000)
+    let rand = (0..<4).map { _ in String("0123456789abcdefghijklmnopqrstuvwxyz".randomElement()!) }.joined()
+    return prefix + "-" + String(ms, radix: 36) + rand
+  }
+}
+
 extension Workout {
   /// 記録の並び順：日付の新しい順 → 作成時刻の新しい順
   static let newestFirst = [SortDescriptor(\Workout.date, order: .reverse), SortDescriptor(\Workout.createdAt, order: .reverse)]
 }
 
 enum LiftLogSchema {
-  static let models: [any PersistentModel.Type] = [Workout.self, Routine.self, BodyWeight.self]
+  static let models: [any PersistentModel.Type] = [Workout.self, Routine.self, BodyWeight.self, Photo.self]
 }
