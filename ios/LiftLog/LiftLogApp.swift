@@ -4,7 +4,7 @@ import UserNotifications
 
 @main
 struct LiftLogApp: App {
-  @State private var app = AppState()
+  @State private var app = AppState.shared
   private let container: ModelContainer
   private let notifications = NotificationDelegate()
 
@@ -67,6 +67,7 @@ struct RootView: View {
     .onAppear {
       app.resumeRest()
       app.checkRest()
+      app.activityChanged()
       syncIdle()
     }
     .onChange(of: phase) { _, ph in
@@ -74,6 +75,8 @@ struct RootView: View {
       if ph == .active {
         app.checkRest()
         app.freshDraftDate()
+        // ライブアクティビティを新しく出せるのは前面にいるときだけなので、戻るたびに合わせ直す
+        app.activityChanged()
       }
       syncIdle()
     }

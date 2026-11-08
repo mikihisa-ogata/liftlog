@@ -11,8 +11,8 @@ settings:
     # App Store に出すたびに MARKETING_VERSION（表示する版）か CURRENT_PROJECT_VERSION（ビルド番号）を上げる
     MARKETING_VERSION: "1.0.0"
     CURRENT_PROJECT_VERSION: "1"
-    # 署名は Apple Developer Program のチーム ID を入れる（Xcode の Signing & Capabilities で選んでもよい）
-    DEVELOPMENT_TEAM: ""
+    # 署名に使う Apple Developer Program のチーム ID（アプリとウィジェットで共通）
+    DEVELOPMENT_TEAM: 2C4JPU3VG6
     CODE_SIGN_STYLE: Automatic
 targets:
   LiftLog:
@@ -20,6 +20,9 @@ targets:
     platform: iOS
     sources:
       - path: LiftLog
+      - path: Shared
+    dependencies:
+      - target: LiftLogWidget
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: io.github.mikihisa-ogata.liftlog
@@ -35,7 +38,33 @@ targets:
         INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: NO
         INFOPLIST_KEY_NSCameraUsageDescription: 体の変化を見比べる写真を撮るために使います。写真はこの端末の中だけに保存されます。
         INFOPLIST_KEY_CFBundleDevelopmentRegion: ja
+        INFOPLIST_KEY_NSSupportsLiveActivities: YES
         SWIFT_EMIT_LOC_STRINGS: NO
+  # ロック画面・Dynamic Island のライブアクティビティ。ボタンの処理はアプリ側で動く（Shared/WorkoutActivity.swift）
+  LiftLogWidget:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: LiftLogWidget
+      - path: Shared
+    info:
+      path: LiftLogWidget/Info.plist
+      properties:
+        CFBundleDisplayName: リフトログ
+        # アプリ本体と同じ版にしないと App Store に出せない
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.mikihisa-ogata.liftlog.widget
+        PRODUCT_NAME: LiftLogWidget
+        TARGETED_DEVICE_FAMILY: "1"
+        GENERATE_INFOPLIST_FILE: YES
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) WIDGET_EXTENSION
+        SWIFT_EMIT_LOC_STRINGS: NO
+        SKIP_INSTALL: YES
   LiftLogTests:
     type: bundle.unit-test
     platform: iOS

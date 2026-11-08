@@ -39,6 +39,13 @@ struct RestState: Codable, Equatable {
 @Observable
 final class AppState {
   private let defaults: UserDefaults
+  /// アプリ本体とロック画面のボタンが共有する1つ。ライブアクティビティを出すのはこれだけ（テストで作るものは出さない）
+  static let shared: AppState = {
+    let a = AppState()
+    a.syncsActivity = true
+    return a
+  }()
+  private var syncsActivity = false
   /// テストでは時刻を差し替える
   var clock: () -> Date = { .now }
 
@@ -71,7 +78,7 @@ final class AppState {
   // MARK: 設定
 
   var tab: AppTab { didSet { defaults.set(tab.rawValue, forKey: "liftlog.tab") } }
-  var skin: Skin { didSet { defaults.set(skin.rawValue, forKey: "liftlog.skin") } }
+  var skin: Skin { didSet { defaults.set(skin.rawValue, forKey: "liftlog.skin"); activityChanged() } }
   var metric: String { didSet { defaults.set(metric, forKey: "liftlog.metric") } }
   var historyDays: Int { didSet { defaults.set(historyDays, forKey: "liftlog.hp") } }
   var goal: Int { didSet { defaults.set(goal, forKey: "liftlog.goal") } }
@@ -119,7 +126,12 @@ final class AppState {
 
   // MARK: 下書き
 
-  var draft: Draft { didSet { store(draft, "liftlog.draft") } }
+  var draft: Draft { didSet { store(draft, "liftlog.draft"); activityChanged() } }
+
+  /// ロック画面のライブアクティビティを今の下書き・休憩に合わせる
+  func activityChanged() {
+    if syncsActivity { LiveWorkout.schedule(self) }
+  }
 
   /// 何も入っていない下書きは、日をまたいで開いたら日付を今日に戻す
   @discardableResult
@@ -260,7 +272,7 @@ final class AppState {
 
   static let restSecs = [60, 90, 120, 180]
   var restSec: Int { didSet { defaults.set(restSec, forKey: "liftlog.restSec") } }
-  var rest: RestState? { didSet { store(rest, "liftlog.rest") } }
+  var rest: RestState? { didSet { store(rest, "liftlog.rest"); activityChanged() } }
   /// アプリが前面にあるか（裏に回っている間は鳴らさない）
   var isActive = true
   private var restTask: Task<Void, Never>?

@@ -201,4 +201,47 @@ final class DraftTests: XCTestCase {
     XCTAssertNil(app.rest)
     XCTAssertEqual(app.toastText, "休憩は終わっています")
   }
+
+  func testLiveActivityNextSet() {
+    func ex(_ name: String, _ done: [Bool]) -> Draft.Exercise {
+      .init(name: name, sets: done.map { Draft.SetRow(w: "60", r: "10", done: $0) })
+    }
+    // 何も済でなければ先頭
+    var d = Draft(id: nil, date: "2026-11-08", exercises: [ex("ベンチプレス", [false, false]), ex("懸垂", [false])])
+    XCTAssertEqual(LiveWorkout.nextSet(d).map { [$0.ex, $0.set] }, [0, 0])
+    // 最後に済にしたセットの次（2種目目から始めたら、その続き）
+    d.exercises[1].sets[0].done = true
+    d.exercises[1].sets.append(.init(w: "", r: "8"))
+    XCTAssertEqual(LiveWorkout.nextSet(d).map { [$0.ex, $0.set] }, [1, 1])
+    // 後ろが全部済なら先頭に戻って探す
+    d.exercises[1].sets[1].done = true
+    XCTAssertEqual(LiveWorkout.nextSet(d).map { [$0.ex, $0.set] }, [0, 0])
+    d.exercises[0].sets[0].done = true
+    d.exercises[0].sets[1].done = true
+    XCTAssertNil(LiveWorkout.nextSet(d))
+  }
+
+  func testLiveActivityState() {
+    let app = AppState(defaults: defaults)
+    let t0 = Date.now
+    app.clock = { t0 }
+    // 今日の下書きにセットがなければ出さない
+    XCTAssertNil(LiveWorkout.state(app))
+    app.draft = Draft(id: nil, date: Day.today(t0), exercises: [.init(name: "スクワット", sets: [.init(w: "100", r: "5"), .init(w: "100", r: "5")])])
+    var s = LiveWorkout.state(app)
+    XCTAssertEqual(s?.next?.name, "スクワット")
+    XCTAssertEqual(s?.next?.number, 1)
+    XCTAssertEqual(s?.totalSets, 2)
+    XCTAssertNil(s?.restEnd)
+    // 済にすると次のセットへ進み、休憩が始まる
+    app.restSec = 90
+    app.toggleDone(app.draft.exercises[0].id, app.draft.exercises[0].sets[0].id)
+    s = LiveWorkout.state(app)
+    XCTAssertEqual(s?.next?.number, 2)
+    XCTAssertEqual(s?.doneSets, 1)
+    XCTAssertEqual(s?.restEnd, t0.addingTimeInterval(90))
+    // 昨日の下書きは出さない
+    app.draft.date = "2020-01-01"
+    XCTAssertNil(LiveWorkout.state(app))
+  }
 }
