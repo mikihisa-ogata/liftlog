@@ -297,7 +297,8 @@ private struct ExerciseCard: View {
         }
         Spacer()
         if open {
-          Button { app.draft.exercises.removeAll { $0.id == ex.id } } label: {
+          // ex は draft を指すバインディング。draft を書き換えている最中に ex を読むと同時アクセスで落ちるので、id を先に取り出す
+          Button { let id = ex.id; app.draft.exercises.removeAll { $0.id == id } } label: {
             Image(systemName: "xmark").font(.body.bold()).foregroundStyle(p.c(p.muted)).frame(width: 36, height: 36)
           }
           .accessibilityLabel("\(ex.name)を外す")
@@ -345,7 +346,7 @@ private struct ExerciseCard: View {
               .buttonStyle(.plain)
               .accessibilityLabel("\(j + 1)セット目を終えた")
               .accessibilityAddTraits(s.done ? .isSelected : [])
-              Button { ex.sets.removeAll { $0.id == s.id } } label: {
+              Button { let id = s.id; ex.sets.removeAll { $0.id == id } } label: {
                 Image(systemName: "trash").foregroundStyle(p.c(p.muted)).frame(width: 32, height: 36)
               }
               .buttonStyle(.plain)
