@@ -112,7 +112,9 @@ struct BodyView: View {
           Spacer()
           Text(Day.long(ph.date)).font(.caption2).foregroundStyle(p.c(p.muted))
         }
-        PhotoImage(data: ph.jpeg, thumb: 600).aspectRatio(3 / 4, contentMode: .fit).clipShape(RoundedRectangle(cornerRadius: 8))
+        Color.clear.aspectRatio(3 / 4, contentMode: .fit)
+          .overlay { PhotoImage(data: ph.jpeg, thumb: 600, fill: true) }
+          .clipShape(RoundedRectangle(cornerRadius: 8))
         if let w = weight(ph) { (Text(Fmt.w(w)).font(skin.num(18)) + Text(" kg").font(.caption)) }
       }
       .frame(maxWidth: .infinity)
@@ -129,7 +131,8 @@ struct BodyView: View {
     let p = skin.palette
     let sel = selected.contains(ph.id)
     return VStack(alignment: .leading, spacing: 6) {
-      PhotoImage(data: ph.jpeg, thumb: 400).aspectRatio(3 / 4, contentMode: .fill).frame(maxWidth: .infinity).clipped()
+      Color.clear.aspectRatio(3 / 4, contentMode: .fit)
+        .overlay { PhotoImage(data: ph.jpeg, thumb: 400, fill: true) }
         .clipShape(RoundedRectangle(cornerRadius: 6))
       HStack(spacing: 4) {
         Text(Day.long(ph.date)).font(.caption.bold()).lineLimit(1).minimumScaleFactor(0.7)
@@ -187,7 +190,7 @@ private struct NewPhotoSheet: View {
   var body: some View {
     let p = skin.palette
     SheetFrame(title: "写真を保存") {
-      PhotoImage(data: jpeg, thumb: 800).aspectRatio(contentMode: .fit).frame(maxHeight: 320).frame(maxWidth: .infinity)
+      PhotoImage(data: jpeg, thumb: 800).frame(maxHeight: 320).frame(maxWidth: .infinity)
       HStack {
         Text("日付").font(.caption.bold()).foregroundStyle(p.c(p.muted))
         Spacer()
@@ -234,19 +237,31 @@ private struct NewPhotoSheet: View {
   }
 }
 
-/// JPEG を縮小して表示する（一覧で大きな画像をそのまま描かないように）
+/// JPEG を縮小して表示する（一覧で大きな画像をそのまま描かないように）。
+/// 縦横比は元の写真のまま。fill のときは枠いっぱいに広げてはみ出しを切る（枠は呼び出し側で決める）
 struct PhotoImage: View {
   var data: Data
   var thumb: CGFloat
+  var fill = false
   @State private var image: UIImage?
 
   var body: some View {
     Group {
-      if let image { Image(uiImage: image).resizable() } else { Color.gray.opacity(0.2) }
+      if let image {
+        Image(uiImage: image).resizable().aspectRatio(contentMode: fill ? .fill : .fit)
+      } else {
+        Color.gray.opacity(0.2)
+      }
     }
     .task(id: data.count) {
       let d = data, size = thumb
-      image = await Task.detached { UIImage(data: d)?.preparingThumbnail(of: CGSize(width: size, height: size * 4 / 3)) ?? UIImage(data: d) }.value
+      image = await Task.detached { () -> UIImage? in
+        guard let img = UIImage(data: d) else { return nil }
+        // preparingThumbnail は指定サイズに合わせて伸縮するので、元の縦横比を保ったサイズを渡す
+        let k = min(1, size / max(img.size.width, img.size.height) * 4 / 3)
+        let to = CGSize(width: (img.size.width * k).rounded(), height: (img.size.height * k).rounded())
+        return img.preparingThumbnail(of: to) ?? img
+      }.value
     }
     .accessibilityHidden(true)
   }
