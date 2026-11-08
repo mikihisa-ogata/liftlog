@@ -42,7 +42,7 @@ struct RootView: View {
       Tab("記録", systemImage: "square.and.pencil", value: AppTab.log) { tab(LogView(), .log) }
       Tab("履歴", systemImage: "calendar", value: AppTab.history) { tab(HistoryView(), .history) }
       Tab("推移", systemImage: "chart.line.uptrend.xyaxis", value: AppTab.progress) { tab(TrendView(), .progress) }
-      Tab("体", systemImage: "camera", value: AppTab.body) { tab(BodyView(), .body) }
+      Tab("写真", systemImage: "camera", value: AppTab.body) { tab(BodyView(), .body) }
       Tab("ガイド", systemImage: "book", value: AppTab.guide) { tab(GuideView(), .guide) }
     }
     .tint(p.c(p.accent))

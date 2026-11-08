@@ -2,7 +2,7 @@ import PhotosUI
 import SwiftData
 import SwiftUI
 
-// 体タブ（docs/spec.md 2.9）。写真は端末の中（SwiftData）だけに保存する
+// 写真タブ（docs/spec.md 2.9）。写真は端末の中（SwiftData）だけに保存する
 
 struct BodyView: View {
   @Environment(AppState.self) private var app
